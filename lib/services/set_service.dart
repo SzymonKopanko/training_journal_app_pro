@@ -115,10 +115,14 @@ class SetService {
   }
 
   //UPDATE
-  Future<Set> updateSet(Set set) async {
+  Future<void> updateSet(Set set) async {
     final db = await _instance.database;
-    final id = await db.update(sets, set.toJson());
-    return set.copy(id: id);
+    await db.update(
+        sets,
+        set.toJson(),
+        where: '${SetFields.id} = ?',
+        whereArgs: [set.id],
+    );
   }
 
   //DELETE

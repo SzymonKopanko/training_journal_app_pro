@@ -74,10 +74,14 @@ class EntryService {
   }
 
   //UPDATE
-  Future<Entry> updateEntry(Entry entry) async {
+  Future<void> updateEntry(Entry entry) async {
     final db = await _instance.database;
-    final id = await db.update(entries, entry.toJson());
-    return entry.copy(id: id);
+    await db.update(
+        entries,
+        entry.toJson(),
+        where: '${EntryFields.id} = ?',
+        whereArgs: [entry.id],
+    );
   }
 
   //DELETE

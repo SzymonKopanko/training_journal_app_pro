@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 import '../models/entry.dart';
 import '../models/set.dart';
@@ -26,42 +27,35 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
   ];
   final List<TextEditingController> _rirControllers = [TextEditingController()];
   final _scrollController = ScrollController();
-
-  late List<int> _reps;
-  late List<double> _weights;
-  late List<int> _rirs;
-  late List<int> _setIDs;
-  late DateTime _selectedDateTime;
-  late String exerciseName;
-  late int exerciseId;
-  late double entryMainWeight;
+  List<Set> _sets = [];
+  Entry? _entry;
+  DateTime _selectedDateTime = DateTime(2000);
+  String exerciseName = '';
+  int exerciseId = -1;
+  double entryMainWeight = -1.0;
 
   @override
   void initState() {
-    super.initState();
     _loadData();
+    super.initState();
   }
 
   Future<void> _loadData() async {
     final instance = JournalDatabase.instance;
     final entry = await EntryService(instance).readEntryById(widget.entryId);
-    final exercise =
-        await ExerciseService(instance).readExerciseById(entry.exerciseId);
-    exerciseName = exercise.name;
-    exerciseId = exercise.id!;
-    _selectedDateTime = entry.date;
-    entryMainWeight = entry.mainWeight;
+    final exercise = await ExerciseService(instance).readExerciseById(entry.exerciseId);
     final sets = await SetService(instance).readAllSetsByEntry(entry);
-
     setState(() {
-      for (int i = 0; i < sets.length; i++) {
+      _entry = entry;
+      exerciseName = exercise.name;
+      exerciseId = exercise.id!;
+      _selectedDateTime = entry.date;
+      entryMainWeight = entry.mainWeight;
+      _sets = sets;
+      for (int i = 1; i < sets.length; i++) {
         _repsControllers.add(TextEditingController());
         _weightsControllers.add(TextEditingController());
         _rirControllers.add(TextEditingController());
-        _reps.add(sets[i].reps);
-        _weights.add(sets[i].weight);
-        _rirs.add(sets[i].rir);
-        _setIDs.add(sets[i].id!);
       }
     });
   }
@@ -110,7 +104,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
             context, 'Too many reps value in set ${index + 1}.');
         return false;
       }
-      if (repsState == 0 && index >= _reps.length) {
+      if (repsState == 0 && index >= _sets.length) {
         _showValidationError(
             context,
             'Empty reps controller and no historical '
@@ -128,7 +122,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
             context, 'Too big weight value in set ${index + 1}.');
         return false;
       }
-      if ((weightState == 0 && index >= _reps.length)) {
+      if ((weightState == 0 && index >= _sets.length)) {
         _showValidationError(context,
             'Both last and current weight values in set ${index + 1} are empty.');
         return false;
@@ -169,7 +163,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
   }
 
   void _showDateTimeDialog(BuildContext context) async {
-    _selectedDateTime = DateTime.now();
+    _selectedDateTime = _entry!.date;
     DateTime? pickedDateTime = await showDatePicker(
       context: context,
       initialDate: _selectedDateTime,
@@ -202,12 +196,12 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
           );
         });
 
-        _saveEntryWithSets();
+        _updateEntryWithSets();
       }
     }
   }
 
-  void _saveEntryWithSets() async {
+  void _updateEntryWithSets() async {
     final instance = JournalDatabase.instance;
     final updatedEntry = Entry(
         id: widget.entryId,
@@ -215,27 +209,27 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
         exerciseId: exerciseId,
         mainWeight: entryMainWeight);
     await EntryService(instance).updateEntry(updatedEntry).then((updatedEntry) {
-      _saveSets(instance);
+      _updateSets(instance);
       Navigator.pop(context);
     });
   }
 
-  Future<void> _saveSets(instance) async {
+  Future<void> _updateSets(instance) async {
     for (int i = 0; i < _weightsControllers.length; i++) {
       double weight = _weightsControllers[i].text.isNotEmpty
           ? double.parse(_weightsControllers[i].text)
-          : _weights[i];
+          : _sets[i].weight;
       int reps = _repsControllers[i].text.isNotEmpty
           ? int.parse(_repsControllers[i].text)
-          : _reps[i];
+          : _sets[i].reps;
       int rir = _rirControllers[i].text.isNotEmpty
           ? int.parse(_rirControllers[i].text)
-          : _rirs[i];
+          : _sets[i].rir;
       double oneRM = SetService(instance).calculateOneRM(weight, reps);
       Set set = Set(
-        id: _setIDs[i],
-        entryId: widget.entryId,
-        exerciseId: exerciseId,
+        id: _sets[i].id,
+        entryId: _sets[i].entryId,
+        exerciseId: _sets[i].exerciseId,
         weight: weight,
         reps: reps,
         rir: rir,
@@ -250,7 +244,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Entry'),
+        title:  Text('Edit \'$exerciseName\' Entry'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -258,16 +252,24 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(
-                    '$exerciseName , $_selectedDateTime',
+             child: Text(
+                    'Date: ${DateFormat('yyyy-MM-dd HH:mm').format(_selectedDateTime)}',
                     style:
-                        const TextStyle(color: Colors.black, fontSize: 20.0),
+                        const TextStyle(color: Colors.black54, fontSize: 20.0),
                   ),
-                ),
-              ),
+            ),
+            const SizedBox(height: 16.0),
+            const Center(
+                child: Row(
+                    children: [
+                      SizedBox(width: 60.0),
+                      Expanded(child: Text("Reps")),
+                      SizedBox(width: 35.0),
+                      Expanded(child: Text("Weight")),
+                      SizedBox(width: 55.0),
+                      Expanded(child: Text("RIR")),
+                      SizedBox(width: 50.0)
+                    ])
             ),
             Expanded(
               child: Scrollbar(
@@ -282,40 +284,49 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                     final weightsController = _weightsControllers[index];
                     final rirController = _rirControllers[index];
 
-                    final repsHelperText = (index < _reps.length)
-                        ? 'Historical: ${_reps[index]}'
+                    final repsHelperText = (index < _sets.length)
+                        ? 'Past: ${_sets[index].reps}'
                         : null;
 
-                    final weightsHelperText = (index < _reps.length)
-                        ? 'Historical: ${_weights[index]}'
+                    final weightsHelperText = (index < _sets.length)
+                        ? 'Past: ${_sets[index].weight}'
                         : null;
 
-                    final rirHelperText = (index < _reps.length)
-                        ? (_rirs[index] > -1
-                            ? 'Historical: ${_rirs[index]}'
+                    final rirHelperText = (index < _sets.length)
+                        ? (_sets[index].rir > -1
+                            ? 'Past: ${_sets[index].rir}'
                             : '?')
                         : null;
 
-                    final repsHintText = (index < _reps.length)
-                        ? '${_reps[index]}'
-                        : 'Enter reps';
+                    final repsHintText = (index < _sets.length)
+                        ? '${_sets[index].reps}'
+                        : 'Reps';
 
-                    final weightsHintText = (index < _reps.length)
-                        ? '${_weights[index]}'
-                        : 'Enter weight';
+                    final weightsHintText = (index < _sets.length)
+                        ? '${_sets[index].weight}'
+                        : 'Weight';
 
-                    final rirHintText = (index < _reps.length)
-                        ? (_rirs[index] > -1 ? '${_rirs[index]}' : '?')
-                        : 'Enter RIR';
+                    final rirHintText = (index < _sets.length)
+                        ? (_sets[index].rir > -1 ? '${_sets[index].rir}' : '?')
+                        : 'RIR';
 
                     return Row(
                       children: [
+                        Text('${index + 1}.',
+                          style: const TextStyle(
+                              fontSize: 20.0
+                          ),
+                        ),
+                        if(index < 9)
+                          const SizedBox(width: 16.0),
+                        if(index >= 9)
+                          const SizedBox(width: 5.0),
                         Expanded(
                           child: TextFormField(
                             controller: repsController,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
-                              labelText: 'Reps ${index + 1}',
+                              //labelText: 'Reps ${index + 1}',
                               hintText: repsHintText,
                               helperText: repsHelperText,
                             ),
@@ -326,7 +337,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                             controller: weightsController,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
-                              labelText: 'Weight ${index + 1}',
+                              //labelText: 'Weight ${index + 1}',
                               hintText: weightsHintText,
                               helperText: weightsHelperText,
                             ),
@@ -337,7 +348,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                             controller: rirController,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
-                              labelText: 'RIR ${index + 1}',
+                              //labelText: 'RIR ${index + 1}',
                               hintText: rirHintText,
                               helperText: rirHelperText,
                             ),
@@ -365,7 +376,14 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    _handleSaveButtonPressed(context);
+                    if (_repsControllers.isEmpty) {
+                      _showValidationError(
+                        context,
+                        'Add some sets, what are you trying to save?',
+                      );
+                    } else{
+                      _handleSaveButtonPressed(context);
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
