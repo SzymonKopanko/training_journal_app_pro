@@ -32,22 +32,13 @@ class _ShowEntriesState extends State<ShowEntries> {
     final entries = await EntryService(instance).readAllEntries();
     final exercises = await ExerciseService(instance).readAllExercises();
     if (entries != null && exercises != null) {
+      final setsList = await Future.wait(entries.map((entry) =>
+          SetService(instance).readAllSetsByEntry(entry)
+      ));
       setState(() {
         _allEntries = entries;
         _allExercises = exercises;
-        _allSets = List.generate(entries.length, (index) => <Set>[]);
-        _loadSetsForEntries();
-      });
-    }
-  }
-
-  Future<void> _loadSetsForEntries() async {
-    final instance = JournalDatabase.instance;
-    for (int i = 0; i < _allEntries.length; i++) {
-      final entry = _allEntries[i];
-      final sets = await SetService(instance).readAllSetsByEntry(entry);
-      setState(() {
-        _allSets[i] = sets;
+        _allSets = setsList;
       });
     }
   }
@@ -176,7 +167,9 @@ class _ShowEntriesState extends State<ShowEntries> {
                               children: [
                                 Expanded(
                                   child: ElevatedButton(
-                                    onPressed: () {
+                                    onPressed: ()  {
+                                      debugPrint('gówno rir decline abs 4= ${_allSets[index][4].rir}');
+                                      debugPrint("jestem tutaj _loadzik");
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(

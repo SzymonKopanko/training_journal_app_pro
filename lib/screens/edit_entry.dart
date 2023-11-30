@@ -172,8 +172,10 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            primaryColor: Colors.green,
-            hintColor: Colors.green,
+            primaryColor: Colors.green, // Kolor główny dla widgetów Material
+            hintColor: Colors.green, // Kolor akcentu, na przykład dla guzików
+            colorScheme: ColorScheme.light(primary: Colors.black),
+            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
           ),
           child: child!,
         );
@@ -201,14 +203,14 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
     }
   }
 
-  void _updateEntryWithSets() async {
+  Future<void> _updateEntryWithSets() async {
     final instance = JournalDatabase.instance;
     final updatedEntry = Entry(
         id: widget.entryId,
         date: _selectedDateTime,
         exerciseId: exerciseId,
         mainWeight: entryMainWeight);
-    await EntryService(instance).updateEntry(updatedEntry).then((updatedEntry) {
+    await EntryService(instance).updateEntry(updatedEntry).then((updatedEntry) async {
       _updateSets(instance);
       Navigator.pop(context);
     });
@@ -332,6 +334,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 16.0),
                         Expanded(
                           child: TextFormField(
                             controller: weightsController,
@@ -343,6 +346,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 16.0),
                         Expanded(
                           child: TextFormField(
                             controller: rirController,

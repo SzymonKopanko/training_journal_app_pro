@@ -256,7 +256,10 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            primaryColor: Colors.green,
+            primaryColor: Colors.green, // Kolor główny dla widgetów Material
+            hintColor: Colors.green, // Kolor akcentu, na przykład dla guzików
+            colorScheme: ColorScheme.light(primary: Colors.black),
+            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
           ),
           child: child!,
         );
@@ -506,7 +509,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 20.0),
+                        const SizedBox(width: 16.0),
                         Expanded(
                           child: TextFormField(
                             controller: rirController,
