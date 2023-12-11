@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 import '../models/entry.dart';
 import '../models/set.dart';
@@ -7,15 +8,15 @@ import '../services/set_service.dart';
 import '../services/entry_service.dart';
 import '../services/exercise_service.dart';
 
-class AddEntryScreen extends StatefulWidget {
-  const AddEntryScreen({super.key});
+class AddSpecifiedEntryScreen extends StatefulWidget {
+  final Exercise chosenExercise;
+  const AddSpecifiedEntryScreen({super.key, required this.chosenExercise});
 
   @override
-  _AddEntryScreenState createState() => _AddEntryScreenState();
+  _AddSpecifiedEntryScreenState createState() => _AddSpecifiedEntryScreenState();
 }
 
-class _AddEntryScreenState extends State<AddEntryScreen> {
-  final TextEditingController _exerciseNameController = TextEditingController();
+class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
   final TextEditingController _mainWeightController = TextEditingController();
   final List<TextEditingController> _weightsControllers = [
     TextEditingController()
@@ -25,38 +26,29 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   ];
   final List<TextEditingController> _rirControllers = [TextEditingController()];
   final _scrollController = ScrollController();
-  List<String> exerciseNames = [];
-  String? selectedExerciseName;
   int numberOfLastEntry = 0;
   List<Entry> _lastEntries = [];
   double _lastEntryMainWeight = 0;
   List<int> _lastEntryRepetitions = [];
   List<double> _lastEntryWeights = [];
   List<int> _lastEntryRIRs = [];
+  DateTime? _lastEntryDateTime;
   DateTime? _selectedDateTime;
   String weightsHintText = 'Weight';
+  String exerciseNotes = '';
 
   @override
   void initState() {
     super.initState();
-    _loadExerciseNames();
     _initializeControllers();
-    _printAllDataInDatabase();
+    //_printAllDataInDatabase();
   }
 
-  Future<void> _loadExerciseNames() async {
-    final instance = JournalDatabase.instance;
-    final exerciseList = await ExerciseService(instance).readAllExercises();
-    if (exerciseList != null) {
-      setState(() {
-        exerciseNames = exerciseList.map((exercise) => exercise.name).toList();
-      });
-    }
-  }
 
   Future<void> _printAllDataInDatabase() async {
     final instance = JournalDatabase.instance;
     final allExercises = await ExerciseService(instance).readAllExercises();
+    // final allEntries = await EntryService(instance).readAllEntries();
     final allSets = await SetService(instance).readAllSets();
     for (final set in allSets!) {
       final entry = await EntryService(instance).readEntryByIdDebug(set.entryId);
@@ -88,12 +80,12 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     for (final exercise in allExercises!) {
       debugPrint(exercise.toString());
       final exerciseEntries =
-          await EntryService(instance).readAllEntriesByExercise(exercise);
+      await EntryService(instance).readAllEntriesByExercise(exercise);
       if (exerciseEntries != null) {
         for (final entry in exerciseEntries) {
           debugPrint(entry.toString());
           final entrySets =
-              await SetService(instance).readAllSetsByEntry(entry);
+          await SetService(instance).readAllSetsByEntry(entry);
           for (final set in entrySets) {
             debugPrint(set.toString());
           }
@@ -106,32 +98,17 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
 
   void _initializeControllers() async {
     final instance = JournalDatabase.instance;
-    numberOfLastEntry = 0;
-    _lastEntries = [];
-    _lastEntryMainWeight = 0;
-    _lastEntryRepetitions = [];
-    _lastEntryWeights = [];
-    _lastEntryRIRs = [];
-    _repsControllers.clear();
-    _weightsControllers.clear();
-    _rirControllers.clear();
-    _repsControllers.add(TextEditingController());
-    _weightsControllers.add(TextEditingController());
-    _rirControllers.add(TextEditingController());
-    if (selectedExerciseName != null) {
-      _lastEntries = await EntryService(instance).readLastEntriesByExercise(
-              await ExerciseService(instance)
-                  .readExerciseByName(selectedExerciseName!)) ??
-          [];
+    _lastEntries = await EntryService(instance).readLastEntriesByExercise(widget.chosenExercise) ?? [];
       if (_lastEntries.isNotEmpty) {
-        _lastEntryMainWeight = _lastEntries[numberOfLastEntry].mainWeight;
+        _lastEntryMainWeight = _lastEntries[0].mainWeight;
+        _lastEntryDateTime = _lastEntries[0].date;
         _mainWeightController.text = '';
         _lastEntryRepetitions = await SetService(instance)
-            .readListOfRepsFromSetsByEntry(_lastEntries[numberOfLastEntry]);
+            .readListOfRepsFromSetsByEntry(_lastEntries[0]);
         _lastEntryWeights = await SetService(instance)
-            .readListOfWeightsFromSetsByEntry(_lastEntries[numberOfLastEntry]);
+            .readListOfWeightsFromSetsByEntry(_lastEntries[0]);
         _lastEntryRIRs = await SetService(instance)
-            .readListOfRIRsFromSetsByEntry(_lastEntries[numberOfLastEntry]);
+            .readListOfRIRsFromSetsByEntry(_lastEntries[0]);
         setState(() {
           for (int i = 1; i < _lastEntryRepetitions.length; i++) {
             _repsControllers.add(TextEditingController());
@@ -140,29 +117,31 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
           }
         });
       }
-    }
   }
 
   void _updateControllersForLastEntryChange() async {
-    numberOfLastEntry = (numberOfLastEntry + 1) % _lastEntries.length;
-    final instance = JournalDatabase.instance;
-    _lastEntryMainWeight = _lastEntries[numberOfLastEntry].mainWeight;
-    _lastEntryRepetitions = await SetService(instance)
-        .readListOfRepsFromSetsByEntry(_lastEntries[numberOfLastEntry]);
-    _lastEntryWeights = await SetService(instance)
-        .readListOfWeightsFromSetsByEntry(_lastEntries[numberOfLastEntry]);
-    _lastEntryRIRs = await SetService(instance)
-        .readListOfRIRsFromSetsByEntry(_lastEntries[numberOfLastEntry]);
+    if(_lastEntries.length > 1) {
+      numberOfLastEntry = (numberOfLastEntry + 1) % _lastEntries.length;
+      final instance = JournalDatabase.instance;
+      _lastEntryMainWeight = _lastEntries[numberOfLastEntry].mainWeight;
+      _lastEntryDateTime = _lastEntries[numberOfLastEntry].date;
+      _lastEntryRepetitions = await SetService(instance)
+          .readListOfRepsFromSetsByEntry(_lastEntries[numberOfLastEntry]);
+      _lastEntryWeights = await SetService(instance)
+          .readListOfWeightsFromSetsByEntry(_lastEntries[numberOfLastEntry]);
+      _lastEntryRIRs = await SetService(instance)
+          .readListOfRIRsFromSetsByEntry(_lastEntries[numberOfLastEntry]);
 
-    setState(() {
-      for (int i = _repsControllers.length;
-          i < _lastEntryRepetitions.length;
-          i++) {
-        _repsControllers.add(TextEditingController());
-        _weightsControllers.add(TextEditingController());
-        _rirControllers.add(TextEditingController());
-      }
-    });
+      setState(() {
+        for (int i = _repsControllers.length;
+        i < _lastEntryRepetitions.length;
+        i++) {
+          _repsControllers.add(TextEditingController());
+          _weightsControllers.add(TextEditingController());
+          _rirControllers.add(TextEditingController());
+        }
+      });
+    }
   }
 
   int _weightControllerState(String controller) {
@@ -222,7 +201,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
         _showValidationError(
             context,
             'Empty reps controller and no historical '
-            'set available at set ${index + 1} in chosen historical entry.');
+                'set available at set ${index + 1} in chosen historical entry.');
         return false;
       }
 
@@ -254,34 +233,6 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     return true;
   }
 
-  bool _canSaveEntry() {
-    if (selectedExerciseName == null && _exerciseNameController.text.isEmpty) {
-      _showValidationError(
-          context,
-          'You have to choose a name for the exercise, or choose from'
-          ' the list of already created exercises, if you have any.');
-      return false;
-    }
-    if (_exerciseNameController.text.length > 25) {
-      _showValidationError(
-          context,
-          'Your exercise name is too long, please think of something'
-          ' shorter, max length is 25 characters.');
-      return false;
-    }
-    if (_exerciseNameController.text == 'New Exercise') {
-      _showValidationError(
-          context,
-          'Please enter a reasonable name for the exercise'
-          '(hint: not \'New Exercise\').');
-      return false;
-    }
-    if (!_areValueControllersValid()) {
-      return false;
-    }
-    return true;
-  }
-
   void _showValidationError(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -292,7 +243,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   }
 
   void _handleSaveButtonPressed(BuildContext context) {
-    if (_canSaveEntry()) {
+    if (_areValueControllersValid()) {
       _showDateTimeDialog(context);
     }
   }
@@ -301,6 +252,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     _selectedDateTime = DateTime.now();
     DateTime? pickedDateTime = await showDatePicker(
       context: context,
+      locale: const Locale('en', 'GB'),
       initialDate: _selectedDateTime!,
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
@@ -311,7 +263,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       //       hintColor: Colors.green, // Kolor akcentu, na przykład dla guzików
       //       colorScheme: const ColorScheme.light(primary: Colors.black),
       //       buttonTheme:
-      //           const ButtonThemeData(textTheme: ButtonTextTheme.primary),
+      //       const ButtonThemeData(textTheme: ButtonTextTheme.primary),
       //     ),
       //     child: child!,
       //   );
@@ -341,42 +293,18 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
 
   void _saveEntryWithSets() async {
     final instance = JournalDatabase.instance;
-    if (selectedExerciseName != null) {
-      Exercise exercise = await ExerciseService(instance)
-          .readExerciseByName(selectedExerciseName!);
+      Exercise exercise = widget.chosenExercise;
       final newEntry = Entry(
           date: _selectedDateTime!,
           exerciseId: exercise.id!,
-          mainWeight: double.tryParse(_mainWeightController.text) as double);
-      await EntryService(instance).createEntry(newEntry).then((newEntry) {
-        _saveSets(newEntry.id!, exercise.id!, instance);
+          mainWeight: _mainWeightController.text.isNotEmpty ?
+          double.parse(_mainWeightController.text) :
+          double.parse(_weightsControllers[0].text)
+      );
+      await EntryService(instance).createEntry(newEntry).then((newEntry) async {
+        await _saveSets(newEntry.id!, exercise.id!, instance);
         Navigator.pop(context);
       });
-    } else {
-      final exerciseName = _exerciseNameController.text;
-      Exercise newExercise = Exercise(
-          name: exerciseName,
-          date: _selectedDateTime!,
-          weight: 0.0,
-          reps: 0,
-          oneRM: 0.0,
-          notes: '');
-      await ExerciseService(instance)
-          .createExercise(newExercise)
-          .then((newExercise) async {
-        final newEntry = Entry(
-            date: _selectedDateTime!,
-            exerciseId: newExercise.id!,
-            mainWeight: _mainWeightController.text.isNotEmpty
-                ? double.parse(_mainWeightController.text)
-                : double.parse(_weightsControllers[0].text));
-
-        await EntryService(instance).createEntry(newEntry).then((newEntry) {
-          _saveSets(newEntry.id!, newExercise.id!, instance);
-          Navigator.pop(context);
-        });
-      });
-    }
   }
 
   Future<void> _saveSets(int entryId, int exerciseId, instance) async {
@@ -408,54 +336,19 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Entry'),
+        title: Text('Add \'${widget.chosenExercise.name}\' Entry'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (exerciseNames.isEmpty)
-              const Center(
-                child: Text(
-                  'Add some entries to choose from\n'
-                  'previously performed exercises.',
-                  style: TextStyle(color: Colors.black54),
-                ),
-              )
-            else
-              DropdownButtonFormField<String>(
-                value: selectedExerciseName,
-                onChanged: (value) {
-                  setState(() {
-                    selectedExerciseName = value;
-                    _exerciseNameController.text = value ?? '';
-                    _initializeControllers();
-                  });
-                },
-                items: [
-                  const DropdownMenuItem<String>(
-                    value: null,
-                    child: Text('New Exercise'),
-                  ),
-                  ...exerciseNames.map((exerciseName) {
-                    return DropdownMenuItem<String>(
-                      value: exerciseName,
-                      child: Text(exerciseName),
-                    );
-                  }),
-                ],
-                decoration:
-                    const InputDecoration(labelText: 'Select Exercise Name'),
-              ),
-            if (selectedExerciseName == null)
-              TextFormField(
-                controller: _exerciseNameController,
-                decoration: const InputDecoration(
-                  //labelText: 'Exercise Name',
-                  hintText: 'Enter name',
-                ),
-              ),
+            if(widget.chosenExercise.notes.isNotEmpty)
+             Text('Notes: ${widget.chosenExercise.notes}',
+             style: const TextStyle(
+               fontSize: 20.0,
+               fontWeight: FontWeight.bold,
+             ),),
             TextFormField(
               controller: _mainWeightController,
               keyboardType: TextInputType.number,
@@ -468,25 +361,25 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 });
               },
               decoration: InputDecoration(
-                //labelText: 'Default weight',
+                labelText: 'Default weight',
                 hintText: 'Enter default weight',
                 helperText:
-                    (selectedExerciseName != null && _lastEntryMainWeight > 0.0)
-                        ? 'Past: $_lastEntryMainWeight'
-                        : null,
+                (_lastEntryMainWeight > 0.0)
+                    ? 'Past: $_lastEntryMainWeight'
+                    : null,
               ),
             ),
             const SizedBox(height: 16.0),
             const Center(
                 child: Row(children: [
-              SizedBox(width: 60.0),
-              Expanded(child: Text("Reps")),
-              SizedBox(width: 35.0),
-              Expanded(child: Text("Weight")),
-              SizedBox(width: 55.0),
-              Expanded(child: Text("RIR")),
-              SizedBox(width: 50.0)
-            ])),
+                  SizedBox(width: 60.0),
+                  Expanded(child: Text("Reps")),
+                  SizedBox(width: 35.0),
+                  Expanded(child: Text("Weight")),
+                  SizedBox(width: 55.0),
+                  Expanded(child: Text("RIR")),
+                  SizedBox(width: 50.0)
+                ])),
             Expanded(
               child: Scrollbar(
                 thumbVisibility: true,
@@ -500,29 +393,25 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                     final weightsController = _weightsControllers[index];
                     final rirController = _rirControllers[index];
 
-                    final repsHelperText = (selectedExerciseName != null &&
-                            _lastEntryRepetitions.isNotEmpty &&
-                            index < _lastEntryRepetitions.length)
+                    final repsHelperText = (_lastEntryRepetitions.isNotEmpty &&
+                        index < _lastEntryRepetitions.length)
                         ? 'Past: ${_lastEntryRepetitions[index]}'
                         : null;
 
-                    final weightsHelperText = (selectedExerciseName != null &&
-                            _lastEntryWeights.isNotEmpty &&
-                            index < _lastEntryWeights.length)
+                    final weightsHelperText = (_lastEntryWeights.isNotEmpty &&
+                        index < _lastEntryWeights.length)
                         ? 'Past: ${_lastEntryWeights[index]}'
                         : null;
 
-                    final rirHelperText = (selectedExerciseName != null &&
-                            _lastEntryRIRs.isNotEmpty &&
-                            index < _lastEntryRIRs.length)
+                    final rirHelperText = (_lastEntryRIRs.isNotEmpty &&
+                        index < _lastEntryRIRs.length)
                         ? (_lastEntryRIRs[index] > -1
-                            ? 'Past: ${_lastEntryRIRs[index]}'
-                            : '?')
+                        ? 'Past: ${_lastEntryRIRs[index]}'
+                        : '?')
                         : null;
 
-                    final repsHintText = (selectedExerciseName != null &&
-                            _lastEntryRepetitions.isNotEmpty &&
-                            index < _lastEntryRepetitions.length)
+                    final repsHintText = (_lastEntryRepetitions.isNotEmpty &&
+                        index < _lastEntryRepetitions.length)
                         ? '${_lastEntryRepetitions[index]}'
                         : 'Reps';
 
@@ -586,6 +475,17 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
               ),
             ),
             const SizedBox(height: 16.0),
+            Visibility(
+              visible: _lastEntries.isNotEmpty,
+              child: Center(
+                child: _lastEntries.isNotEmpty ?
+                Text('Hint Date: ${DateFormat('EEEE, dd.MM.yyyy, HH:mm').format(_lastEntryDateTime!)}') : null,
+              ),
+            ),
+            Visibility(
+              visible: _lastEntries.isNotEmpty,
+              child: const SizedBox(height: 9.0),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -598,6 +498,9 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                       _handleSaveButtonPressed(context);
                     }
                   },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(3.0),
+                  ),
                   child: const Text('Save'),
                 ),
                 Visibility(
@@ -611,11 +514,8 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
                     ),
-                    child: _lastEntryRepetitions.isNotEmpty
-                        ? Text('Change Past Entry (${numberOfLastEntry + 1})')
-                        : null,
+                    child: Text('Change Past Entry Hint (${numberOfLastEntry + 1}.)')
                   ),
                 ),
                 IconButton(
@@ -624,7 +524,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                       _showValidationError(
                           context,
                           'Way too many sets, please finish this workout or'
-                          ' stop playing with the app.');
+                              ' stop playing with the app.');
                     } else {
                       setState(() {
                         _repsControllers.add(TextEditingController());
@@ -645,7 +545,6 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
 
   @override
   void dispose() {
-    _exerciseNameController.dispose();
     _mainWeightController.dispose();
     for (final controller in _weightsControllers) {
       controller.dispose();

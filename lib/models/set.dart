@@ -70,4 +70,17 @@ class Set {
     rir: json[SetFields.rir] as int,
     oneRM: json[SetFields.oneRM] as double,
   );
+
+  @override
+  String toString() {
+    return '\t\t\t\t\t\tSet{\n\t\t\t\t\t\t'
+        '  id: $id,\n\t\t\t\t\t\t'
+        '  entryId: $entryId,\n\t\t\t\t\t\t'
+        '  exerciseId: $exerciseId,\n\t\t\t\t\t\t'
+        '  weight: $weight,\n\t\t\t\t\t\t'
+        '  reps: $reps,\n\t\t\t\t\t\t'
+        '  rir: $rir,\n\t\t\t\t\t\t'
+        '  oneRM: $oneRM\n\t\t\t\t\t\t'
+        '}\n';
+  }
 }

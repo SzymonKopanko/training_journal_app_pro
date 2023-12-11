@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../models/entry.dart';
 import '../services/journal_database.dart';
 import '../models/exercise.dart';
@@ -42,6 +44,22 @@ class EntryService {
     }
   }
 
+  Future<Entry?> readEntryByIdDebug(int id) async {
+    final db = await _instance.database;
+    final result = await db.query(
+      entries,
+      columns: EntryFields.values,
+      where: '${EntryFields.id} = ?',
+      whereArgs: [id],
+    );
+    if (result.isNotEmpty) {
+      return Entry.fromJson(result.first);
+    } else {
+      debugPrint('Entry with ID $id not found');
+      return null;
+    }
+  }
+
   Future<List<Entry>?> readAllEntriesByExercise(Exercise exercise) async {
     final db = await _instance.database;
     final result = await db.query(
@@ -53,6 +71,7 @@ class EntryService {
     if (result.isNotEmpty) {
       return result.map((json) => Entry.fromJson(json)).toList();
     } else {
+      debugPrint('Entries NOT FOUND for ${exercise.toString()}');
       return null;
     }
   }
@@ -87,6 +106,9 @@ class EntryService {
   //DELETE
   Future<int> deleteEntry(int id) async {
     final db = await _instance.database;
+    await db.execute('''
+    PRAGMA foreign_keys = ON
+    ''');
     final rowsDeleted = await db.delete(
       entries,
       where: '${EntryFields.id} = ?',

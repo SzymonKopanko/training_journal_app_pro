@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:training_journal_app/screens/show_entries.dart';
-import 'package:training_journal_app/screens/show_exercises.dart';
-import 'package:training_journal_app/services/journal_database.dart';
-
-import 'add_entry.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'screens/show_exercises.dart';
+import 'services/journal_database.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,7 +11,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   static const MaterialColor customBlack = MaterialColor(0xFF000000, {
     50: Color(0xFFE0E0E0),
@@ -31,8 +29,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: customBlack,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate
+      ],
+      supportedLocales: const [
+        Locale('en', 'GB'),
+      ],
+      theme: ThemeData.from(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.green.shade900,
+          brightness: MediaQuery.platformBrightnessOf(context),
+        ),
       ),
       home: const MainScreen(),
     );
@@ -81,35 +90,17 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    JournalDatabase.instance.database;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training Journal Pro'),
       ),
+      resizeToAvoidBottomInset: false,
       body: Center(
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                      const AddEntryScreen(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  minimumSize: const Size(185.0, 80.0),
-                  padding: const EdgeInsets.all(16.0),
-                ),
-                child: const Text('Add Entry',
-                  style: TextStyle(fontSize: 25)
-                ),
-              ),
-              const SizedBox(width: 16.0),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -118,25 +109,6 @@ class MainScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      const SizedBox(height: 50.0),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ShowEntries()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(185.0, 80.0),
-                          padding: const EdgeInsets.all(16.0),
-                        ),
-                        child: const Text(
-                          'History',
-                          style: TextStyle(fontSize: 25),
-                        ),
-                      ),
-                      const SizedBox(height: 50.0),
                       ElevatedButton(
                         onPressed: () {
                           Navigator.push(
@@ -157,15 +129,14 @@ class MainScreen extends StatelessWidget {
                       const SizedBox(height: 50.0),
                       ElevatedButton(
                         onPressed: () {
-                          _showDeleteConfirmationDialog(context);
+                          //TODO
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(185.0, 80.0),
                           padding: const EdgeInsets.all(16.0),
-                          backgroundColor: Colors.red,
                         ),
                         child: const Text(
-                          'Delete All',
+                          'Weekly Plans',
                           style: TextStyle(fontSize: 25),
                         ),
                       ),
@@ -176,7 +147,6 @@ class MainScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      const SizedBox(height: 50.0),
                       ElevatedButton(
                         onPressed: () {
                           //TODO
@@ -200,21 +170,6 @@ class MainScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(16.0),
                         ),
                         child: const Text(
-                          'Weekly Plans',
-                          style: TextStyle(fontSize: 25),
-                        ),
-                      ),
-                      const SizedBox(height: 50.0),
-                      ElevatedButton(
-                        onPressed: () {
-                          //TODO
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(185.0, 80.0),
-                          padding: const EdgeInsets.all(16.0),
-                          backgroundColor: Colors.black,
-                        ),
-                        child: const Text(
                           'Body Entries',
                           style: TextStyle(fontSize: 25),
                         ),
@@ -224,9 +179,32 @@ class MainScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 50.0),
+              ElevatedButton(
+                onPressed: () {
+                  _showDeleteConfirmationDialog(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(185.0, 80.0),
+                  padding: const EdgeInsets.all(16.0),
+                  backgroundColor: MediaQuery.platformBrightnessOf(context) !=
+                          Brightness.light
+                      ? const Color.fromARGB(100, 70, 40, 46)
+                      : const Color.fromARGB(255, 252, 234, 234),
+                ),
+                child: Text(
+                  'Delete All',
+                  style: TextStyle(
+                    fontSize: 25,
+                    color: MediaQuery.platformBrightnessOf(context) !=
+                            Brightness.light
+                        ? const Color.fromARGB(255, 255, 146, 146)
+                        : const Color.fromARGB(255, 183, 0, 0),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 50.0),
               const Text(
                 'by Szymon Kopańko',
-                style: TextStyle(color: Colors.black54),
               )
             ]),
       ),

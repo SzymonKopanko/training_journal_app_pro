@@ -1,5 +1,6 @@
 import 'dart:io';
-import 'package:sqflite/sqflite.dart';
+import 'package:flutter/cupertino.dart';
+//import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import '../models/body_entry.dart';
@@ -37,8 +38,23 @@ class JournalDatabase {
     return await openDatabase(
       path,
       version: 1,
+      // onConfigure: _configureDB,
       onCreate: _createDB,
+      //onOpen: _configureDB,
     );
+  }
+
+  Future _configureDB(Database db) async{
+    final db = await instance.database;
+    await db.execute('''
+    PRAGMA foreign_keys = ON
+    ''');
+  }
+
+  Future<void> printPath() async {
+    final databasesPath = await getDatabasesPath();
+    final path = join(databasesPath, 'training.db');
+    debugPrint('Database path: $path');
   }
 
   Future close() async {
@@ -61,6 +77,10 @@ class JournalDatabase {
     const textType = 'TEXT NOT NULL';
     const integerType = 'INTEGER NOT NULL';
     const realType = 'REAL NOT NULL';
+
+    await db.execute('''
+    PRAGMA foreign_keys = ON
+    ''');
 
     await db.execute('''
       CREATE TABLE $weekly_plans (
@@ -93,7 +113,8 @@ class JournalDatabase {
       ${ExerciseFields.date} $textType,
       ${ExerciseFields.weight} $realType,
       ${ExerciseFields.reps} $integerType,
-      ${ExerciseFields.oneRM} $realType
+      ${ExerciseFields.oneRM} $realType,
+      ${ExerciseFields.notes} $textType
       )
     ''');
 
@@ -134,7 +155,7 @@ class JournalDatabase {
       ${EntryFields.exerciseId} $integerType,
       ${EntryFields.mainWeight} $realType,
       ${EntryFields.date} $textType,
-      FOREIGN KEY (${EntryFields.exerciseId})
+        FOREIGN KEY (${EntryFields.exerciseId})
         REFERENCES $exercises(${ExerciseFields.id})
           ON DELETE CASCADE
 

@@ -49,4 +49,14 @@ class ExerciseTrainingRelation {
       placement: json[ExerciseTrainingRelationFields.placement] as int,
     );
   }
+
+  @override
+  String toString() {
+    return 'ExerciseTrainingRelation{\n'
+        '  id: $id,\n'
+        '  exerciseId: $exerciseId,\n'
+        '  trainingId: $trainingId,\n'
+        '  placement: $placement\n'
+        '}';
+  }
 }

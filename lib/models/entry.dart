@@ -48,4 +48,14 @@ class Entry {
         mainWeight: json[EntryFields.mainWeight] as double,
         date: DateTime.parse(json[EntryFields.date] as String),
       );
+
+  @override
+  String toString() {
+    return '\t\t\tEntry{\n\t\t\t'
+        '  id: $id,\n\t\t\t'
+        '  exerciseId: $exerciseId,\n\t\t\t'
+        '  mainWeight: $mainWeight,\n\t\t\t'
+        '  date: $date\n\t\t\t'
+        '}\n';
+  }
 }

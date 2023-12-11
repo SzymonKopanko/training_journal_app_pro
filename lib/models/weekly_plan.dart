@@ -35,4 +35,12 @@ class WeeklyPlan {
       name: json[WeeklyPlanFields.name] as String,
     );
   }
+
+  @override
+  String toString() {
+    return 'WeeklyPlan{\n'
+        '  id: $id,\n'
+        '  name: $name\n'
+        '}';
+  }
 }

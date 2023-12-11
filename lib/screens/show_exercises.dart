@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:training_journal_app/models/exercise.dart';
+import 'package:training_journal_app/services/entry_service.dart';
 //import 'package:training_journal_app/screens/chart_screen.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 import 'package:intl/intl.dart';
 import 'package:training_journal_app/services/exercise_service.dart';
 
-import 'add_entry.dart';
+import '../services/set_service.dart';
+import 'add_exercise.dart';
+import 'add_specified_entry.dart';
+import 'edit_exercise.dart';
+import 'show_specified_entries.dart';
 
 class ShowExercises extends StatefulWidget {
-  const ShowExercises({Key? key}) : super(key: key);
+  const ShowExercises({super.key});
 
   @override
   _ShowExercisesState createState() => _ShowExercisesState();
@@ -36,14 +41,16 @@ class _ShowExercisesState extends State<ShowExercises> {
     }
   }
 
-  void _deleteExercise(BuildContext context, int index) {
+  Future<void> _deleteExercise(BuildContext context, int index) async {
+    final exerciseToDelete = filteredExercises[index];
+    final exerciseDeletedName = exerciseToDelete.name;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Delete Exercise?'),
-          content: const Text(
-              'This action will delete all entries for this exercise with it.'
+          content:  Text(
+              'This action will delete all entries for this exercise($exerciseDeletedName) with it.'
                   ' Are you sure you want to proceed?'),
           actions: <Widget>[
             TextButton(
@@ -56,12 +63,24 @@ class _ShowExercisesState extends State<ShowExercises> {
               onPressed: () async {
                 final instance = JournalDatabase.instance;
                 ExerciseService exerciseService = ExerciseService(instance);
-                final exerciseToDelete = exercises[index];
+                final exerciseToDelete = filteredExercises[index];
                 await exerciseService.deleteExercise(exerciseToDelete.id!);
-                setState(() {
-                  exercises.removeAt(index);
-                  _applyFilter(); // Aktualizacja listy po usunięciu ćwiczenia
-                });
+                final deletedEntries = await EntryService(instance).readAllEntriesByExercise(exerciseToDelete);
+                if(deletedEntries != null){
+                  debugPrint("Kurwa CASCADE nie działa nie usunęło wpisów z ćwiczenia");
+                  for(final entry in deletedEntries){
+                    await EntryService(instance).deleteEntry(entry.id!);
+                    final deletedSets = await SetService(JournalDatabase.instance).readAllSetsByEntryDebug(entry);
+                    if(deletedSets != null){
+                      debugPrint('Kurwaaaa CASCADE NIE DZIAŁA nie usunęło serii z wpisu');
+                      for(final set in deletedSets){
+                        await SetService(JournalDatabase.instance).deleteSet(set.id!);
+                      }
+                    }
+                  }
+                }
+                await _loadExercises();
+                _applyFilter();
                 Navigator.of(context).pop();
               },
               child: const Text('Delete Exercise'),
@@ -73,16 +92,18 @@ class _ShowExercisesState extends State<ShowExercises> {
   }
 
   void _applyFilter() {
-    setState(() {
-      if (searchBarController.text.isNotEmpty) {
-        filteredExercises = exercises
-            .where((exercise) =>
-            exercise.name.toLowerCase().contains(searchBarController.text.toLowerCase()))
-            .toList();
-      } else {
-        filteredExercises = exercises;
-      }
-    });
+    if(exercises.isNotEmpty){
+      setState(() {
+        if (searchBarController.text.isNotEmpty) {
+          filteredExercises = exercises
+              .where((exercise) =>
+              exercise.name.toLowerCase().contains(searchBarController.text.toLowerCase()))
+              .toList();
+        } else {
+          filteredExercises = exercises;
+        }
+      });
+    }
   }
 
   @override
@@ -104,11 +125,11 @@ class _ShowExercisesState extends State<ShowExercises> {
                   suffixIcon: Icon(Icons.search),
                 ),
                 onChanged: (query) {
-                  _applyFilter(); // Aktualizacja listy po zmianie tekstu w wyszukiwarce
+                  _applyFilter();
                 },
               ),
             ),
-          if (exercises.isNotEmpty) // Dodane warunkowe wyświetlanie listy ćwiczeń
+          if (exercises.isNotEmpty)
             Expanded(
               child: filteredExercises.isEmpty
                   ? const Center(
@@ -139,8 +160,10 @@ class _ShowExercisesState extends State<ShowExercises> {
                                   ' x ${exercise.reps} reps)',
                             ),
                             Text(
-                              'Date: ${DateFormat('yyyy-MM-dd HH:mm').format(exercise.date)}',
+                              'Date and time: ${DateFormat('dd.MM.yyyy, HH:mm').format(exercise.date)}',
                             ),
+                            if(exercise.notes.isNotEmpty)
+                              Text('Notes: ${exercise.notes}'),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -151,12 +174,15 @@ class _ShowExercisesState extends State<ShowExercises> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                        const AddEntryScreen(),
+                                         AddSpecifiedEntryScreen(chosenExercise: exercise),
                                       ),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
+                                    backgroundColor: MediaQuery.platformBrightnessOf(super.context) == Brightness.light ? const Color.fromARGB(
+                                        255, 228, 245, 224)
+                                        : const Color.fromARGB(
+                                        255, 27, 44, 23),
                                     fixedSize: const Size(140, 25),
                                   ),
                                   child: const Text('Add Entry'),
@@ -164,22 +190,22 @@ class _ShowExercisesState extends State<ShowExercises> {
                                 const SizedBox(width: 16.0),
                                 ElevatedButton(
                                   onPressed: () {
-                                    // Obsługa nawigacji do ekranu wykresu
-                                    // if (index >= 0 && index < exercises!.length) {
-                                    //   Navigator.push(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //       builder: (context) => ExerciseChartScreen(
-                                    //         exercise: exercises![index],
-                                    //       ),
-                                    //     ),
-                                    //   );
-                                    // }
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ShowSpecifiedEntries(chosenExercise: exercise),
+                                      ),
+                                    );
                                   },
                                   style: ElevatedButton.styleFrom(
+                                    backgroundColor: MediaQuery.platformBrightnessOf(super.context) == Brightness.light ? const Color.fromARGB(
+                                        255, 228, 245, 224)
+                                        : const Color.fromARGB(
+                                        255, 27, 44, 23),
                                     fixedSize: const Size(140, 25),
                                   ),
-                                  child: const Text('Show Chart'),
+                                  child: const Text('Show History'),
                                 ),
                               ],
                             ),
@@ -192,21 +218,42 @@ class _ShowExercisesState extends State<ShowExercises> {
                                     _deleteExercise(context, index);
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
+                                    backgroundColor:
+                                    MediaQuery.platformBrightnessOf(super.context) !=
+                                        Brightness.light
+                                        ? const Color.fromARGB(
+                                        100, 70, 40, 46)
+                                        : const Color.fromARGB(
+                                        255, 252, 234, 234),
                                     fixedSize: const Size(140, 25),
                                   ),
-                                  child: const Text('Delete Exercise'),
+                                  child: Text('Delete',
+                                    style: TextStyle(
+                                      color: MediaQuery.platformBrightnessOf(super.context) != Brightness.light
+                                          ? const Color.fromARGB(255, 255, 146, 146)
+                                          : const Color.fromARGB(255, 183, 0, 0),
+                                    ),),
                                 ),
                                 const SizedBox(width: 16.0),
                                 ElevatedButton(
                                   onPressed: () {
-                                    _deleteExercise(context, index);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditExerciseScreen(
+                                          chosenExercise: exercise,
+                                        ),
+                                      ),
+                                    );
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.black,
+                                    backgroundColor: MediaQuery.platformBrightnessOf(super.context) == Brightness.light ? const Color.fromARGB(
+                                        255, 228, 245, 224)
+                                        : const Color.fromARGB(
+                                        255, 27, 44, 23),
                                     fixedSize: const Size(140, 25),
                                   ),
-                                  child: const Text('Edit Exercise'),
+                                  child: const Text('Edit'),
                                 ),
                               ],
                             ),
@@ -218,16 +265,19 @@ class _ShowExercisesState extends State<ShowExercises> {
                 ),
               ),
             ),
-          if (exercises.isEmpty) // Dodane warunkowe wyświetlanie komunikatu
-            const Center(
-              child: Text('No exercises found, add some.'),
+          if (exercises.isEmpty)
+            const Expanded(
+              child:  Center(
+                child: Text('No exercises found, add some.'),
+              ),
             ),
           ElevatedButton(
-            onPressed: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => AddExerciseScreen()),
-              // );
+            onPressed: () async {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddExerciseScreen()),
+              );
+              await _loadExercises();
             },
             style: ElevatedButton.styleFrom(
               fixedSize: const Size(150, 50),
@@ -235,7 +285,7 @@ class _ShowExercisesState extends State<ShowExercises> {
             child: const Text(
               'Add Exercise',
               style: TextStyle(
-                fontSize: 20.0,
+                fontSize: 16.0,
               ),
             ),
           ),

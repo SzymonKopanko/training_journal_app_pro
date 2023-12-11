@@ -10,8 +10,7 @@ import '../services/exercise_service.dart';
 class EditEntryScreen extends StatefulWidget {
   final int entryId;
 
-  const EditEntryScreen({Key? key, required this.entryId})
-      : super(key: key);
+  const EditEntryScreen({super.key, required this.entryId});
 
   @override
   _EditEntryScreenState createState() => _EditEntryScreenState();
@@ -140,13 +139,6 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
     return true;
   }
 
-  bool _canSaveEntry() {
-    if (!_areValueControllersValid()) {
-      return false;
-    }
-    return true;
-  }
-
   void _showValidationError(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -157,7 +149,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
   }
 
   void _handleSaveButtonPressed(BuildContext context) {
-    if (_canSaveEntry()) {
+    if (_areValueControllersValid()) {
       _showDateTimeDialog(context);
     }
   }
@@ -166,20 +158,21 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
     _selectedDateTime = _entry!.date;
     DateTime? pickedDateTime = await showDatePicker(
       context: context,
+      locale: const Locale('en', 'GB'),
       initialDate: _selectedDateTime,
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            primaryColor: Colors.green, // Kolor główny dla widgetów Material
-            hintColor: Colors.green, // Kolor akcentu, na przykład dla guzików
-            colorScheme: ColorScheme.light(primary: Colors.black),
-            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
-          ),
-          child: child!,
-        );
-      },
+      // builder: (BuildContext context, Widget? child) {
+      //   return Theme(
+      //     data: ThemeData.light().copyWith(
+      //       primaryColor: Colors.green,
+      //       hintColor: Colors.green,
+      //       colorScheme: const ColorScheme.light(primary: Colors.black),
+      //       buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.primary),
+      //     ),
+      //     child: child!,
+      //   );
+      // },
     );
     if (pickedDateTime != null) {
       TimeOfDay? pickedTime = await showTimePicker(
@@ -198,7 +191,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
           );
         });
 
-        _updateEntryWithSets();
+        await _updateEntryWithSets();
       }
     }
   }
@@ -209,35 +202,56 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
         id: widget.entryId,
         date: _selectedDateTime,
         exerciseId: exerciseId,
-        mainWeight: entryMainWeight);
+        mainWeight: _weightsControllers[0].text.isNotEmpty
+            ? double.parse(_weightsControllers[0].text)
+            : _sets[0].weight
+    );
     await EntryService(instance).updateEntry(updatedEntry).then((updatedEntry) async {
-      _updateSets(instance);
+      await _updateSets(instance);
       Navigator.pop(context);
     });
   }
 
   Future<void> _updateSets(instance) async {
     for (int i = 0; i < _weightsControllers.length; i++) {
-      double weight = _weightsControllers[i].text.isNotEmpty
-          ? double.parse(_weightsControllers[i].text)
-          : _sets[i].weight;
-      int reps = _repsControllers[i].text.isNotEmpty
-          ? int.parse(_repsControllers[i].text)
-          : _sets[i].reps;
-      int rir = _rirControllers[i].text.isNotEmpty
-          ? int.parse(_rirControllers[i].text)
-          : _sets[i].rir;
-      double oneRM = SetService(instance).calculateOneRM(weight, reps);
-      Set set = Set(
-        id: _sets[i].id,
-        entryId: _sets[i].entryId,
-        exerciseId: _sets[i].exerciseId,
-        weight: weight,
-        reps: reps,
-        rir: rir,
-        oneRM: oneRM,
-      );
-      await SetService(instance).updateSet(set);
+      if(i < _sets.length){
+        double weight = _weightsControllers[i].text.isNotEmpty
+            ? double.parse(_weightsControllers[i].text)
+            : _sets[i].weight;
+        int reps = _repsControllers[i].text.isNotEmpty
+            ? int.parse(_repsControllers[i].text)
+            : _sets[i].reps;
+        int rir = _rirControllers[i].text.isNotEmpty
+            ? int.parse(_rirControllers[i].text)
+            : _sets[i].rir;
+        double oneRM = SetService(instance).calculateOneRM(weight, reps);
+        Set set = Set(
+          id: _sets[i].id,
+          entryId: widget.entryId,
+          exerciseId: exerciseId,
+          weight: weight,
+          reps: reps,
+          rir: rir,
+          oneRM: oneRM,
+        );
+        await SetService(instance).updateSet(set);
+      } else {
+        double weight = double.parse(_weightsControllers[i].text);
+        int reps = int.parse(_repsControllers[i].text);
+        int rir = int.parse(_rirControllers[i].text);
+        double oneRM = SetService(instance).calculateOneRM(weight, reps);
+        Set set = Set(
+          entryId: widget.entryId,
+          exerciseId: exerciseId,
+          weight: weight,
+          reps: reps,
+          rir: rir,
+          oneRM: oneRM,
+        );
+        await SetService(instance).createSet(set);
+      }
+
+
     }
     await ExerciseService(instance).updateExerciseOneRM(exerciseId);
   }
@@ -255,9 +269,9 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
           children: [
             Center(
              child: Text(
-                    'Date: ${DateFormat('yyyy-MM-dd HH:mm').format(_selectedDateTime)}',
+                    'Date: ${DateFormat('EEEE, dd.MM.yyyy, HH:mm').format(_selectedDateTime)}',
                     style:
-                        const TextStyle(color: Colors.black54, fontSize: 20.0),
+                        const TextStyle(fontSize: 20.0),
                   ),
             ),
             const SizedBox(height: 16.0),
@@ -389,10 +403,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                       _handleSaveButtonPressed(context);
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                  ),
-                  child: const Text('Update'),
+                  child: const Text('Save'),
                 ),
                 IconButton(
                   onPressed: () {

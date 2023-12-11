@@ -35,4 +35,12 @@ class Training {
       name: json[TrainingFields.name] as String,
     );
   }
+
+  @override
+  String toString() {
+    return 'Training{\n'
+        '  id: $id,\n'
+        '  name: $name\n'
+        '}';
+  }
 }

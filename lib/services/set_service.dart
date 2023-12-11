@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../models/entry.dart';
 import '../models/exercise.dart';
 import '../services/journal_database.dart';
@@ -31,7 +33,7 @@ class SetService {
     }
   }
 
-  Future<List<Set>> readAllSets() async {
+  Future<List<Set>?> readAllSets() async {
     final db = await _instance.database;
     final result = await db.query(
       sets,
@@ -39,21 +41,36 @@ class SetService {
     if (result.isNotEmpty) {
       return result.map((json) => Set.fromJson(json)).toList();
     } else {
-      throw Exception('Sets not found');
+      return null;
     }
   }
 
-  Future<List<Set>> readAllSetsByEntry(Entry entry) async{
+  Future<List<Set>> readAllSetsByEntry(Entry entry) async {
     final db = await _instance.database;
     final result = await db.query(
-        sets,
-        where: '${SetFields.entryId} = ?',
-        whereArgs: [entry.id],
+      sets,
+      where: '${SetFields.entryId} = ?',
+      whereArgs: [entry.id],
     );
     if (result.isNotEmpty) {
       return result.map((json) => Set.fromJson(json)).toList();
     } else {
-      throw Exception('Sets not found');
+      throw Exception('Sets NOT FOUND for ${entry.toString()}');
+    }
+  }
+
+  Future<List<Set>?> readAllSetsByEntryDebug(Entry entry) async {
+    final db = await _instance.database;
+    final result = await db.query(
+      sets,
+      where: '${SetFields.entryId} = ?',
+      whereArgs: [entry.id],
+    );
+    if (result.isNotEmpty) {
+      return result.map((json) => Set.fromJson(json)).toList();
+    } else {
+      debugPrint('Sets NOT FOUND for ${entry.toString()}');
+      return null;
     }
   }
 
@@ -100,16 +117,15 @@ class SetService {
 
   Future<Set> readBestSetFromEntry(Entry entry) async {
     List<Set> sets = await readAllSetsByEntry(entry);
-    double oneRM = 0;
     double maxOneRM = 0;
     int bestId = 0;
     int id = 0;
     for (Set set in sets) {
-      id++;
       if (set.oneRM > maxOneRM) {
-        maxOneRM = oneRM;
+        maxOneRM = set.oneRM;
         bestId = id;
       }
+      id++;
     }
     return sets.elementAt(bestId);
   }
