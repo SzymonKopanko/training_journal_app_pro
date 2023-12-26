@@ -58,12 +58,11 @@ class BodyEntry {
 
   @override
   String toString() {
-    return 'BodyEntry{\n'
+    return 'BodyEntry:\n'
         '  id: $id,\n'
         '  date: $date,\n'
         '  weight: $weight,\n'
         '  fatFreeWeight: $fatFreeWeight,\n'
-        '  bodyfat: $bodyfat\n'
-        '}';
+        '  bodyfat: $bodyfat\n';
   }
 }
