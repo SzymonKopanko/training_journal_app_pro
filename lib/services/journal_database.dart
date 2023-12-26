@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
-//import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
 import '../models/body_entry.dart';
@@ -9,8 +9,6 @@ import '../models/set.dart';
 import '../models/entry.dart';
 import '../models/exercise.dart';
 import '../models/training.dart';
-import '../models/training_weekly_plan_relation.dart';
-import '../models/weekly_plan.dart';
 
 class JournalDatabase {
 
@@ -38,17 +36,8 @@ class JournalDatabase {
     return await openDatabase(
       path,
       version: 1,
-      // onConfigure: _configureDB,
       onCreate: _createDB,
-      //onOpen: _configureDB,
     );
-  }
-
-  Future _configureDB(Database db) async{
-    final db = await instance.database;
-    await db.execute('''
-    PRAGMA foreign_keys = ON
-    ''');
   }
 
   Future<void> printPath() async {
@@ -83,13 +72,6 @@ class JournalDatabase {
     ''');
 
     await db.execute('''
-      CREATE TABLE $weekly_plans (
-      ${WeeklyPlanFields.id} $idType,
-      ${WeeklyPlanFields.name} $textType UNIQUE
-      )
-    ''');
-
-    await db.execute('''
       CREATE TABLE $trainings (
       ${TrainingFields.id} $idType,
       ${TrainingFields.name} $textType UNIQUE
@@ -115,21 +97,6 @@ class JournalDatabase {
       ${ExerciseFields.reps} $integerType,
       ${ExerciseFields.oneRM} $realType,
       ${ExerciseFields.notes} $textType
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE $training_weekly_plan_relations (
-      ${TrainingWeeklyPlanRelationFields.id} $idType,
-      ${TrainingWeeklyPlanRelationFields.trainingId} $integerType,
-      ${TrainingWeeklyPlanRelationFields.weeklyPlanId} $integerType,
-      ${TrainingWeeklyPlanRelationFields.day} $integerType,
-      FOREIGN KEY (${TrainingWeeklyPlanRelationFields.trainingId})
-        REFERENCES $trainings(${TrainingFields.id})
-          ON DELETE CASCADE,
-      FOREIGN KEY (${WeeklyPlanFields.id})
-        REFERENCES $weekly_plans(${WeeklyPlanFields.id})
-          ON DELETE CASCADE
       )
     ''');
 

@@ -162,17 +162,6 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
       initialDate: _selectedDateTime,
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-      // builder: (BuildContext context, Widget? child) {
-      //   return Theme(
-      //     data: ThemeData.light().copyWith(
-      //       primaryColor: Colors.green,
-      //       hintColor: Colors.green,
-      //       colorScheme: const ColorScheme.light(primary: Colors.black),
-      //       buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.primary),
-      //     ),
-      //     child: child!,
-      //   );
-      // },
     );
     if (pickedDateTime != null) {
       TimeOfDay? pickedTime = await showTimePicker(
@@ -206,10 +195,10 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
             ? double.parse(_weightsControllers[0].text)
             : _sets[0].weight
     );
-    await EntryService(instance).updateEntry(updatedEntry).then((updatedEntry) async {
-      await _updateSets(instance);
-      Navigator.pop(context);
-    });
+    await EntryService(instance).updateEntry(updatedEntry);
+    await SetService(instance).deleteAllSetsByEntry(updatedEntry);
+    await _updateSets(instance);
+    Navigator.pop(context);
   }
 
   Future<void> _updateSets(instance) async {
@@ -226,7 +215,6 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
             : _sets[i].rir;
         double oneRM = SetService(instance).calculateOneRM(weight, reps);
         Set set = Set(
-          id: _sets[i].id,
           entryId: widget.entryId,
           exerciseId: exerciseId,
           weight: weight,
@@ -234,11 +222,11 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
           rir: rir,
           oneRM: oneRM,
         );
-        await SetService(instance).updateSet(set);
+        await SetService(instance).createSet(set);
       } else {
         double weight = double.parse(_weightsControllers[i].text);
         int reps = int.parse(_repsControllers[i].text);
-        int rir = int.parse(_rirControllers[i].text);
+        int rir = int.tryParse(_rirControllers[i].text) ?? -1;
         double oneRM = SetService(instance).calculateOneRM(weight, reps);
         Set set = Set(
           entryId: widget.entryId,

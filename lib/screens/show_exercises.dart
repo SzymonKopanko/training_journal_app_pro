@@ -65,20 +65,6 @@ class _ShowExercisesState extends State<ShowExercises> {
                 ExerciseService exerciseService = ExerciseService(instance);
                 final exerciseToDelete = filteredExercises[index];
                 await exerciseService.deleteExercise(exerciseToDelete.id!);
-                final deletedEntries = await EntryService(instance).readAllEntriesByExercise(exerciseToDelete);
-                if(deletedEntries != null){
-                  debugPrint("Kurwa CASCADE nie działa nie usunęło wpisów z ćwiczenia");
-                  for(final entry in deletedEntries){
-                    await EntryService(instance).deleteEntry(entry.id!);
-                    final deletedSets = await SetService(JournalDatabase.instance).readAllSetsByEntryDebug(entry);
-                    if(deletedSets != null){
-                      debugPrint('Kurwaaaa CASCADE NIE DZIAŁA nie usunęło serii z wpisu');
-                      for(final set in deletedSets){
-                        await SetService(JournalDatabase.instance).deleteSet(set.id!);
-                      }
-                    }
-                  }
-                }
                 await _loadExercises();
                 _applyFilter();
                 Navigator.of(context).pop();
@@ -176,7 +162,9 @@ class _ShowExercisesState extends State<ShowExercises> {
                                         builder: (context) =>
                                          AddSpecifiedEntryScreen(chosenExercise: exercise),
                                       ),
-                                    );
+                                    ).then((_) {
+                                      _loadExercises();
+                                    });
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: MediaQuery.platformBrightnessOf(super.context) == Brightness.light ? const Color.fromARGB(
@@ -196,7 +184,9 @@ class _ShowExercisesState extends State<ShowExercises> {
                                         builder: (context) =>
                                             ShowSpecifiedEntries(chosenExercise: exercise),
                                       ),
-                                    );
+                                    ).then((_) {
+                                      _loadExercises();
+                                    });
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: MediaQuery.platformBrightnessOf(super.context) == Brightness.light ? const Color.fromARGB(
@@ -244,7 +234,9 @@ class _ShowExercisesState extends State<ShowExercises> {
                                           chosenExercise: exercise,
                                         ),
                                       ),
-                                    );
+                                    ).then((_) {
+                                      _loadExercises();
+                                    });
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: MediaQuery.platformBrightnessOf(super.context) == Brightness.light ? const Color.fromARGB(

@@ -173,7 +173,9 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                                             entryId: _allEntries[index].id!,
                                           ),
                                         ),
-                                      );
+                                      ).then((_) {
+                                        _loadData();
+                                      });
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: MediaQuery.platformBrightnessOf(super.context) == Brightness.light ? const Color.fromARGB(

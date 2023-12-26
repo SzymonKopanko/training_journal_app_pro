@@ -1,11 +1,12 @@
+import 'package:flutter/cupertino.dart';
+import '../models/exercise_training_relation.dart';
 import '../models/training.dart';
-import '../models/training_weekly_plan_relation.dart';
 import '../services/journal_database.dart';
 
 class TrainingService {
   final JournalDatabase _instance;
 
-  TrainingService() : _instance = JournalDatabase.instance;
+  TrainingService(this._instance);
 
   //CREATE
   Future<Training> createTraining(Training training) async {
@@ -14,11 +15,18 @@ class TrainingService {
     return training.copy(id: id);
   }
 
+  Future<ExerciseTrainingRelation> createExerciseTrainingRelation(ExerciseTrainingRelation exerciseTrainingRelation) async {
+    final db = await _instance.database;
+    final id = await db.insert(exercise_training_relations, exerciseTrainingRelation.toJson());
+    return exerciseTrainingRelation.copy(id: id);
+  }
+
   //READ
   Future<List<Training>?> readAllTrainings() async {
     final db = await _instance.database;
     final result = await db.query(
       trainings,
+      orderBy: '${TrainingFields.name} ASC',
     );
     if(result.isNotEmpty){
       return result.map((json) => Training.fromJson(json)).toList();
@@ -28,56 +36,56 @@ class TrainingService {
     }
   }
 
-  Future<List<Training>?> readAllTrainingsByWeeklyPlanForACertainDay(
-      int weeklyPlanId, int day) async {
+  Future<Training> readTrainingById(int trainingId) async {
     final db = await _instance.database;
-
-    final result = await db.rawQuery('''
-      SELECT t.*
-      FROM $trainings t
-      INNER JOIN $training_weekly_plan_relations r
-      ON t.${TrainingFields.id} = r.${TrainingWeeklyPlanRelationFields.trainingId}
-      WHERE r.${TrainingWeeklyPlanRelationFields.weeklyPlanId} = ?
-      AND r.${TrainingWeeklyPlanRelationFields.day} = ?
-    ''', [weeklyPlanId, day]);
-    if(result.isNotEmpty){
-      return result.map((json) => Training.fromJson(json)).toList();
-    }
-    else{
-      return null;
-    }
-  }
-
-  //Update
-  Future<int> updateTrainingName(int trainingId, String newName) async {
-    final db = await _instance.database;
-    return await db.update(
+    final result = await db.query(
       trainings,
-      {TrainingFields.name: newName},
       where: '${TrainingFields.id} = ?',
       whereArgs: [trainingId],
     );
+    if (result.isNotEmpty) {
+      return Training.fromJson(result.first);
+    } else {
+      throw Exception('Training with ID $trainingId NOT FOUND!');
+    }
   }
 
+  Future<Training> readTrainingByName(String name) async {
+    final db = await _instance.database;
+    final result = await db.query(
+      trainings,
+      where: '${TrainingFields.name} = ?',
+      whereArgs: [name],
+    );
+    if (result.isNotEmpty) {
+      return Training.fromJson(result.first);
+    } else {
+      throw Exception('Training with name $name NOT FOUND!');
+    }
+  }
+
+  //UPDATE
+  Future<int> updateTraining(Training training) async {
+    final db = await _instance.database;
+    return await db.update(
+      trainings,
+      training.toJson(),
+      where: '${TrainingFields.id} = ?',
+      whereArgs: [training.id],
+    );
+  }
+
+  //DELETE
   Future<int> deleteTraining(int trainingId) async {
     final db = await _instance.database;
+    await db.execute('''
+    PRAGMA foreign_keys = ON
+    ''');
     final rowsDeleted = await db.delete(
       trainings,
       where: '${TrainingFields.id} = ?',
       whereArgs: [trainingId],
     );
     return rowsDeleted;
-  }
-
-  Future<void> deleteTrainingFromWeeklyPlanOnACertainDay(
-      int trainingId, int weeklyPlanId, int day) async {
-    final db = await _instance.database;
-
-    await db.delete(
-      training_weekly_plan_relations,
-      where:
-          '${TrainingWeeklyPlanRelationFields.trainingId} = ? AND ${TrainingWeeklyPlanRelationFields.weeklyPlanId} = ? AND ${TrainingWeeklyPlanRelationFields.day} = ?',
-      whereArgs: [trainingId, weeklyPlanId, day],
-    );
   }
 }

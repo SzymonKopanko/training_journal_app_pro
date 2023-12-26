@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:training_journal_app/models/exercise_training_relation.dart';
-import 'package:training_journal_app/services/entry_service.dart';
+import '../models/exercise_training_relation.dart';
+import '../services/entry_service.dart';
 import '../models/exercise.dart';
 import '../models/set.dart';
 import '../models/entry.dart';

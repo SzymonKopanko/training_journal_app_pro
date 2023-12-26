@@ -2,29 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'screens/show_exercises.dart';
+import 'screens/show_notifications.dart';
+import 'screens/show_trainings.dart';
 import 'services/journal_database.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  tz.initializeTimeZones();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  static const MaterialColor customBlack = MaterialColor(0xFF000000, {
-    50: Color(0xFFE0E0E0),
-    100: Color(0xFFB3B3B3),
-    200: Color(0xFF808080),
-    300: Color(0xFF555555),
-    400: Color(0xFF333333),
-    500: Color(0xFF000000),
-    600: Color(0xFF000000),
-    700: Color(0xFF000000),
-    800: Color(0xFF000000),
-    900: Color(0xFF000000),
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +81,6 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    JournalDatabase.instance.database;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Training Journal Pro'),
@@ -129,14 +119,18 @@ class MainScreen extends StatelessWidget {
                       const SizedBox(height: 50.0),
                       ElevatedButton(
                         onPressed: () {
-                          //TODO
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const NotificationsScreen()),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(185.0, 80.0),
                           padding: const EdgeInsets.all(16.0),
                         ),
                         child: const Text(
-                          'Weekly Plans',
+                          'Notifications',
                           style: TextStyle(fontSize: 25),
                         ),
                       ),
@@ -149,7 +143,10 @@ class MainScreen extends StatelessWidget {
                     children: <Widget>[
                       ElevatedButton(
                         onPressed: () {
-                          //TODO
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ShowTrainingsScreen()),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(185.0, 80.0),

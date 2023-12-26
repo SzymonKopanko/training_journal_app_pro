@@ -41,59 +41,6 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
   void initState() {
     super.initState();
     _initializeControllers();
-    //_printAllDataInDatabase();
-  }
-
-
-  Future<void> _printAllDataInDatabase() async {
-    final instance = JournalDatabase.instance;
-    final allExercises = await ExerciseService(instance).readAllExercises();
-    // final allEntries = await EntryService(instance).readAllEntries();
-    final allSets = await SetService(instance).readAllSets();
-    for (final set in allSets!) {
-      final entry = await EntryService(instance).readEntryByIdDebug(set.entryId);
-      if(entry != null){
-        final exerciseName = await ExerciseService(instance)
-            .readExerciseByIdDebug(entry.exerciseId);
-        if(exerciseName != null){
-          // debugPrint(
-          //     "\n${set.toString()}, Entry Date: ${entry.date}, Exercise Name: ${exerciseName.name}");
-        }
-        else{
-          debugPrint("Exercise not found for \n${entry.toString()}\n${set.toString()}");
-        }
-      }else{
-        debugPrint("Entry not found for \n${set.toString()}");
-        final exerciseName = await ExerciseService(instance)
-            .readExerciseByIdDebug(set.exerciseId);
-        if(exerciseName != null){
-          debugPrint(
-              "Set(without entry):\n${set.toString()}, Exercise Name: ${exerciseName.name}");
-        }
-        else{
-          debugPrint("Exercise also not found.");
-        }
-        //await SetService(instance).deleteSet(set.id!);
-      }
-    }
-    debugPrint("Exercises in the database:");
-    for (final exercise in allExercises!) {
-      debugPrint(exercise.toString());
-      final exerciseEntries =
-      await EntryService(instance).readAllEntriesByExercise(exercise);
-      if (exerciseEntries != null) {
-        for (final entry in exerciseEntries) {
-          debugPrint(entry.toString());
-          final entrySets =
-          await SetService(instance).readAllSetsByEntry(entry);
-          for (final set in entrySets) {
-            debugPrint(set.toString());
-          }
-        }
-      }
-      debugPrint("\n");
-      await instance.printPath();
-    }
   }
 
   void _initializeControllers() async {
@@ -256,18 +203,6 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
       initialDate: _selectedDateTime!,
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-      // builder: (BuildContext context, Widget? child) {
-      //   return Theme(
-      //     data: ThemeData.light().copyWith(
-      //       primaryColor: Colors.green, // Kolor główny dla widgetów Material
-      //       hintColor: Colors.green, // Kolor akcentu, na przykład dla guzików
-      //       colorScheme: const ColorScheme.light(primary: Colors.black),
-      //       buttonTheme:
-      //       const ButtonThemeData(textTheme: ButtonTextTheme.primary),
-      //     ),
-      //     child: child!,
-      //   );
-      // },
     );
     if (pickedDateTime != null) {
       TimeOfDay? pickedTime = await showTimePicker(
@@ -344,11 +279,12 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if(widget.chosenExercise.notes.isNotEmpty)
-             Text('Notes: ${widget.chosenExercise.notes}',
-             style: const TextStyle(
-               fontSize: 20.0,
-               fontWeight: FontWeight.bold,
-             ),),
+              Text('Notes: ${widget.chosenExercise.notes}',
+                style: const TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             TextFormField(
               controller: _mainWeightController,
               keyboardType: TextInputType.number,
@@ -513,8 +449,6 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
                         }
                       });
                     },
-                    style: ElevatedButton.styleFrom(
-                    ),
                     child: Text('Change Past Entry Hint (${numberOfLastEntry + 1}.)')
                   ),
                 ),

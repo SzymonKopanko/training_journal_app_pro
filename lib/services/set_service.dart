@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
-
+import '../models/set.dart';
 import '../models/entry.dart';
 import '../models/exercise.dart';
 import '../services/journal_database.dart';
-import '../models/set.dart';
 
 class SetService {
   final JournalDatabase _instance;
@@ -56,21 +55,6 @@ class SetService {
       return result.map((json) => Set.fromJson(json)).toList();
     } else {
       throw Exception('Sets NOT FOUND for ${entry.toString()}');
-    }
-  }
-
-  Future<List<Set>?> readAllSetsByEntryDebug(Entry entry) async {
-    final db = await _instance.database;
-    final result = await db.query(
-      sets,
-      where: '${SetFields.entryId} = ?',
-      whereArgs: [entry.id],
-    );
-    if (result.isNotEmpty) {
-      return result.map((json) => Set.fromJson(json)).toList();
-    } else {
-      debugPrint('Sets NOT FOUND for ${entry.toString()}');
-      return null;
     }
   }
 
@@ -130,17 +114,6 @@ class SetService {
     return sets.elementAt(bestId);
   }
 
-  //UPDATE
-  Future<void> updateSet(Set set) async {
-    final db = await _instance.database;
-    await db.update(
-        sets,
-        set.toJson(),
-        where: '${SetFields.id} = ?',
-        whereArgs: [set.id],
-    );
-  }
-
   //DELETE
   Future<int> deleteSet(int id) async {
     final db = await _instance.database;
@@ -151,6 +124,17 @@ class SetService {
     );
     return rowsDeleted;
   }
+
+  Future<int> deleteAllSetsByEntry(Entry entry) async {
+    final db = await _instance.database;
+    final rowsDeleted = await db.delete(
+      sets,
+      where: '${SetFields.entryId} = ?',
+      whereArgs: [entry.id],
+    );
+    return rowsDeleted;
+  }
+
 
   double calculateOneRM(double weight, int reps){
     if(repPercentages.containsKey(reps)){

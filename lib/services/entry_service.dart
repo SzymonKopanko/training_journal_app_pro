@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:training_journal_app/services/exercise_service.dart';
 
 import '../models/entry.dart';
 import '../services/journal_database.dart';
@@ -41,22 +42,6 @@ class EntryService {
       return Entry.fromJson(result.first);
     } else {
       throw Exception('ID $id not found');
-    }
-  }
-
-  Future<Entry?> readEntryByIdDebug(int id) async {
-    final db = await _instance.database;
-    final result = await db.query(
-      entries,
-      columns: EntryFields.values,
-      where: '${EntryFields.id} = ?',
-      whereArgs: [id],
-    );
-    if (result.isNotEmpty) {
-      return Entry.fromJson(result.first);
-    } else {
-      debugPrint('Entry with ID $id not found');
-      return null;
     }
   }
 
@@ -106,6 +91,7 @@ class EntryService {
   //DELETE
   Future<int> deleteEntry(int id) async {
     final db = await _instance.database;
+    final deletedEntry = await readEntryById(id);
     await db.execute('''
     PRAGMA foreign_keys = ON
     ''');
@@ -114,6 +100,7 @@ class EntryService {
       where: '${EntryFields.id} = ?',
       whereArgs: [id],
     );
+    await ExerciseService(_instance).updateExerciseOneRM(deletedEntry.exerciseId);
     return rowsDeleted;
   }
 

@@ -5,7 +5,6 @@ import 'package:training_journal_app/services/journal_database.dart';
 import 'package:training_journal_app/services/set_service.dart';
 import '../models/set.dart';
 import '../models/exercise.dart';
-import '../services/exercise_service.dart';
 import '../services/entry_service.dart';
 import 'package:charts_flutter_maintained/charts_flutter_maintained.dart' as charts;
 
@@ -49,7 +48,6 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
     final List<OneRepMaxData> newData = [];
     for (final entry in allEntries!) {
       final set = await setService.readBestSetFromEntry(entry);
-      debugPrint(set.toString());
       newData.add(OneRepMaxData(entry.date, set));
     }
     newData.sort((a, b) => a.date.compareTo(b.date));
