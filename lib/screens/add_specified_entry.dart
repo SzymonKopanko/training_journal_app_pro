@@ -220,7 +220,6 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
             pickedTime.minute,
           );
         });
-
         _saveEntryWithSets();
       }
     }

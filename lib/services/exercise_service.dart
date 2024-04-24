@@ -182,27 +182,7 @@ class ExerciseService {
     await db.execute('''
     PRAGMA foreign_keys = ON
     ''');
-    final exercise = await readExerciseById(id);
     debugPrint("DELETING EXERCISE!");
-    debugPrint(exercise.toString());
-
-    // Pobierz wszystkie wpisy dla danego ćwiczenia
-    final exerciseEntries = await EntryService(_instance).readAllEntriesByExercise(exercise);
-    if(exerciseEntries != null) {
-      // Wypisz wpisy
-      for (final entry in exerciseEntries) {
-        debugPrint(entry.toString());
-
-        // Pobierz wszystkie sety dla danego wpisu
-        final entrySets = await SetService(_instance).readAllSetsByEntry(entry);
-        for (final set in entrySets) {
-          debugPrint(set.toString());
-        }
-
-      }
-    } else {
-      debugPrint("which is good.");
-    }
     final rowsDeleted = await db.delete(
       exercises,
       where: '${ExerciseFields.id} = ?',

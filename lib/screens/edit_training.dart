@@ -40,10 +40,11 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
       }
       loadedTakenTrainingNames.remove(widget.chosenTrainingWithExercises.training.name);
     }
-    for(Exercise exercise in widget.chosenTrainingWithExercises.exercises){
-      loadedExercises!.remove(exercise);
-    }
     if (loadedExercises != null) {
+      for(Exercise exercise in widget.chosenTrainingWithExercises.exercises){
+        loadedExercises.removeWhere((loadedExercise) =>
+        loadedExercise.name == exercise.name);
+      }
       setState(() {
         exercises = loadedExercises;
         filteredExercises = loadedExercises;
@@ -65,13 +66,13 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: TextField(
               controller: _trainingNameController,
               decoration: const InputDecoration(labelText: 'Training Name'),
             ),
           ),
-          if (exercises.isNotEmpty)
+          //if (exercises.isNotEmpty)
             Expanded(
               child: _buildSelectedExercisesList(),
             ),
@@ -97,7 +98,7 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
               )
                   : _buildAvailableExercisesList(),
             ),
-          if (exercises.isNotEmpty)
+          //if (exercises.isNotEmpty)
             ElevatedButton(
               onPressed: _saveTraining,
               child: const Text('Save Training'),

@@ -3,9 +3,7 @@ import 'package:training_journal_app/services/journal_database.dart';
 import '../models/training.dart';
 import '../services/training_service.dart';
 import 'add_notification.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 import '../models/training_notification.dart';
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -30,6 +28,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if(trainingList.isNotEmpty) {
       setState(() {
         trainings = trainingList;
+      });
+    }
+    else{
+      setState(() {
+        trainings = [];
       });
     }
     List<TrainingNotification> loadedNotifications = [];

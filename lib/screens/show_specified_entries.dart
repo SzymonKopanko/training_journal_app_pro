@@ -30,12 +30,18 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
 
   Future<void> _loadData() async {
     final instance = JournalDatabase.instance;
-    final entries = await EntryService(instance).readAllEntriesByExercise(widget.chosenExercise);
+    final entries = await EntryService(instance)
+        .readAllEntriesByExercise(widget.chosenExercise);
     if (entries != null) {
       setState(() {
         _allEntries = entries;
         _allSets = List.generate(entries.length, (index) => <Set>[]);
         _loadSetsForEntries();
+      });
+    } else {
+      setState(() {
+        _allEntries = [];
+        _allSets = [];
       });
     }
   }
@@ -73,13 +79,13 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
         child: Column(
           children: [
             if (_allEntries.isEmpty)
-              const Center(
-                child: Text(
-                  'Add some entries to see\n'
-                      'some data here.',
-                  style: TextStyle(color: Colors.black54),
+              const Expanded(
+                  child: Center(
+                    child: Text(
+                  'Add some entries to see '
+                  'some data here.',
                 ),
-              )
+              ))
             else
               Expanded(
                 child: ListView.builder(
@@ -94,11 +100,10 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              DateFormat('EEEE, dd.MM.yyyy, HH:mm').format(entry.date),
+                              DateFormat('EEEE, dd.MM.yyyy, HH:mm')
+                                  .format(entry.date),
                               style: const TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold
-                              ),
+                                  fontSize: 18.0, fontWeight: FontWeight.bold),
                             ),
                             SizedBox(
                               width: double.infinity,
@@ -123,13 +128,15 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                                           RichText(
                                             text: TextSpan(
                                               text: (i + 1).toString(),
-                                              style: DefaultTextStyle.of(context)
-                                                  .style,
+                                              style:
+                                                  DefaultTextStyle.of(context)
+                                                      .style,
                                               children: const <TextSpan>[
                                                 TextSpan(
                                                   text: '.',
                                                   style: TextStyle(
-                                                    fontWeight: FontWeight.normal,
+                                                    fontWeight:
+                                                        FontWeight.normal,
                                                   ),
                                                 ),
                                               ],
@@ -178,10 +185,14 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                                       });
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: MediaQuery.platformBrightnessOf(super.context) == Brightness.light ? const Color.fromARGB(
-                                          255, 228, 245, 224)
-                                          : const Color.fromARGB(
-                                          255, 27, 44, 23),
+                                      backgroundColor:
+                                          MediaQuery.platformBrightnessOf(
+                                                      super.context) ==
+                                                  Brightness.light
+                                              ? const Color.fromARGB(
+                                                  255, 228, 245, 224)
+                                              : const Color.fromARGB(
+                                                  255, 27, 44, 23),
                                     ),
                                     child: const Text('Edit'),
                                   ),
@@ -194,19 +205,24 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor:
-                                      Theme.of(context).brightness !=
-                                          Brightness.light
-                                          ? const Color.fromARGB(
-                                          100, 70, 40, 46)
-                                          : const Color.fromARGB(
-                                          255, 252, 234, 234),
+                                          Theme.of(context).brightness !=
+                                                  Brightness.light
+                                              ? const Color.fromARGB(
+                                                  100, 70, 40, 46)
+                                              : const Color.fromARGB(
+                                                  255, 252, 234, 234),
                                     ),
-                                    child: Text('Delete',
+                                    child: Text(
+                                      'Delete',
                                       style: TextStyle(
-                                        color: Theme.of(context).brightness != Brightness.light
-                                            ? const Color.fromARGB(255, 255, 146, 146)
-                                            : const Color.fromARGB(255, 183, 0, 0),
-                                      ),),
+                                        color: Theme.of(context).brightness !=
+                                                Brightness.light
+                                            ? const Color.fromARGB(
+                                                255, 255, 146, 146)
+                                            : const Color.fromARGB(
+                                                255, 183, 0, 0),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -218,13 +234,14 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                   },
                 ),
               ),
+            if(_allEntries.isNotEmpty)
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ExerciseChartScreen(
-                    exercise: widget.chosenExercise
-                  )),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ExerciseChartScreen(exercise: widget.chosenExercise)),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -242,7 +259,4 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
       ),
     );
   }
-
 }
-
-

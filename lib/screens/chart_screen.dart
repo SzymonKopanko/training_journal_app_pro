@@ -18,8 +18,7 @@ class OneRepMaxData {
 class ExerciseChartScreen extends StatefulWidget {
   final Exercise exercise;
 
-  const ExerciseChartScreen({Key? key, required this.exercise})
-      : super(key: key);
+  const ExerciseChartScreen({super.key, required this.exercise});
 
   @override
   _ExerciseChartScreenState createState() => _ExerciseChartScreenState();
@@ -164,6 +163,9 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
       endDate = temp;
     }
     final difference = endDate.difference(startDate).inDays;
+    if(difference < 1){
+      return 1;
+    }
     return (difference / 8).ceil();
   }
   

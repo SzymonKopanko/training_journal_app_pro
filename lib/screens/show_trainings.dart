@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/exercise_service.dart';
-import '../models/exercise.dart';
 import '../models/training.dart';
 import '../models/training_with_exercises.dart';
 import '../services/journal_database.dart';
@@ -20,6 +19,7 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
   List<TrainingWithExercises> trainingsWithExercises = [];
   List<TrainingWithExercises> filteredTrainingsWithExercises = [];
   TextEditingController searchBarController = TextEditingController();
+  bool noExercises = false;
 
   @override
   void initState() {
@@ -38,11 +38,19 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
         loadedTrainingsWithExercises
             .add(TrainingWithExercises(training, trainingExercises!));
       }
-      setState(() {
-        trainingsWithExercises = loadedTrainingsWithExercises;
-        filteredTrainingsWithExercises = loadedTrainingsWithExercises;
-      });
     }
+    else{
+      final exercises = await ExerciseService(instance).readAllExercises();
+      if(exercises == null){
+        setState(() {
+          noExercises = true;
+        });
+      }
+    }
+    setState(() {
+      trainingsWithExercises = loadedTrainingsWithExercises;
+      filteredTrainingsWithExercises = loadedTrainingsWithExercises;
+    });
   }
 
   Future<void> _deleteTraining(BuildContext context, int index) async {
@@ -68,7 +76,7 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
                 final instance = JournalDatabase.instance;
                 TrainingService trainingService = TrainingService(instance);
                 await trainingService.deleteTraining(trainingToDelete.id!);
-                await _loadData();
+                _loadData();
                 _applyFilter();
                 Navigator.of(context).pop();
               },
@@ -221,7 +229,9 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
                                                   chosenTrainingWithExercises: trainingWithExercises,
                                                 ),
                                               ),
-                                            );
+                                            ).then((_) {
+                                              _loadData();
+                                            });
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:
@@ -246,10 +256,16 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
                         ),
                       ),
               ),
-            if (exercises.isEmpty)
+            if (noExercises)
               const Expanded(
                 child: Center(
-                  child: Text('No exercises found, add some.'),
+                  child: Text('No exercises found, add some before creating trainings.'),
+                ),
+              ),
+            if (!noExercises && trainingsWithExercises.isEmpty)
+              const Expanded(
+                child:  Center(
+                  child: Text('No trainings found, add some.'),
                 ),
               ),
             ElevatedButton(
@@ -257,7 +273,9 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => AddTrainingScreen()),
-                );
+                ).then((_) {
+                  _loadData();
+                });
               },
               style: ElevatedButton.styleFrom(
                 fixedSize: const Size(150, 50),

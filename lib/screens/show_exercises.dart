@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:training_journal_app/models/exercise.dart';
-import 'package:training_journal_app/services/entry_service.dart';
-//import 'package:training_journal_app/screens/chart_screen.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 import 'package:intl/intl.dart';
 import 'package:training_journal_app/services/exercise_service.dart';
-
-import '../services/set_service.dart';
 import 'add_exercise.dart';
 import 'add_specified_entry.dart';
 import 'edit_exercise.dart';
@@ -37,6 +33,12 @@ class _ShowExercisesState extends State<ShowExercises> {
       setState(() {
         exercises = loadedExercises;
         filteredExercises = loadedExercises;
+      });
+    }
+    else {
+      setState(() {
+        exercises = [];
+        filteredExercises = [];
       });
     }
   }
@@ -268,8 +270,9 @@ class _ShowExercisesState extends State<ShowExercises> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const AddExerciseScreen()),
-              );
-              await _loadExercises();
+              ).then((_) {
+                _loadExercises();
+              });
             },
             style: ElevatedButton.styleFrom(
               fixedSize: const Size(150, 50),

@@ -19,6 +19,7 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
   TextEditingController searchBarController = TextEditingController();
   List<String> takenTrainingNames = [];
   List<Exercise> exercises = [];
+  List<Exercise> allExercises = [];
   List<Exercise> filteredExercises = [];
 
   @override
@@ -39,6 +40,7 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
     }
     if (loadedExercises != null) {
       setState(() {
+        allExercises = loadedExercises;
         exercises = loadedExercises;
         filteredExercises = loadedExercises;
         if(loadedTrainings != null){
@@ -63,11 +65,9 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
               decoration: const InputDecoration(labelText: 'Training Name'),
             ),
           ),
-          if (exercises.isNotEmpty)
-            Expanded(
+          Expanded(
               child: _buildSelectedExercisesList(),
-            ),
-          if (exercises.isNotEmpty)
+          ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: TextFormField(
@@ -81,7 +81,7 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
                 },
               ),
             ),
-          if (exercises.isNotEmpty)
+          if (allExercises.isNotEmpty)
             Expanded(
               child: filteredExercises.isEmpty
                   ? const Center(
@@ -89,7 +89,7 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
                     )
                   : _buildAvailableExercisesList(),
             ),
-          if (exercises.isNotEmpty)
+          if (selectedExercises.isNotEmpty)
             ElevatedButton(
               onPressed: _saveTraining,
               child: const Text('Save Training'),

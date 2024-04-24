@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import '../models/exercise_training_relation.dart';
 import '../models/training.dart';
 import '../services/journal_database.dart';

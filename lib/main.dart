@@ -7,6 +7,7 @@ import 'screens/show_trainings.dart';
 import 'services/journal_database.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);

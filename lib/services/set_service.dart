@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import '../models/set.dart';
 import '../models/entry.dart';
 import '../models/exercise.dart';
