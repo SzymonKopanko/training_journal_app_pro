@@ -1,6 +1,6 @@
 ## Developer
 
-Szymon Kopańko,
+Szymon Kopańko
 
 ## Application Description
 
@@ -36,17 +36,26 @@ This mobile app is designed for Android devices to track strength training worko
 ## Screens
 
 1. `main.dart`
+[Screenshot of main dashboard](readme_images/Screenshot_20240603-152235.png)
 2. `show_exercises.dart`
+[Exercises](readme_images/Screenshot_20240603-151403.png)
 3. `show_entries.dart`
+[Entries](readme_images/Screenshot_20240603-151414.png)
 4. `show_chart.dart`
-5. `edit_entry.dart`
-6. `add_specified_entry.dart`
-7. `show_trainings.dart`
-8. `add_training.dart`
-9. `edit_training.dart`
-10. `add_training_entries.dart`
-11. `show_notifications.dart`
-12. `add_notifications.dart`
+[Chart](readme_images/Screenshot_20240603-151424.png)
+[Chart](readme_images/Screenshot_20240603-151421.png)
+5. `show_trainings.dart`
+[Trainings](readme_images/Screenshot_20240603-151439.png)
+6. `edit_training.dart`
+[Edit Training](readme_images/Screenshot_20240603-151501.png)
+7. `add_training_entries.dart`
+[Add Entry](readme_images/Screenshot_20240603-151444.png)
+[Add Entry](readme_images/Screenshot_20240603-151430.png)
+[Add Entry](readme_images/Screenshot_20240603-151530.png)
+[Add Entry](readme_images/Screenshot_20240603-151540.png)
+8. `show_notifications.dart`
+[Notifications](readme_images/Screenshot_20240603-151508.png)
+[Notifications](readme_images/reminder.png)
 
 ## Future Development
 
