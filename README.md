@@ -68,7 +68,3 @@ This mobile app is designed for Android devices to track strength training worko
 - Many features intended for the final version are still pending.
 - Some screens (e.g., `main.dart`) could be designed more aesthetically.
 - Consideration of using ORM for database operations, which was not implemented but could speed up project development.
-
----
-
-This README layout for GitHub focuses on clarity and organization, presenting key information about the project in a structured format suitable for developers and potential users exploring the repository. Adjustments and expansions can be made based on further project development and specific needs.
