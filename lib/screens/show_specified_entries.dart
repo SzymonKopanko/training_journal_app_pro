@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../constants/app_constants.dart';
 import '../models/entry.dart';
 import '../models/set.dart';
 import '../services/journal_database.dart';
@@ -75,7 +76,7 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
         title: Text('\'${widget.chosenExercise.name}\' History'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppSizing.padding2),
         child: Column(
           children: [
             if (_allEntries.isEmpty)
@@ -95,7 +96,7 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                     final sets = _allSets[index];
                     return Card(
                       child: Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(AppSizing.padding3),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -103,16 +104,16 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                               DateFormat('EEEE, dd.MM.yyyy, HH:mm')
                                   .format(entry.date),
                               style: const TextStyle(
-                                  fontSize: 18.0, fontWeight: FontWeight.bold),
+                                  fontSize: AppSizing.fontSize3, fontWeight: FontWeight.bold),
                             ),
                             SizedBox(
                               width: double.infinity,
                               child: DataTable(
-                                headingRowHeight: 30.0,
-                                dataRowMaxHeight: 25.0,
-                                dataRowMinHeight: 20.0,
-                                horizontalMargin: 6.0,
-                                columnSpacing: 2.0,
+                                headingRowHeight: AppSizing.headingRowH,
+                                dataRowMaxHeight: AppSizing.dataRowMaxH,
+                                dataRowMinHeight: AppSizing.dataRowMinH,
+                                horizontalMargin: AppSizing.padding5,
+                                columnSpacing: AppSizing.dataRowSpace,
                                 columns: const [
                                   DataColumn(label: Text('Sets')),
                                   DataColumn(label: Text('Reps')),
@@ -189,15 +190,13 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                                           MediaQuery.platformBrightnessOf(
                                                       super.context) ==
                                                   Brightness.light
-                                              ? const Color.fromARGB(
-                                                  255, 228, 245, 224)
-                                              : const Color.fromARGB(
-                                                  255, 27, 44, 23),
+                                              ? AppColors.brightButt
+                                              : AppColors.darkButt,
                                     ),
                                     child: const Text('Edit'),
                                   ),
                                 ),
-                                const SizedBox(width: 16.0),
+                                const SizedBox(width: AppSizing.padding2),
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: () {
@@ -207,20 +206,16 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                                       backgroundColor:
                                           Theme.of(context).brightness !=
                                                   Brightness.light
-                                              ? const Color.fromARGB(
-                                                  100, 70, 40, 46)
-                                              : const Color.fromARGB(
-                                                  255, 252, 234, 234),
+                                              ? AppColors.darkErrButt
+                                              : AppColors.brightErrButt,
                                     ),
                                     child: Text(
                                       'Delete',
                                       style: TextStyle(
                                         color: Theme.of(context).brightness !=
                                                 Brightness.light
-                                            ? const Color.fromARGB(
-                                                255, 255, 146, 146)
-                                            : const Color.fromARGB(
-                                                255, 183, 0, 0),
+                                            ? AppColors.darkErrTxt
+                                            : AppColors.brightErrTxt,
                                       ),
                                     ),
                                   ),
@@ -245,12 +240,12 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                fixedSize: const Size(150, 50),
+                fixedSize: AppSizing.buttonSize1,
               ),
               child: const Text(
                 'Show Chart',
                 style: TextStyle(
-                  fontSize: 18.0,
+                  fontSize: AppSizing.fontSize3,
                 ),
               ),
             ),

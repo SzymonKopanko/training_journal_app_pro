@@ -3,6 +3,8 @@ import 'package:training_journal_app/models/exercise.dart';
 import 'package:training_journal_app/services/exercise_service.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 
+import '../constants/app_constants.dart';
+
 class EditExerciseScreen extends StatefulWidget {
   final Exercise chosenExercise;
 
@@ -52,7 +54,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
         title: Text('Edit \'${widget.chosenExercise.name}\' Exercise'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppSizing.padding2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -65,7 +67,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
               controller: notesController,
               decoration: const InputDecoration(labelText: 'Notes'),
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: AppSizing.padding2),
             ElevatedButton(
               onPressed: _updateExerciseToDatabase,
               child: const Text('Edit Exercise'),

@@ -1,6 +1,11 @@
+import 'dart:async';
+
+import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:training_journal_app/services/journal_database.dart';
+import '../constants/app_constants.dart';
 import '../models/entry.dart';
 import '../models/set.dart';
 import '../models/exercise.dart';
@@ -40,6 +45,13 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   DateTime? _selectedDateTime;
   String weightsHintText = 'Weight';
   String exerciseNotes = '';
+
+  Duration? _selectedDuration;
+  Duration? _previousDuration;
+  Timer? _timer;
+  String _timerDisplay = '00:00';
+  bool _isTimerRunning = false;
+
 
   @override
   void initState() {
@@ -308,6 +320,135 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     await ExerciseService(instance).updateExerciseOneRM(exerciseId);
   }
 
+  Future<Duration?> _showTimePickerDialog(BuildContext context) async {
+    int selectedMinutes = 0;
+    int selectedSeconds = 0;
+
+    return await showDialog<Duration>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Select Time'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${selectedMinutes.toString().padLeft(2, '0')}:${selectedSeconds.toString().padLeft(2, '0')}',
+                    style: const TextStyle(fontSize: AppSizing.fontSize2),
+                  ),
+                  const SizedBox(height: 20),
+                  Column(
+                    children: [
+                      Text('Minutes: $selectedMinutes',
+                          style: const TextStyle(fontSize: AppSizing.fontSize2)),
+                      Slider(
+                        value: selectedMinutes.toDouble(),
+                        min: 0,
+                        max: 15,
+                        divisions: 15,
+                        label: '$selectedMinutes minutes',
+                        onChanged: (double value) {
+                          setState(() {
+                            selectedMinutes = value.toInt();
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text('Seconds: $selectedSeconds',
+                          style: const TextStyle(fontSize: AppSizing.fontSize2)),
+                      Slider(
+                        value: selectedSeconds.toDouble(),
+                        min: 0,
+                        max: 60,
+                        divisions: 12,
+                        label: '$selectedSeconds seconds',
+                        onChanged: (double value) {
+                          setState(() {
+                            selectedSeconds = value.toInt();
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(Duration(
+                        minutes: selectedMinutes, seconds: selectedSeconds));
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+  void _startTimer() {
+    if (_selectedDuration == null || _selectedDuration!.inSeconds == 0) return;
+
+    setState(() {
+      _previousDuration = _selectedDuration;
+      _isTimerRunning = true;
+    });
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      setState(() {
+        if (_selectedDuration!.inSeconds > 0) {
+          _selectedDuration =
+              Duration(seconds: _selectedDuration!.inSeconds - 1);
+          _timerDisplay = _formatDuration(_selectedDuration!);
+        } else {
+          _stopTimer();
+          _playAlarm();
+        }
+      });
+    });
+  }
+
+  void _stopTimer() {
+    _timer?.cancel();
+    setState(() {
+      _isTimerRunning = false;
+    });
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String minutes = twoDigits(duration.inMinutes.remainder(60));
+    String seconds = twoDigits(duration.inSeconds.remainder(60));
+    return "$minutes:$seconds";
+  }
+
+  Future<void> _playAlarm() async {
+    final audioPlayer = AudioPlayer();
+    await audioPlayer.setAsset('assets/rest.wav');
+    audioPlayer.play();
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Timer ended!')));
+    setState(() {
+      _selectedDuration = _previousDuration;
+      _timerDisplay = _formatDuration(_previousDuration!);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -316,14 +457,14 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             'Add \'${widget.chosenTrainingWithExercises.training.name}\' Entries'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppSizing.padding2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if(exerciseNotes.isNotEmpty)
               Text('Notes: $exerciseNotes',
                 style: const TextStyle(
-                  fontSize: 20.0,
+                  fontSize: AppSizing.fontSize2,
                   fontWeight: FontWeight.bold,
                 ),),
             DropdownButtonFormField<String>(
@@ -346,35 +487,75 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
               ],
               decoration: const InputDecoration(labelText: 'Select Exercise'),
             ),
-            TextFormField(
-              controller: _mainWeightController,
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                setState(() {
-                  value = (_mainWeightController.text.isNotEmpty)
-                      ? _mainWeightController.text
-                      : 'Weight';
-                  weightsHintText = value;
-                });
-              },
-              decoration: InputDecoration(
-                labelText: 'Default weight',
-                hintText: 'Enter default weight',
-                helperText: (_lastEntryMainWeight > 0.0)
-                    ? 'Past: $_lastEntryMainWeight'
-                    : null,
-              ),
+            Row(
+              children: [
+                Expanded(
+                    child: TextFormField(
+                      controller: _mainWeightController,
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        setState(() {
+                          value = (_mainWeightController.text.isNotEmpty)
+                              ? _mainWeightController.text
+                              : 'Weight';
+                          weightsHintText = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Default weight',
+                        hintText: 'Enter weight',
+                        helperText: (_lastEntryMainWeight > 0.0)
+                            ? 'Past: $_lastEntryMainWeight'
+                            : null,
+                      ),
+                    )),
+                const SizedBox(width: AppSizing.padding2),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_isTimerRunning) {
+                      _stopTimer();
+                    } else {
+                      _startTimer();
+                    }
+                  },
+                  child: Text(_isTimerRunning ? 'Stop Timer' : 'Start Timer'),
+                ),
+                const SizedBox(width: AppSizing.padding2),
+                // Timer Button
+                Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        _stopTimer();
+                        _showTimePickerDialog(context).then((duration) {
+                          if (duration != null) {
+                            setState(() {
+                              _selectedDuration = duration;
+                              _timerDisplay =
+                                  _formatDuration(_selectedDuration!);
+                            });
+                          }
+                        });
+                      },
+                      child: const Text('Set Timer'),
+                    ),
+                    Text(
+                        style: const TextStyle(fontSize: AppSizing.fontSize3),
+                        _timerDisplay),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: AppSizing.padding2),
             const Center(
                 child: Row(children: [
-                  SizedBox(width: 60.0),
+                  SizedBox(width: AppSizing.boxSize1),
                   Expanded(child: Text("Reps")),
-                  SizedBox(width: 35.0),
+                  SizedBox(width: AppSizing.boxSize2),
                   Expanded(child: Text("Weight")),
-                  SizedBox(width: 55.0),
+                  SizedBox(width: AppSizing.boxSize3),
                   Expanded(child: Text("RIR")),
-                  SizedBox(width: 50.0)
+                  SizedBox(width: AppSizing.boxSize4)
             ])),
             Expanded(
               child: Scrollbar(
@@ -415,40 +596,37 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                       children: [
                         Text(
                           '${index + 1}.',
-                          style: const TextStyle(fontSize: 20.0),
+                          style: const TextStyle(fontSize: AppSizing.fontSize2),
                         ),
-                        if (index < 9) const SizedBox(width: 16.0),
-                        if (index >= 9) const SizedBox(width: 5.0),
+                        if (index < 9) const SizedBox(width: AppSizing.padding2),
+                        if (index >= 9) const SizedBox(width: AppSizing.padding6),
                         Expanded(
                           child: TextFormField(
                             controller: repsController,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
-                              //labelText: 'Reps ${index + 1}',
                               hintText: repsHintText,
                               helperText: repsHelperText,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16.0),
+                        const SizedBox(width: AppSizing.padding2),
                         Expanded(
                           child: TextFormField(
                             controller: weightsController,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
-                              //labelText: 'Weight ${index + 1}',
                               hintText: weightsHintText,
                               helperText: weightsHelperText,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16.0),
+                        const SizedBox(width: AppSizing.padding2),
                         Expanded(
                           child: TextFormField(
                             controller: rirController,
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
-                              //labelText: 'RIR ${index + 1}',
                               hintText: 'RIR',
                               helperText: rirHelperText,
                             ),
@@ -470,7 +648,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: AppSizing.padding2),
             Visibility(
               visible: _lastEntries.isNotEmpty,
               child: Center(
@@ -480,7 +658,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             ),
             Visibility(
               visible: _lastEntries.isNotEmpty,
-              child: const SizedBox(height: 9.0),
+              child: const SizedBox(height: AppSizing.padding4),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

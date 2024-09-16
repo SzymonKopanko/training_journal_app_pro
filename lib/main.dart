@@ -6,6 +6,7 @@ import 'screens/show_notifications.dart';
 import 'screens/show_trainings.dart';
 import 'services/journal_database.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'constants/app_constants.dart';
 
 
 void main() async {
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
       ],
       theme: ThemeData.from(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green.shade900,
+          seedColor: AppColors.seed,
           brightness: MediaQuery.platformBrightnessOf(context),
         ),
       ),
@@ -43,42 +44,42 @@ class MyApp extends StatelessWidget {
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
-  void _showDeleteConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete All Data?'),
-          content: const Text(
-              'This action will delete all entries and exercises. Are you sure'
-              ' you want to proceed?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                _deleteAllData(context);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Delete All'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _deleteAllData(BuildContext context) async {
-    final database = JournalDatabase.instance;
-    await database.deleteDB();
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('All data has been deleted.'),
-    ));
-  }
+  // void _showDeleteConfirmationDialog(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Delete All Data?'),
+  //         content: const Text(
+  //             'This action will delete all entries and exercises. Are you sure'
+  //             ' you want to proceed?'),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text('Cancel'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               _deleteAllData(context);
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text('Delete All'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+  //
+  // void _deleteAllData(BuildContext context) async {
+  //   final database = JournalDatabase.instance;
+  //   await database.deleteDB();
+  //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+  //     content: Text('All data has been deleted.'),
+  //   ));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -109,15 +110,32 @@ class MainScreen extends StatelessWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(185.0, 80.0),
-                          padding: const EdgeInsets.all(16.0),
+                          minimumSize: AppSizing.buttonSize0,
+                          padding: const EdgeInsets.all(AppSizing.padding2),
                         ),
                         child: const Text(
                           'Exercises',
-                          style: TextStyle(fontSize: 25),
+                          style: TextStyle(fontSize: AppSizing.fontSize1),
                         ),
                       ),
-                      const SizedBox(height: 50.0),
+                      const SizedBox(height: AppSizing.padding),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ShowTrainingsScreen()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: AppSizing.buttonSize0,
+                          padding: const EdgeInsets.all(AppSizing.padding2),
+                        ),
+                        child: const Text(
+                          'Trainings',
+                          style: TextStyle(fontSize: AppSizing.fontSize1),
+                        ),
+                      ),
+                      const SizedBox(height: AppSizing.padding),
                       ElevatedButton(
                         onPressed: () {
                           Navigator.push(
@@ -127,80 +145,82 @@ class MainScreen extends StatelessWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(185.0, 80.0),
-                          padding: const EdgeInsets.all(16.0),
+                          minimumSize: AppSizing.buttonSize0,
+                          padding: const EdgeInsets.all(AppSizing.padding2),
                         ),
                         child: const Text(
                           'Notifications',
-                          style: TextStyle(fontSize: 25),
+                          style: TextStyle(fontSize: AppSizing.fontSize1),
                         ),
                       ),
+                      const SizedBox(height: AppSizing.padding),
+
                     ],
                   ),
-                  const SizedBox(width: 10.0),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ShowTrainingsScreen()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(185.0, 80.0),
-                          padding: const EdgeInsets.all(16.0),
-                        ),
-                        child: const Text(
-                          'Trainings',
-                          style: TextStyle(fontSize: 25),
-                        ),
-                      ),
-                      const SizedBox(height: 50.0),
-                      ElevatedButton(
-                        onPressed: () {
-                          //TODO
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(185.0, 80.0),
-                          padding: const EdgeInsets.all(16.0),
-                        ),
-                        child: const Text(
-                          'Body Entries',
-                          style: TextStyle(fontSize: 25),
-                        ),
-                      ),
-                    ],
-                  )
+                  const SizedBox(width: AppSizing.padding3),
+                  // Column(
+                  //   crossAxisAlignment: CrossAxisAlignment.center,
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: <Widget>[
+                  //     ElevatedButton(
+                  //       onPressed: () {
+                  //         Navigator.push(
+                  //           context,
+                  //           MaterialPageRoute(builder: (context) => const ShowTrainingsScreen()),
+                  //         );
+                  //       },
+                  //       style: ElevatedButton.styleFrom(
+                  //         minimumSize: AppSizing.buttonSize0,
+                  //         padding: const EdgeInsets.all(AppSizing.padding2),
+                  //       ),
+                  //       child: const Text(
+                  //         'Trainings',
+                  //         style: TextStyle(fontSize: AppSizing.fontSize1),
+                  //       ),
+                  //     ),
+                  //     const SizedBox(height: AppSizing.padding),
+                  //     ElevatedButton(
+                  //       onPressed: () {
+                  //         //TODO
+                  //       },
+                  //       style: ElevatedButton.styleFrom(
+                  //         minimumSize: AppSizing.buttonSize0,
+                  //         padding: const EdgeInsets.all(AppSizing.padding2),
+                  //       ),
+                  //       child: const Text(
+                  //         'Body Entries',
+                  //         style: TextStyle(fontSize: AppSizing.fontSize1),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // )
                 ],
               ),
-              const SizedBox(height: 50.0),
-              ElevatedButton(
-                onPressed: () {
-                  _showDeleteConfirmationDialog(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(185.0, 80.0),
-                  padding: const EdgeInsets.all(16.0),
-                  backgroundColor: MediaQuery.platformBrightnessOf(context) !=
-                          Brightness.light
-                      ? const Color.fromARGB(100, 70, 40, 46)
-                      : const Color.fromARGB(255, 252, 234, 234),
-                ),
-                child: Text(
-                  'Delete All',
-                  style: TextStyle(
-                    fontSize: 25,
-                    color: MediaQuery.platformBrightnessOf(context) !=
-                            Brightness.light
-                        ? const Color.fromARGB(255, 255, 146, 146)
-                        : const Color.fromARGB(255, 183, 0, 0),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 50.0),
+              // const SizedBox(height: AppSizing.padding),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     _showDeleteConfirmationDialog(context);
+              //   },
+              //   style: ElevatedButton.styleFrom(
+              //     minimumSize: AppSizing.buttonSize0,
+              //     padding: const EdgeInsets.all(AppSizing.padding2),
+              //     backgroundColor: MediaQuery.platformBrightnessOf(context) !=
+              //             Brightness.light
+              //         ? AppColors.darkErrButt
+              //         : AppColors.brightErrButt,
+              //   ),
+              //   child: Text(
+              //     'Delete All',
+              //     style: TextStyle(
+              //       fontSize: AppSizing.fontSize1,
+              //       color: MediaQuery.platformBrightnessOf(context) !=
+              //               Brightness.light
+              //           ? AppColors.darkErrTxt
+              //           : AppColors.brightErrTxt,
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(height: AppSizing.padding),
               const Text(
                 'by Szymon Kopańko',
               )

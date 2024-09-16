@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/app_constants.dart';
 import '../services/exercise_service.dart';
 import '../models/training.dart';
 import '../models/training_with_exercises.dart';
@@ -116,7 +117,7 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
           children: [
             if (trainingsWithExercises.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(AppSizing.padding2),
                 child: TextFormField(
                   controller: searchBarController,
                   decoration: const InputDecoration(
@@ -135,29 +136,29 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
                         child: Text('No matching trainings found.'),
                       )
                     : Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(AppSizing.padding2),
                         child: ListView.builder(
                           itemCount: filteredTrainingsWithExercises.length,
                           itemBuilder: (context, index) {
                             final trainingWithExercises =
                                 filteredTrainingsWithExercises[index];
                             return Card(
-                              margin: const EdgeInsets.all(8.0),
+                              margin: const EdgeInsets.all(AppSizing.padding4),
                               child: Padding(
-                                padding: const EdgeInsets.all(16.0),
+                                padding: const EdgeInsets.all(AppSizing.padding2),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       trainingWithExercises.training.name,
                                       style: const TextStyle(
-                                        fontSize: 20.0,
+                                        fontSize: AppSizing.fontSize2,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    const SizedBox(height: 8.0),
+                                    const SizedBox(height: AppSizing.padding4),
                                     Text(trainingWithExercises.toString()),
-                                    const SizedBox(height: 16.0),
+                                    const SizedBox(height: AppSizing.padding2),
                                     Center(
                                         child: ElevatedButton(
                                       onPressed: () {
@@ -176,11 +177,8 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
                                             MediaQuery.platformBrightnessOf(
                                                         super.context) ==
                                                     Brightness.light
-                                                ? const Color.fromARGB(
-                                                    255, 228, 245, 224)
-                                                : const Color.fromARGB(
-                                                    255, 27, 44, 23),
-                                        fixedSize: const Size(280, 25),
+                                                ? AppColors.brightButt : AppColors.darkButt,
+                                        fixedSize: AppSizing.buttonSize4,
                                       ),
                                       child: const Text('Add Training Entries'),
                                     )),
@@ -199,11 +197,8 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
                                                 MediaQuery.platformBrightnessOf(
                                                             super.context) !=
                                                         Brightness.light
-                                                    ? const Color.fromARGB(
-                                                        100, 70, 40, 46)
-                                                    : const Color.fromARGB(
-                                                        255, 252, 234, 234),
-                                            fixedSize: const Size(140, 25),
+                                                    ? AppColors.darkErrButt : AppColors.brightErrButt,
+                                            fixedSize: AppSizing.buttonSize3,
                                           ),
                                           child: Text(
                                             'Delete',
@@ -212,14 +207,11 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
                                                           .platformBrightnessOf(
                                                               super.context) !=
                                                       Brightness.light
-                                                  ? const Color.fromARGB(
-                                                      255, 255, 146, 146)
-                                                  : const Color.fromARGB(
-                                                      255, 183, 0, 0),
+                                                  ? AppColors.darkErrTxt : AppColors.brightErrTxt,
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(width: 16.0),
+                                        const SizedBox(width: AppSizing.padding2),
                                         ElevatedButton(
                                           onPressed: () {
                                             Navigator.push(
@@ -238,11 +230,8 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
                                                 MediaQuery.platformBrightnessOf(
                                                             super.context) ==
                                                         Brightness.light
-                                                    ? const Color.fromARGB(
-                                                        255, 228, 245, 224)
-                                                    : const Color.fromARGB(
-                                                        255, 27, 44, 23),
-                                            fixedSize: const Size(140, 25),
+                                                    ? AppColors.brightButt : AppColors.darkButt,
+                                            fixedSize: AppSizing.buttonSize3,
                                           ),
                                           child: const Text('Edit'),
                                         ),
@@ -278,16 +267,16 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                fixedSize: const Size(150, 50),
+                fixedSize: AppSizing.buttonSize1,
               ),
               child: const Text(
                 'Add Training',
                 style: TextStyle(
-                  fontSize: 16.0,
+                  fontSize: AppSizing.fontSize4,
                 ),
               ),
             ),
-            const SizedBox(height: 20.0),
+            const SizedBox(height: AppSizing.padding1),
           ],
         ),
       ),

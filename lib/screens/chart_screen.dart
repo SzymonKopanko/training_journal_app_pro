@@ -72,17 +72,17 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
             return charts.TimeSeriesChart(
               _createData(),
               animate: true,
-              dateTimeFactory: const charts.LocalDateTimeFactory(), // For DateTime values
+              dateTimeFactory: const charts.LocalDateTimeFactory(),
               primaryMeasureAxis: createNumericAxis(),
               domainAxis: createDateTimeAxis(),
               defaultRenderer: charts.LineRendererConfig(
                 customRendererId: 'customPoint',
-                includePoints: true, // Dodaj tę linię
+                includePoints: true,
               ),
               customSeriesRenderers: [
                 charts.PointRendererConfig(
                   customRendererId: 'customPoint',
-                  radiusPx: 5, // Ustaw rozmiar punktu na dowolną wartość większą niż zero
+                  radiusPx: 5,
                 ),
               ],
               behaviors: [
@@ -178,13 +178,13 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
           fontSize: 12,
         ),
         lineStyle: charts.LineStyleSpec(
-          thickness: 1, // Grubość linii osi Y
-          color: charts.MaterialPalette.gray.shade800, // Kolor linii osi Y
+          thickness: 1,
+          color: charts.MaterialPalette.gray.shade800,
         ),
-        tickLengthPx: 3, // Długość kresek na osi Y
+        tickLengthPx: 3,
         axisLineStyle: charts.LineStyleSpec(
-          thickness: 1, // Grubość linii osi X
-          color: charts.MaterialPalette.gray.shade400, // Kolor linii osi X
+          thickness: 1,
+          color: charts.MaterialPalette.gray.shade400,
         ),
       ),
     );
@@ -203,15 +203,15 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
         ),
         lineStyle: charts.LineStyleSpec(
           thickness: 0, // Grubość linii osi Y
-          color: charts.MaterialPalette.gray.shade800, // Kolor linii osi Y
+          color: charts.MaterialPalette.gray.shade800,
         ),
         tickLengthPx: 3,
         axisLineStyle: charts.LineStyleSpec(
           thickness: 1, // Grubość linii osi X
-          color: charts.MaterialPalette.gray.shade400, // Kolor linii osi X
+          color: charts.MaterialPalette.gray.shade400,
         ),
       ),
-      showAxisLine: true // Rysuj linie osi Y po lewej stronie
+      showAxisLine: true
     );
   }
 }

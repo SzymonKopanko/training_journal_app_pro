@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:training_journal_app/services/journal_database.dart';
+import '../constants/app_constants.dart';
 import '../models/entry.dart';
 import '../models/set.dart';
 import '../services/set_service.dart';
@@ -251,7 +252,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
         title:  Text('Edit \'$exerciseName\' Entry'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppSizing.padding2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -259,20 +260,20 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
              child: Text(
                     'Date: ${DateFormat('EEEE, dd.MM.yyyy, HH:mm').format(_selectedDateTime)}',
                     style:
-                        const TextStyle(fontSize: 20.0),
+                        const TextStyle(fontSize: AppSizing.fontSize2),
                   ),
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: AppSizing.padding2),
             const Center(
                 child: Row(
                     children: [
-                      SizedBox(width: 60.0),
+                      SizedBox(width: AppSizing.boxSize1),
                       Expanded(child: Text("Reps")),
-                      SizedBox(width: 35.0),
+                      SizedBox(width: AppSizing.boxSize2),
                       Expanded(child: Text("Weight")),
-                      SizedBox(width: 55.0),
+                      SizedBox(width: AppSizing.boxSize3),
                       Expanded(child: Text("RIR")),
-                      SizedBox(width: 50.0)
+                      SizedBox(width: AppSizing.boxSize4)
                     ])
             ),
             Expanded(
@@ -318,13 +319,13 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                       children: [
                         Text('${index + 1}.',
                           style: const TextStyle(
-                              fontSize: 20.0
+                              fontSize: AppSizing.fontSize2
                           ),
                         ),
                         if(index < 9)
-                          const SizedBox(width: 16.0),
+                          const SizedBox(width: AppSizing.padding2),
                         if(index >= 9)
-                          const SizedBox(width: 5.0),
+                          const SizedBox(width: AppSizing.padding6),
                         Expanded(
                           child: TextFormField(
                             controller: repsController,
@@ -336,7 +337,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16.0),
+                        const SizedBox(width: AppSizing.padding2),
                         Expanded(
                           child: TextFormField(
                             controller: weightsController,
@@ -348,7 +349,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16.0),
+                        const SizedBox(width: AppSizing.padding2),
                         Expanded(
                           child: TextFormField(
                             controller: rirController,
@@ -376,7 +377,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: AppSizing.padding2),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

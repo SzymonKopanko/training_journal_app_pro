@@ -5,6 +5,7 @@ import '../services/training_service.dart';
 import 'add_notification.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../models/training_notification.dart';
+
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
   @override

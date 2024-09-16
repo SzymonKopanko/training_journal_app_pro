@@ -21,6 +21,9 @@ dependencies:
   material_color_utilities: any
   charts_flutter_maintained: any
   timezone: any
+  duration_picker: ^1.0.7
+  path_provider: ^2.0.11
+  just_audio: any
 
 dependency_overrides:
   intl: ^0.19.0
@@ -35,3 +38,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/rest.wav

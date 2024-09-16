@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants/app_constants.dart';
 import '../models/exercise.dart';
 import '../models/training.dart';
 import '../models/training_with_exercises.dart';
@@ -66,7 +67,7 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.fromLTRB(AppSizing.padding2, 0, AppSizing.padding2, AppSizing.padding2),
             child: TextField(
               controller: _trainingNameController,
               decoration: const InputDecoration(labelText: 'Training Name'),
@@ -78,7 +79,7 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
             ),
           if (exercises.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(AppSizing.padding2),
               child: TextFormField(
                 controller: searchBarController,
                 decoration: const InputDecoration(
@@ -133,10 +134,10 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
                   key: ValueKey(exercise.id),
                   color: MediaQuery.of(context).platformBrightness ==
                       Brightness.light
-                      ? const Color.fromARGB(255, 228, 245, 224)
-                      : const Color.fromARGB(255, 27, 44, 23),
+                      ? AppColors.brightButt
+                      : AppColors.darkButt,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(AppSizing.padding4),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -177,10 +178,10 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
                 return Card(
                   color: MediaQuery.platformBrightnessOf(super.context) ==
                       Brightness.light
-                      ? const Color.fromARGB(255, 228, 245, 224)
-                      : const Color.fromARGB(255, 27, 44, 23),
+                      ? AppColors.brightButt
+                      : AppColors.darkButt,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(AppSizing.padding4),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

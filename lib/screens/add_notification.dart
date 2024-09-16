@@ -5,6 +5,8 @@ import 'package:training_journal_app/services/journal_database.dart';
 import 'package:training_journal_app/services/training_service.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import '../constants/app_constants.dart';
+
 class AddNotificationScreen extends StatefulWidget {
   const AddNotificationScreen({super.key});
 
@@ -120,13 +122,13 @@ class _AddNotificationScreenState extends State<AddNotificationScreen> {
         title: const Text('Add Notification'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppSizing.padding2),
         child: ListView(
           children: [
             _buildTrainingDropdown(),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: AppSizing.padding2),
             _buildDayDropdown(),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: AppSizing.padding2),
             _buildSaveButton(),
           ],
         ),
