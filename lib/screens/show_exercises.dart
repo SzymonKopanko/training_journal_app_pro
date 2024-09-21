@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:training_journal_app/models/exercise.dart';
+import 'package:training_journal_app/services/body_part_service.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 import 'package:intl/intl.dart';
 import 'package:training_journal_app/services/exercise_service.dart';
@@ -20,6 +21,7 @@ class _ShowExercisesState extends State<ShowExercises> {
   List<Exercise> exercises = [];
   List<Exercise> filteredExercises = [];
   TextEditingController searchBarController = TextEditingController();
+  Map<int, List<String>> exerciseBodyPartsMap = {}; // Mapowanie ID ćwiczeń na listę partii ciała
 
   @override
   void initState() {
@@ -35,12 +37,22 @@ class _ShowExercisesState extends State<ShowExercises> {
         exercises = loadedExercises;
         filteredExercises = loadedExercises;
       });
+      await _loadBodyPartsForExercises();
+    } else {
+      await BodyPartService(instance).createStarterExercisesAndBodyPartsWithRelations();
+      _loadExercises();
     }
-    else {
-      setState(() {
-        exercises = [];
-        filteredExercises = [];
-      });
+  }
+
+  Future<void> _loadBodyPartsForExercises() async {
+    final instance = JournalDatabase.instance;
+    for (var exercise in exercises) {
+      final bodyParts = await BodyPartService(instance).readAllBodyPartsByExercise(exercise);
+      if (bodyParts != null) {
+        setState(() {
+          exerciseBodyPartsMap[exercise.id!] = bodyParts.map((bp) => bp.name).toList();
+        });
+      }
     }
   }
 
@@ -52,7 +64,7 @@ class _ShowExercisesState extends State<ShowExercises> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Delete Exercise?'),
-          content:  Text(
+          content: Text(
               'This action will delete all entries for this exercise($exerciseDeletedName) with it.'
                   ' Are you sure you want to proceed?'),
           actions: <Widget>[
@@ -81,13 +93,15 @@ class _ShowExercisesState extends State<ShowExercises> {
   }
 
   void _applyFilter() {
-    if(exercises.isNotEmpty){
+    if (exercises.isNotEmpty) {
       setState(() {
         if (searchBarController.text.isNotEmpty) {
-          filteredExercises = exercises
-              .where((exercise) =>
-              exercise.name.toLowerCase().contains(searchBarController.text.toLowerCase()))
-              .toList();
+          final query = searchBarController.text.toLowerCase();
+          filteredExercises = exercises.where((exercise) {
+            final matchesName = exercise.name.toLowerCase().contains(query);
+            final matchesBodyParts = (exerciseBodyPartsMap[exercise.id] ?? []).any((bodyPart) => bodyPart.toLowerCase().contains(query));
+            return matchesName || matchesBodyParts;
+          }).toList();
         } else {
           filteredExercises = exercises;
         }
@@ -95,9 +109,15 @@ class _ShowExercisesState extends State<ShowExercises> {
     }
   }
 
+
+  String formatRestTime(int seconds) {
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Exercises'),
@@ -130,6 +150,8 @@ class _ShowExercisesState extends State<ShowExercises> {
                   itemCount: filteredExercises.length,
                   itemBuilder: (context, index) {
                     final exercise = filteredExercises[index];
+                    final bodyParts =
+                        exerciseBodyPartsMap[exercise.id] ?? [];
                     return Card(
                       margin: const EdgeInsets.all(AppSizing.padding4),
                       child: Padding(
@@ -144,17 +166,32 @@ class _ShowExercisesState extends State<ShowExercises> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              'One Rep Max: ${exercise.oneRM.toStringAsFixed(2)} kg (${exercise.weight.toStringAsFixed(2)} kg'
-                                  ' x ${exercise.reps} reps)',
-                            ),
-                            Text(
-                              'Date and time: ${DateFormat('dd.MM.yyyy, HH:mm').format(exercise.date)}',
-                            ),
-                            if(exercise.notes.isNotEmpty)
+                            const SizedBox(width: AppSizing.padding3),
+                            if (exercise.oneRM != 0)
+                              Text(
+                                'One Rep Max: ${exercise.oneRM.toStringAsFixed(2)} kg (${exercise.weight.toStringAsFixed(2)} kg'
+                                    ' x ${exercise.reps} reps)',
+                              ),
+                            if (exercise.oneRM != 0)
+                              Text(
+                                'Date and time: ${DateFormat('dd.MM.yyyy, HH:mm').format(exercise.date)}',
+                              ),
+                            if (bodyParts.isNotEmpty)
+                              Text(
+                                'Body Parts: ${bodyParts.join(', ')}',
+                              ),
+                            if (exercise.notes.isNotEmpty)
                               Text('Notes: ${exercise.notes}'),
+                            if (exercise.restTime != 0)
+                              Text(
+                                  'Default rest time: ${formatRestTime(exercise.restTime)}'),
+                            if (exercise.bodyweightPercentage != 0)
+                              Text(
+                                  'Bodyweight lifted: ${exercise.bodyweightPercentage} %'),
+                            const SizedBox(width: AppSizing.padding3),
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 ElevatedButton(
@@ -163,34 +200,48 @@ class _ShowExercisesState extends State<ShowExercises> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                         AddSpecifiedEntryScreen(chosenExercise: exercise),
+                                            AddSpecifiedEntryScreen(
+                                                chosenExercise:
+                                                exercise),
                                       ),
                                     ).then((_) {
                                       _loadExercises();
                                     });
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: MediaQuery.platformBrightnessOf(super.context) == Brightness.light ?
-                                    AppColors.brightButt : AppColors.darkButt,
+                                    backgroundColor:
+                                    MediaQuery.platformBrightnessOf(
+                                        super.context) ==
+                                        Brightness.light
+                                        ? AppColors.brightButt
+                                        : AppColors.darkButt,
                                     fixedSize: AppSizing.buttonSize2,
                                   ),
                                   child: const Text('Add Entry'),
                                 ),
-                                const SizedBox(width: AppSizing.padding2),
+                                const SizedBox(
+                                    width: AppSizing.padding2),
                                 ElevatedButton(
                                   onPressed: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            ShowSpecifiedEntries(chosenExercise: exercise),
+                                            ShowSpecifiedEntries(
+                                                chosenExercise:
+                                                exercise),
                                       ),
                                     ).then((_) {
                                       _loadExercises();
                                     });
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: MediaQuery.platformBrightnessOf(super.context) == Brightness.light ? AppColors.brightButt : AppColors.darkButt,
+                                    backgroundColor:
+                                    MediaQuery.platformBrightnessOf(
+                                        super.context) ==
+                                        Brightness.light
+                                        ? AppColors.brightButt
+                                        : AppColors.darkButt,
                                     fixedSize: AppSizing.buttonSize2,
                                   ),
                                   child: const Text('Show History'),
@@ -199,41 +250,57 @@ class _ShowExercisesState extends State<ShowExercises> {
                             ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.center,
                               children: [
                                 ElevatedButton(
                                   onPressed: () {
                                     _deleteExercise(context, index);
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                    MediaQuery.platformBrightnessOf(super.context) !=
+                                    backgroundColor: MediaQuery
+                                        .platformBrightnessOf(
+                                        super.context) !=
                                         Brightness.light
-                                        ? AppColors.darkErrButt : AppColors.brightErrButt,
+                                        ? AppColors.darkErrButt
+                                        : AppColors.brightErrButt,
                                     fixedSize: AppSizing.buttonSize2,
                                   ),
-                                  child: Text('Delete',
+                                  child: Text(
+                                    'Delete',
                                     style: TextStyle(
-                                      color: MediaQuery.platformBrightnessOf(super.context) != Brightness.light
-                                          ? AppColors.darkErrTxt : AppColors.brightErrTxt,
-                                    ),),
+                                      color: MediaQuery
+                                          .platformBrightnessOf(
+                                          super.context) !=
+                                          Brightness.light
+                                          ? AppColors.darkErrTxt
+                                          : AppColors.brightErrTxt,
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(width: AppSizing.padding2),
+                                const SizedBox(
+                                    width: AppSizing.padding2),
                                 ElevatedButton(
                                   onPressed: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => EditExerciseScreen(
-                                          chosenExercise: exercise,
-                                        ),
+                                        builder: (context) =>
+                                            EditExerciseScreen(
+                                              chosenExercise: exercise,
+                                            ),
                                       ),
                                     ).then((_) {
                                       _loadExercises();
                                     });
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: MediaQuery.platformBrightnessOf(super.context) == Brightness.light ? AppColors.brightButt : AppColors.darkButt,
+                                    backgroundColor:
+                                    MediaQuery.platformBrightnessOf(
+                                        super.context) ==
+                                        Brightness.light
+                                        ? AppColors.brightButt
+                                        : AppColors.darkButt,
                                     fixedSize: AppSizing.buttonSize2,
                                   ),
                                   child: const Text('Edit'),
@@ -250,7 +317,7 @@ class _ShowExercisesState extends State<ShowExercises> {
             ),
           if (exercises.isEmpty)
             const Expanded(
-              child:  Center(
+              child: Center(
                 child: Text('No exercises found, add some.'),
               ),
             ),
@@ -258,7 +325,8 @@ class _ShowExercisesState extends State<ShowExercises> {
             onPressed: () async {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const AddExerciseScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const AddExerciseScreen()),
               ).then((_) {
                 _loadExercises();
               });
@@ -278,6 +346,5 @@ class _ShowExercisesState extends State<ShowExercises> {
       ),
     );
   }
-
-
 }
+

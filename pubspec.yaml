@@ -38,5 +38,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: DSEG7
+      fonts:
+        - asset: assets/fonts/DSEG7Classic-Regular.ttf
+
   assets:
     - assets/rest.wav

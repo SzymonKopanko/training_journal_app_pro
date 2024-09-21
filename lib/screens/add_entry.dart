@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:training_journal_app/services/body_entry_service.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 import '../constants/app_constants.dart';
 import '../models/entry.dart';
@@ -33,7 +33,6 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   ];
   final List<TextEditingController> _rirControllers = [TextEditingController()];
   final _scrollController = ScrollController();
-  List<Exercise> exercises = [];
   Exercise? selectedExercise;
   int numberOfLastEntry = 0;
   List<Entry> _lastEntries = [];
@@ -51,37 +50,39 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   Timer? _timer;
   String _timerDisplay = '00:00';
   bool _isTimerRunning = false;
-
+  double bodyweight = 0.0;
+  int bodyweightPercentage = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadData();
     _setFirstExercise();
     _initializeControllers();
   }
 
   Future<void> _updateExerciseList() async {
     setState(() {
-      exercises.remove(selectedExercise);
+      widget.chosenTrainingWithExercises.exercises.remove(selectedExercise);
     });
   }
 
-  Future<void> _loadData() async {
-    final exerciseList = widget.chosenTrainingWithExercises.exercises;
-    setState(() {
-      exercises = exerciseList;
-    });
-  }
 
   Future<void> _setFirstExercise() async {
     setState(() {
-      selectedExercise = exercises[0];
+      selectedExercise = widget.chosenTrainingWithExercises.exercises[0];
     });
   }
 
   void _initializeControllers() async {
     final instance = JournalDatabase.instance;
+    final bodyEntry = await BodyEntryService(instance).readLatestBodyEntry();
+    if(bodyEntry != null){
+      bodyweight = bodyEntry.weight;
+    }
+    bodyweightPercentage = selectedExercise!.bodyweightPercentage;
+    _selectedDuration = Duration(seconds: selectedExercise!.restTime);
+    _timerDisplay = _formatDuration(_selectedDuration!);
+    _previousDuration = _selectedDuration;
     numberOfLastEntry = 0;
     weightsHintText = 'Weight';
     _lastEntries = [];
@@ -97,8 +98,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     _rirControllers.add(TextEditingController());
     exerciseNotes = selectedExercise!.notes;
     _lastEntries = await EntryService(instance)
-            .readLastEntriesByExercise(selectedExercise!) ??
-        [];
+            .readLastEntriesByExercise(selectedExercise!) ?? [];
     if (_lastEntries.isNotEmpty) {
       _lastEntryMainWeight = _lastEntries[0].mainWeight;
       _lastEntryDateTime = _lastEntries[0].date;
@@ -145,8 +145,8 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     if (controller.isEmpty) {
       return 0;
     }
-    final double weight = double.tryParse(controller) ?? -1.0;
-    if (weight < 0) {
+    final double weight = double.tryParse(controller) ?? -10000.0;
+    if (weight < -bodyweight) {
       return 2;
     }
     if (weight >= 10000) {
@@ -281,15 +281,16 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     final newEntry = Entry(
         date: _selectedDateTime!,
         exerciseId: selectedExercise!.id!,
-        mainWeight: double.tryParse(_mainWeightController.text) as double);
+        mainWeight: double.tryParse(_mainWeightController.text) as double,
+        bodyweight: bodyweight);
     await EntryService(instance).createEntry(newEntry).then((newEntry) async {
       await _saveSets(newEntry.id!, selectedExercise!.id!, instance);
     });
     if (exercises.length == 1) {
       Navigator.pop(context);
     } else {
-      _updateExerciseList();
-      _setFirstExercise();
+      await _updateExerciseList();
+      await _setFirstExercise();
       _initializeControllers();
     }
   }
@@ -306,7 +307,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       int rir = _rirControllers[i].text.isNotEmpty
           ? int.parse(_rirControllers[i].text)
           : -1;
-      double oneRM = SetService(instance).calculateOneRM(weight, reps);
+      double oneRM = SetService(instance).calculateOneRM(weight, bodyweight*bodyweightPercentage/100, reps);
       Set set = Set(
         entryId: entryId,
         exerciseId: exerciseId,
@@ -321,8 +322,8 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   }
 
   Future<Duration?> _showTimePickerDialog(BuildContext context) async {
-    int selectedMinutes = 0;
-    int selectedSeconds = 0;
+    int selectedMinutes = _selectedDuration!.inMinutes.remainder(60);
+    int selectedSeconds = _selectedDuration!.inSeconds.remainder(60);
 
     return await showDialog<Duration>(
       context: context,
@@ -468,7 +469,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                   fontWeight: FontWeight.bold,
                 ),),
             DropdownButtonFormField<String>(
-              value: exercises[0].name,
+              value: widget.chosenTrainingWithExercises.exercises[0].name,
               onChanged: (value) async {
                 selectedExercise =
                 await ExerciseService(JournalDatabase.instance)
@@ -478,7 +479,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 });
               },
               items: [
-                ...exercises.map((exercise) {
+                ...widget.chosenTrainingWithExercises.exercises.map((exercise) {
                   return DropdownMenuItem<String>(
                     value: exercise.name,
                     child: Text(exercise.name),
@@ -518,7 +519,9 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                       _startTimer();
                     }
                   },
-                  child: Text(_isTimerRunning ? 'Stop Timer' : 'Start Timer'),
+                  child: Icon(
+                    _isTimerRunning ? Icons.pause : Icons.play_arrow,  // Pauza i play
+                  ),
                 ),
                 const SizedBox(width: AppSizing.padding2),
                 // Timer Button
@@ -537,11 +540,10 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                           }
                         });
                       },
-                      child: const Text('Set Timer'),
-                    ),
-                    Text(
-                        style: const TextStyle(fontSize: AppSizing.fontSize3),
-                        _timerDisplay),
+                      child: Text(style: const TextStyle(fontSize: AppSizing.fontSize3,
+                        fontFamily: 'DSEG7'),
+                          _timerDisplay),
+                    )
                   ],
                 ),
               ],

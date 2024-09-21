@@ -107,7 +107,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       title: Text('Training: ${notification.trainingName}'),
                       subtitle: Text('Time: ${notification.time.format(context)}'),
                       trailing: IconButton(
-                        icon: Icon(Icons.delete),
+                        icon: const Icon(Icons.delete),
                         onPressed: () async {
                           // Usuń powiadomienie z urządzenia po naciśnięciu guzika
                           await _cancelNotification(notification.id);

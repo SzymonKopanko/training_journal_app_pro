@@ -10,7 +10,7 @@ import 'add_training.dart';
 import 'edit_training.dart';
 
 class ShowTrainingsScreen extends StatefulWidget {
-  const ShowTrainingsScreen({Key? key}) : super(key: key);
+  const ShowTrainingsScreen({super.key});
 
   @override
   _ShowTrainingsScreenState createState() => _ShowTrainingsScreenState();
@@ -261,7 +261,7 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AddTrainingScreen()),
+                  MaterialPageRoute(builder: (context) => const AddTrainingScreen()),
                 ).then((_) {
                   _loadData();
                 });

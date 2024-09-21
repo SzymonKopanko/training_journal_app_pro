@@ -3,8 +3,7 @@ import '../services/journal_database.dart';
 
 class BodyEntryService {
   final JournalDatabase _instance;
-
-  BodyEntryService() : _instance = JournalDatabase.instance;
+  BodyEntryService(this._instance);
 
   //CREATE
   Future<BodyEntry> createBodyEntry(BodyEntry bodyEntry) async {
@@ -18,6 +17,7 @@ class BodyEntryService {
     final db = await _instance.database;
     final result = await db.query(
       body_entries,
+      orderBy: '${BodyEntryFields.dateTime} DESC',  // Sortuj po dacie malejąco
     );
     if(result.isNotEmpty){
       return result.map((json) => BodyEntry.fromJson(json)).toList();
@@ -39,6 +39,23 @@ class BodyEntryService {
       return BodyEntry.fromJson(result.first);
     } else {
       throw Exception('BodyEntry with ID $id not found');
+    }
+  }
+
+  // **NEW FUNCTION: READ LATEST ENTRY**
+  Future<BodyEntry?> readLatestBodyEntry() async {
+    final db = await _instance.database;
+    final result = await db.query(
+      body_entries,
+      columns: BodyEntryFields.values,
+      orderBy: '${BodyEntryFields.dateTime} DESC',
+      limit: 1,
+    );
+
+    if (result.isNotEmpty) {
+      return BodyEntry.fromJson(result.first);
+    } else {
+      return BodyEntry(dateTime: DateTime.now(), weight: 0.0);
     }
   }
 

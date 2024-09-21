@@ -1,7 +1,9 @@
 const String exercises = 'exercises';
 
 class ExerciseFields {
-  static final List<String> values = [id, name, date, weight, reps, oneRM, notes];
+  static final List<String> values = [
+    id, name, date, weight, reps, oneRM, notes, restTime, bodyweightPercentage
+  ];
 
   static const String id = 'exercise_id';
   static const String name = 'name';
@@ -10,6 +12,8 @@ class ExerciseFields {
   static const String reps = 'reps';
   static const String oneRM = 'oneRM';
   static const String notes = 'notes';
+  static const String restTime = 'rest_time';
+  static const String bodyweightPercentage = 'bodyweight_percentage'; // Nowe pole
 }
 
 class Exercise {
@@ -20,6 +24,8 @@ class Exercise {
   final int reps;
   final double oneRM;
   final String notes;
+  final int restTime;
+  final int bodyweightPercentage; // Nowe pole
 
   const Exercise({
     this.id,
@@ -29,6 +35,8 @@ class Exercise {
     required this.reps,
     required this.oneRM,
     required this.notes,
+    required this.restTime,
+    required this.bodyweightPercentage, // Nowe pole
   });
 
   Exercise copy({
@@ -39,6 +47,8 @@ class Exercise {
     int? reps,
     double? oneRM,
     String? notes,
+    int? restTime,
+    int? bodyweightPercentage, // Nowe pole
   }) =>
       Exercise(
         id: id ?? this.id,
@@ -48,6 +58,8 @@ class Exercise {
         reps: reps ?? this.reps,
         oneRM: oneRM ?? this.oneRM,
         notes: notes ?? this.notes,
+        restTime: restTime ?? this.restTime,
+        bodyweightPercentage: bodyweightPercentage ?? this.bodyweightPercentage, // Nowe pole
       );
 
   Map<String, Object?> toJson() => {
@@ -58,6 +70,8 @@ class Exercise {
     ExerciseFields.reps: reps,
     ExerciseFields.oneRM: oneRM,
     ExerciseFields.notes: notes,
+    ExerciseFields.restTime: restTime,
+    ExerciseFields.bodyweightPercentage: bodyweightPercentage, // Nowe pole
   };
 
   static Exercise fromJson(Map<String, Object?> json) => Exercise(
@@ -68,6 +82,8 @@ class Exercise {
     reps: json[ExerciseFields.reps] as int,
     oneRM: json[ExerciseFields.oneRM] as double,
     notes: json[ExerciseFields.notes] as String,
+    restTime: json[ExerciseFields.restTime] as int,
+    bodyweightPercentage: json[ExerciseFields.bodyweightPercentage] as int, // Nowe pole
   );
 
   @override
@@ -79,7 +95,9 @@ class Exercise {
         '  weight: $weight,\n'
         '  reps: $reps,\n'
         '  oneRM: $oneRM,\n'
-        '  notes: $notes\n'
+        '  notes: $notes,\n'
+        '  restTime: $restTime,\n'
+        '  bodyweightPercentage: $bodyweightPercentage\n' // Nowe pole
         '}\n';
   }
 }

@@ -1,68 +1,52 @@
 const String body_entries = 'body_entries';
 
 class BodyEntryFields {
-  static final List<String> values = [id, date, weight, fatFreeWeight, bodyfat];
+  static final List<String> values = [id, dateTime, weight];
 
   static const String id = 'body_entry_id';
-  static const String date = 'date';
+  static const String dateTime = 'date_time';
   static const String weight = 'weight';
-  static const String fatFreeWeight = 'fatFreeWeight';
-  static const String bodyfat = 'bodyfat';
 }
 
 class BodyEntry {
   final int? id;
-  final DateTime date;
+  final DateTime dateTime;
   final double weight;
-  final double fatFreeWeight;
-  final double bodyfat;
 
   const BodyEntry({
     this.id,
-    required this.date,
+    required this.dateTime,
     required this.weight,
-    required this.fatFreeWeight,
-    required this.bodyfat,
   });
 
   BodyEntry copy({
     int? id,
-    DateTime? date,
+    DateTime? dateTime,
     double? weight,
-    double? fatFreeWeight,
-    double? bodyfat,
   }) =>
       BodyEntry(
         id: id ?? this.id,
-        date: date ?? this.date,
+        dateTime: dateTime ?? this.dateTime,
         weight: weight ?? this.weight,
-        fatFreeWeight: fatFreeWeight ?? this.fatFreeWeight,
-        bodyfat: bodyfat ?? this.bodyfat,
       );
 
   Map<String, Object?> toJson() => {
     BodyEntryFields.id: id,
-    BodyEntryFields.date: date.toIso8601String(),
+    BodyEntryFields.dateTime: dateTime.toIso8601String(),
     BodyEntryFields.weight: weight,
-    BodyEntryFields.fatFreeWeight: fatFreeWeight,
-    BodyEntryFields.bodyfat: bodyfat,
   };
 
   static BodyEntry fromJson(Map<String, Object?> json) => BodyEntry(
     id: json[BodyEntryFields.id] as int?,
-    date: DateTime.parse(json[BodyEntryFields.date] as String),
+    dateTime: DateTime.parse(json[BodyEntryFields.dateTime] as String),
     weight: json[BodyEntryFields.weight] as double,
-    fatFreeWeight: json[BodyEntryFields.fatFreeWeight] as double,
-    bodyfat: json[BodyEntryFields.bodyfat] as double,
   );
 
   @override
   String toString() {
     return 'BodyEntry:\n'
         '  id: $id,\n'
-        '  date: $date,\n'
-        '  weight: $weight,\n'
-        '  fatFreeWeight: $fatFreeWeight,\n'
-        '  bodyfat: $bodyfat\n';
+        '  dateTime: $dateTime,\n'
+        '  weight: $weight,\n';
   }
 }

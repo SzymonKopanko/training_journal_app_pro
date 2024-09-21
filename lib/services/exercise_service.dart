@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import '../models/exercise_body_part_relation.dart';
 import '../models/exercise_training_relation.dart';
 import '../services/entry_service.dart';
 import '../models/exercise.dart';
@@ -90,7 +91,7 @@ class ExerciseService {
     }
   }
 
-  Future<Exercise> readExerciseByName(String name) async {
+  Future<Exercise?> readExerciseByName(String name) async {
     final db = await _instance.database;
     final result = await db.query(
       exercises,
@@ -100,7 +101,8 @@ class ExerciseService {
     if (result.isNotEmpty) {
       return Exercise.fromJson(result.first);
     } else {
-      throw Exception('Exercise with name $name not found');
+      print('Exercise with name $name not found');
+      return null;
     }
   }
 
@@ -154,7 +156,9 @@ class ExerciseService {
             weight: maxOneRMSet.weight,
             reps: maxOneRMSet.reps,
             oneRM: maxOneRMSet.oneRM,
-            notes: currentExercise.notes
+            notes: currentExercise.notes,
+            restTime: currentExercise.restTime,
+            bodyweightPercentage: currentExercise.bodyweightPercentage
         );
 
         await updateExercise(updatedExercise);
@@ -169,7 +173,9 @@ class ExerciseService {
           weight: 0.0,
           reps: 0,
           oneRM: 0.0,
-          notes: currentExercise.notes
+          notes: currentExercise.notes,
+          restTime: currentExercise.restTime,
+          bodyweightPercentage: currentExercise.bodyweightPercentage
       );
 
       await updateExercise(updatedExercise);
@@ -200,6 +206,18 @@ class ExerciseService {
       exercise_training_relations,
       where: '${ExerciseTrainingRelationFields.exerciseId} = ? AND ${ExerciseTrainingRelationFields.trainingId} = ?',
       whereArgs: [exerciseId, trainingId],
+    );
+  }
+
+  Future<void> deleteExerciseFromBodyPart(int exerciseId, int bodyPartId) async {
+    final db = await _instance.database;
+    await db.execute('''
+    PRAGMA foreign_keys = ON
+    ''');
+    await db.delete(
+      exercise_training_relations,
+      where: '${ExerciseBodyPartRelationFields.exerciseId} = ? AND ${ExerciseBodyPartRelationFields.bodyPartId} = ?',
+      whereArgs: [exerciseId, bodyPartId],
     );
   }
 

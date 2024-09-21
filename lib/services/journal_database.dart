@@ -3,12 +3,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
+import 'package:training_journal_app/services/exercise_service.dart';
 import '../models/body_entry.dart';
+import '../models/exercise_body_part_relation.dart';
 import '../models/exercise_training_relation.dart';
 import '../models/set.dart';
 import '../models/entry.dart';
 import '../models/exercise.dart';
 import '../models/training.dart';
+import '../models/body_part.dart';
+import 'body_part_service.dart';
 
 class JournalDatabase {
 
@@ -62,10 +66,12 @@ class JournalDatabase {
   }
 
   Future _createDB(Database db, int version) async {
+    print("\n\nWywołałem _createDB!!!!!!!!!!!!\n\n");
     const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
-    const textType = 'TEXT NOT NULL';
-    const integerType = 'INTEGER NOT NULL';
-    const realType = 'REAL NOT NULL';
+    const textTypeNotNull = 'TEXT NOT NULL';
+    const integerTypeNotNull = 'INTEGER NOT NULL';
+    const realTypeNotNull = 'REAL NOT NULL';
+    const integerType = 'INTEGER';
 
     await db.execute('''
     PRAGMA foreign_keys = ON
@@ -74,77 +80,97 @@ class JournalDatabase {
     await db.execute('''
       CREATE TABLE $trainings (
       ${TrainingFields.id} $idType,
-      ${TrainingFields.name} $textType UNIQUE
+      ${TrainingFields.name} $textTypeNotNull UNIQUE
       )
     ''');
 
     await db.execute('''
       CREATE TABLE $body_entries (
       ${BodyEntryFields.id} $idType,
-      ${BodyEntryFields.date} $integerType,
-      ${BodyEntryFields.weight} $realType,
-      ${BodyEntryFields.fatFreeWeight} $realType,
-      ${BodyEntryFields.bodyfat} $realType
+      ${BodyEntryFields.dateTime} $integerTypeNotNull,
+      ${BodyEntryFields.weight} $realTypeNotNull
       )
     ''');
 
     await db.execute('''
       CREATE TABLE $exercises (
       ${ExerciseFields.id} $idType,
-      ${ExerciseFields.name} $textType UNIQUE,
-      ${ExerciseFields.date} $textType,
-      ${ExerciseFields.weight} $realType,
-      ${ExerciseFields.reps} $integerType,
-      ${ExerciseFields.oneRM} $realType,
-      ${ExerciseFields.notes} $textType
+      ${ExerciseFields.name} $textTypeNotNull UNIQUE,
+      ${ExerciseFields.date} $textTypeNotNull,
+      ${ExerciseFields.weight} $realTypeNotNull,
+      ${ExerciseFields.reps} $integerTypeNotNull,
+      ${ExerciseFields.oneRM} $realTypeNotNull,
+      ${ExerciseFields.notes} $textTypeNotNull,
+      ${ExerciseFields.restTime} $integerType,
+      ${ExerciseFields.bodyweightPercentage} $integerType
+      )
+    ''');
+
+
+    await db.execute('''
+      CREATE TABLE $body_parts (
+      ${BodyPartFields.id} $idType,
+      ${BodyPartFields.name} $textTypeNotNull UNIQUE
+      )''');
+
+
+    await db.execute('''
+      CREATE TABLE $exercise_body_part_relations (
+      ${ExerciseBodyPartRelationFields.id} $idType,
+      ${ExerciseBodyPartRelationFields.exerciseId} $integerTypeNotNull,
+      ${ExerciseBodyPartRelationFields.bodyPartId} $integerTypeNotNull,
+      FOREIGN KEY (${ExerciseBodyPartRelationFields.exerciseId})
+        REFERENCES $exercises(${ExerciseFields.id})
+          ON DELETE CASCADE,
+      FOREIGN KEY (${ExerciseBodyPartRelationFields.bodyPartId})
+        REFERENCES $trainings(${BodyPartFields.id})
+          ON DELETE CASCADE
       )
     ''');
 
     await db.execute('''
       CREATE TABLE $exercise_training_relations (
       ${ExerciseTrainingRelationFields.id} $idType,
-      ${ExerciseTrainingRelationFields.exerciseId} $integerType,
-      ${ExerciseTrainingRelationFields.trainingId} $integerType,
-      ${ExerciseTrainingRelationFields.placement} $integerType,
+      ${ExerciseTrainingRelationFields.exerciseId} $integerTypeNotNull,
+      ${ExerciseTrainingRelationFields.trainingId} $integerTypeNotNull,
+      ${ExerciseTrainingRelationFields.placement} $integerTypeNotNull,
       FOREIGN KEY (${ExerciseTrainingRelationFields.exerciseId})
         REFERENCES $exercises(${ExerciseFields.id})
           ON DELETE CASCADE,
       FOREIGN KEY (${ExerciseTrainingRelationFields.trainingId})
         REFERENCES $trainings(${TrainingFields.id})
           ON DELETE CASCADE
-          
       )
     ''');
 
     await db.execute('''
       CREATE TABLE $entries (
       ${EntryFields.id} $idType,
-      ${EntryFields.exerciseId} $integerType,
-      ${EntryFields.mainWeight} $realType,
-      ${EntryFields.date} $textType,
+      ${EntryFields.exerciseId} $integerTypeNotNull,
+      ${EntryFields.mainWeight} $realTypeNotNull,
+      ${EntryFields.date} $textTypeNotNull,
+      ${EntryFields.bodyweight} $realTypeNotNull,
         FOREIGN KEY (${EntryFields.exerciseId})
         REFERENCES $exercises(${ExerciseFields.id})
           ON DELETE CASCADE
-
       )
     ''');
 
     await db.execute('''
       CREATE TABLE $sets (
       ${SetFields.id} $idType,
-      ${SetFields.entryId} $integerType,
-      ${SetFields.exerciseId} $integerType,
-      ${SetFields.weight} $realType,
-      ${SetFields.reps} $integerType,
-      ${SetFields.rir} $integerType,
-      ${SetFields.oneRM} $realType,
+      ${SetFields.entryId} $integerTypeNotNull,
+      ${SetFields.exerciseId} $integerTypeNotNull,
+      ${SetFields.weight} $realTypeNotNull,
+      ${SetFields.reps} $integerTypeNotNull,
+      ${SetFields.rir} $integerTypeNotNull,
+      ${SetFields.oneRM} $realTypeNotNull,
       FOREIGN KEY (${SetFields.entryId})
         REFERENCES $entries(${EntryFields.id})
         ON DELETE CASCADE,
       FOREIGN KEY (${SetFields.exerciseId})
         REFERENCES $exercises(${ExerciseFields.id})
         ON DELETE CASCADE
-        
       )
     ''');
   }

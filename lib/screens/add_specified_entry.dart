@@ -1,9 +1,8 @@
 import 'dart:async';
-
-import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:training_journal_app/services/body_entry_service.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 import '../constants/app_constants.dart';
 import '../models/entry.dart';
@@ -49,6 +48,8 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
   Timer? _timer;
   String _timerDisplay = '00:00';
   bool _isTimerRunning = false;
+  double bodyweight = 0.0;
+  int bodyweightPercentage = 0;
 
   @override
   void initState() {
@@ -58,9 +59,14 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
 
   void _initializeControllers() async {
     final instance = JournalDatabase.instance;
+    final bodyEntry = await BodyEntryService(instance).readLatestBodyEntry();
+    bodyweight = bodyEntry!.weight;
+    bodyweightPercentage = widget.chosenExercise.bodyweightPercentage;
+    _selectedDuration = Duration(seconds: widget.chosenExercise.restTime);
+    _timerDisplay = _formatDuration(_selectedDuration!);
+    _previousDuration = _selectedDuration;
     _lastEntries = await EntryService(instance)
-            .readLastEntriesByExercise(widget.chosenExercise) ??
-        [];
+            .readLastEntriesByExercise(widget.chosenExercise) ?? [];
     if (_lastEntries.isNotEmpty) {
       _lastEntryMainWeight = _lastEntries[0].mainWeight;
       _lastEntryDateTime = _lastEntries[0].date;
@@ -110,8 +116,8 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
     if (controller.isEmpty) {
       return 0;
     }
-    final double weight = double.tryParse(controller) ?? -1.0;
-    if (weight < 0) {
+    final double weight = double.tryParse(controller) ?? -10000.0;
+    if (weight < -bodyweight) {
       return 2;
     }
     if (weight >= 10000) {
@@ -248,7 +254,8 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
         exerciseId: exercise.id!,
         mainWeight: _mainWeightController.text.isNotEmpty
             ? double.parse(_mainWeightController.text)
-            : double.parse(_weightsControllers[0].text));
+            : double.parse(_weightsControllers[0].text),
+        bodyweight: bodyweight);
     await EntryService(instance).createEntry(newEntry).then((newEntry) async {
       await _saveSets(newEntry.id!, exercise.id!, instance);
       Navigator.pop(context);
@@ -266,7 +273,7 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
       int rir = _rirControllers[i].text.isNotEmpty
           ? int.parse(_rirControllers[i].text)
           : -1;
-      double oneRM = SetService(instance).calculateOneRM(weight, reps);
+      double oneRM = SetService(instance).calculateOneRM(weight, bodyweight * bodyweightPercentage / 100, reps);
       Set set = Set(
         entryId: entryId,
         exerciseId: exerciseId,
@@ -281,8 +288,9 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
   }
 
   Future<Duration?> _showTimePickerDialog(BuildContext context) async {
-    int selectedMinutes = 0;
-    int selectedSeconds = 0;
+    int selectedMinutes = _selectedDuration!.inMinutes.remainder(60);
+    int selectedSeconds = _selectedDuration!.inSeconds.remainder(60);
+
 
     return await showDialog<Duration>(
       context: context,
@@ -458,7 +466,9 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
                       _startTimer();
                     }
                   },
-                  child: Text(_isTimerRunning ? 'Stop Timer' : 'Start Timer'),
+                  child: Icon(
+                    _isTimerRunning ? Icons.pause : Icons.play_arrow,  // Pauza i play
+                  ),
                 ),
                 const SizedBox(width: AppSizing.padding2),
                 // Timer Button
@@ -467,21 +477,20 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
                     ElevatedButton(
                       onPressed: () {
                         _stopTimer();
-                          _showTimePickerDialog(context).then((duration) {
-                            if (duration != null) {
-                              setState(() {
-                                _selectedDuration = duration;
-                                _timerDisplay =
-                                    _formatDuration(_selectedDuration!);
-                              });
-                            }
-                          });
+                        _showTimePickerDialog(context).then((duration) {
+                          if (duration != null) {
+                            setState(() {
+                              _selectedDuration = duration;
+                              _timerDisplay =
+                                  _formatDuration(_selectedDuration!);
+                            });
+                          }
+                        });
                       },
-                      child: const Text('Set Timer'),
-                    ),
-                    Text(
-                        style: const TextStyle(fontSize: AppSizing.fontSize3),
-                        _timerDisplay),
+                      child: Text(style: const TextStyle(fontSize: AppSizing.fontSize3,
+                        fontFamily: 'DSEG7',),
+                          _timerDisplay),
+                    )
                   ],
                 ),
               ],

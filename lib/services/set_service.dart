@@ -135,11 +135,13 @@ class SetService {
   }
 
 
-  double calculateOneRM(double weight, int reps){
+  double calculateOneRM(double weight, double bodyweightLifted, int reps){
+    weight += bodyweightLifted;
     if(repPercentages.containsKey(reps)){
-      return weight / repPercentages[reps]!;
+      double oneRM = weight / repPercentages[reps]! - bodyweightLifted;
+      return oneRM;
     } else {
-      return weight * 2;
+      return weight * 2 - bodyweightLifted;
     }
   }
 

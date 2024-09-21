@@ -33,6 +33,8 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
   String exerciseName = '';
   int exerciseId = -1;
   double entryMainWeight = -1.0;
+  int bodyweightPercentage = 0;
+  double bodyweight = 0.0;
 
   @override
   void initState() {
@@ -45,6 +47,8 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
     final entry = await EntryService(instance).readEntryById(widget.entryId);
     final exercise = await ExerciseService(instance).readExerciseById(entry.exerciseId);
     final sets = await SetService(instance).readAllSetsByEntry(entry);
+    bodyweightPercentage = exercise.bodyweightPercentage;
+    bodyweight = entry.bodyweight;
     setState(() {
       _entry = entry;
       exerciseName = exercise.name;
@@ -64,8 +68,8 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
     if (controller.isEmpty) {
       return 0;
     }
-    final double weight = double.tryParse(controller) ?? -1.0;
-    if (weight < 0) {
+    final double weight = double.tryParse(controller) ?? -10000.0;
+    if (weight < -bodyweight) {
       return 2;
     }
     if (weight >= 10000) {
@@ -194,7 +198,8 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
         exerciseId: exerciseId,
         mainWeight: _weightsControllers[0].text.isNotEmpty
             ? double.parse(_weightsControllers[0].text)
-            : _sets[0].weight
+            : _sets[0].weight,
+        bodyweight: bodyweight
     );
     await EntryService(instance).updateEntry(updatedEntry);
     await SetService(instance).deleteAllSetsByEntry(updatedEntry);
@@ -214,7 +219,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
         int rir = _rirControllers[i].text.isNotEmpty
             ? int.parse(_rirControllers[i].text)
             : _sets[i].rir;
-        double oneRM = SetService(instance).calculateOneRM(weight, reps);
+        double oneRM = SetService(instance).calculateOneRM(weight, bodyweight * bodyweightPercentage / 100, reps);
         Set set = Set(
           entryId: widget.entryId,
           exerciseId: exerciseId,
@@ -228,7 +233,7 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
         double weight = double.parse(_weightsControllers[i].text);
         int reps = int.parse(_repsControllers[i].text);
         int rir = int.tryParse(_rirControllers[i].text) ?? -1;
-        double oneRM = SetService(instance).calculateOneRM(weight, reps);
+        double oneRM = SetService(instance).calculateOneRM(weight, bodyweight * bodyweightPercentage / 100, reps);
         Set set = Set(
           entryId: widget.entryId,
           exerciseId: exerciseId,
