@@ -14,6 +14,8 @@ class AppColors {
 }
 
 class AppSizing {
+  static const double widthDivider = 1080 / 1080;
+  static const double heightDivider = 2400 / 2400;
   static const double padding = 50.0;
   static const double padding1 = 20.0;
   static const double padding2 = 16.0;

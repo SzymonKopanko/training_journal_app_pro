@@ -1,9 +1,7 @@
 const String body_parts = 'body_parts';
 
 class BodyPartFields {
-  static final List<String> values = [
-    id, name
-  ];
+  static final List<String> values = [id, name];
 
   static const String id = 'body_part_id';
   static const String name = 'name';
@@ -28,14 +26,14 @@ class BodyPart {
       );
 
   Map<String, Object?> toJson() => {
-    BodyPartFields.id: id,
-    BodyPartFields.name: name,
-  };
+        BodyPartFields.id: id,
+        BodyPartFields.name: name,
+      };
 
   static BodyPart fromJson(Map<String, Object?> json) => BodyPart(
-    id: json[BodyPartFields.id] as int?,
-    name: json[BodyPartFields.name] as String,
-  );
+        id: json[BodyPartFields.id] as int?,
+        name: json[BodyPartFields.name] as String,
+      );
 
   @override
   String toString() {

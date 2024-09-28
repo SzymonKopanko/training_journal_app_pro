@@ -1,9 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:training_journal_app/models/exercise.dart';
 import 'package:training_journal_app/models/body_part.dart';
-import 'package:training_journal_app/services/exercise_service.dart';
+import 'package:training_journal_app/models/exercise.dart';
 import 'package:training_journal_app/services/body_part_service.dart';
+import 'package:training_journal_app/services/exercise_service.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 
 import '../constants/app_constants.dart';
@@ -37,7 +38,11 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
     final bodyPartService = BodyPartService(instance);
 
     // Pobierz wszystkie dostępne partie ciała
-    final allBodyParts = await bodyPartService.readAllBodyParts();
+    var allBodyParts = await bodyPartService.readAllBodyParts();
+    if (allBodyParts == null) {
+      await bodyPartService.createAllBodyParts();
+      allBodyParts = await bodyPartService.readAllBodyParts();
+    }
     setState(() {
       _availableBodyParts = allBodyParts ?? [];
     });
@@ -173,7 +178,8 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(
-                      Duration(minutes: selectedMinutes, seconds: selectedSeconds),
+                      Duration(
+                          minutes: selectedMinutes, seconds: selectedSeconds),
                     );
                   },
                   child: const Text('OK'),

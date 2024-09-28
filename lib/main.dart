@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:training_journal_app/screens/show_body_entries.dart';
-import 'package:training_journal_app/services/journal_database.dart';
+
+import 'constants/app_constants.dart';
 import 'screens/show_exercises.dart';
 import 'screens/show_notifications.dart';
 import 'screens/show_trainings.dart';
-import 'package:timezone/data/latest.dart' as tz;
-import 'constants/app_constants.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,7 +44,7 @@ class MyApp extends StatelessWidget {
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
-  void _showDeleteConfirmationDialog(BuildContext context) {
+/*  void _showDeleteConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -72,15 +71,15 @@ class MainScreen extends StatelessWidget {
         );
       },
     );
-  }
+  }*/
 
-  void _deleteAllData(BuildContext context) async {
+/*  void _deleteAllData(BuildContext context) async {
     final database = JournalDatabase.instance;
     await database.deleteDB();
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('All data has been deleted.'),
     ));
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -91,99 +90,82 @@ class MainScreen extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       body: Center(
         child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const ShowExercises()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: AppSizing.buttonSize0,
-                          padding: const EdgeInsets.all(AppSizing.padding2),
-                        ),
-                        child: const Text(
-                          'Exercises',
-                          style: TextStyle(fontSize: AppSizing.fontSize1),
-                        ),
-                      ),
-                      const SizedBox(height: AppSizing.padding),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const NotificationsScreen()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: AppSizing.buttonSize0,
-                          padding: const EdgeInsets.all(AppSizing.padding2),
-                        ),
-                        child: const Text(
-                          'Notifications',
-                          style: TextStyle(fontSize: AppSizing.fontSize1),
-                        ),
-                      ),
-
-                    ],
-                  ),
-                  const SizedBox(width: AppSizing.padding3),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ShowTrainingsScreen()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: AppSizing.buttonSize0,
-                          padding: const EdgeInsets.all(AppSizing.padding2),
-                        ),
-                        child: const Text(
-                          'Trainings',
-                          style: TextStyle(fontSize: AppSizing.fontSize1),
-                        ),
-                      ),
-                      const SizedBox(height: AppSizing.padding),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ShowBodyEntriesScreen()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: AppSizing.buttonSize0,
-                          padding: const EdgeInsets.all(AppSizing.padding2),
-                        ),
-                        child: const Text(
-                          'Body Entries',
-                          style: TextStyle(fontSize: AppSizing.fontSize1),
-                        ),
-                      ),
-                    ],
-                  )
-                ],
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ShowExercises()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: AppSizing.buttonSize0,
+                padding: const EdgeInsets.all(AppSizing.padding2),
               ),
-              const SizedBox(height: AppSizing.padding),
-              ElevatedButton(
+              child: const Text(
+                'Exercises',
+                style: TextStyle(fontSize: AppSizing.fontSize1),
+              ),
+            ),
+            const SizedBox(height: AppSizing.padding),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ShowTrainingsScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: AppSizing.buttonSize0,
+                padding: const EdgeInsets.all(AppSizing.padding2),
+              ),
+              child: const Text(
+                'Trainings',
+                style: TextStyle(fontSize: AppSizing.fontSize1),
+              ),
+            ),
+            const SizedBox(height: AppSizing.padding),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ShowBodyEntriesScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: AppSizing.buttonSize0,
+                padding: const EdgeInsets.all(AppSizing.padding2),
+              ),
+              child: const Text(
+                'Body Entries',
+                style: TextStyle(fontSize: AppSizing.fontSize1),
+              ),
+            ),
+            const SizedBox(height: AppSizing.padding),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const NotificationsScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: AppSizing.buttonSize0,
+                padding: const EdgeInsets.all(AppSizing.padding2),
+              ),
+              child: const Text(
+                'Notifications',
+                style: TextStyle(fontSize: AppSizing.fontSize1),
+              ),
+            ),
+            const SizedBox(height: AppSizing.padding),
+            /*ElevatedButton(
                 onPressed: () {
                   _showDeleteConfirmationDialog(context);
                 },
@@ -206,11 +188,12 @@ class MainScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: AppSizing.padding),
-              const Text(
-                'by Szymon Kopańko',
-              )
-            ]),
+              const SizedBox(height: AppSizing.padding),*/
+            const Text(
+              'by Szymon Kopańko',
+            )
+          ],
+        ),
       ),
     );
   }

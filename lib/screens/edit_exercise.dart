@@ -42,9 +42,12 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
     _restTimeDisplay = _formatDuration(_selectedRestTime!);
     _selectedBodyweightPercentage = widget.chosenExercise.bodyweightPercentage;
     _bodyweightDisplay = '${_selectedBodyweightPercentage ?? 0}%';
-    final selected = await BodyPartService(instance).readAllBodyPartsByExercise(widget.chosenExercise) ?? [];
+    final selected = await BodyPartService(instance)
+            .readAllBodyPartsByExercise(widget.chosenExercise) ??
+        [];
     final available = await BodyPartService(instance).readAllBodyParts() ?? [];
-    available.removeWhere((part) => selected.any((selectedPart) => selectedPart.id == part.id));
+    available.removeWhere(
+        (part) => selected.any((selectedPart) => selectedPart.id == part.id));
     setState(() {
       _selectedBodyParts = selected;
       _availableBodyParts = available;
@@ -58,7 +61,6 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
       return;
     }
     final instance = JournalDatabase.instance;
-    final exerciseService = ExerciseService(instance);
 
     final exercise = Exercise(
       id: widget.chosenExercise.id,
@@ -68,8 +70,10 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
       reps: widget.chosenExercise.reps,
       oneRM: widget.chosenExercise.oneRM,
       notes: notesController.text,
-      restTime: _selectedRestTime?.inSeconds ?? 0,  // Zaktualizowany czas przerwy
-      bodyweightPercentage: _selectedBodyweightPercentage ?? 0,  // Zaktualizowany procent masy ciała
+      restTime:
+          _selectedRestTime?.inSeconds ?? 0, // Zaktualizowany czas przerwy
+      bodyweightPercentage: _selectedBodyweightPercentage ??
+          0, // Zaktualizowany procent masy ciała
     );
 
     await ExerciseService(instance).updateExercise(exercise);
@@ -117,8 +121,10 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Select Rest Time',
-                textAlign: TextAlign.center,),
+              title: const Text(
+                'Select Rest Time',
+                textAlign: TextAlign.center,
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -130,9 +136,11 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                   const SizedBox(height: 20),
                   Column(
                     children: [
-                      Text('Minutes: $selectedMinutes',
-                          style: const TextStyle(fontSize: AppSizing.fontSize2),
-                        textAlign: TextAlign.center,),
+                      Text(
+                        'Minutes: $selectedMinutes',
+                        style: const TextStyle(fontSize: AppSizing.fontSize2),
+                        textAlign: TextAlign.center,
+                      ),
                       Slider(
                         value: selectedMinutes.toDouble(),
                         min: 0,
@@ -149,9 +157,11 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                   ),
                   Column(
                     children: [
-                      Text('Seconds: $selectedSeconds',
-                          style: const TextStyle(fontSize: AppSizing.fontSize2),
-                        textAlign: TextAlign.center,),
+                      Text(
+                        'Seconds: $selectedSeconds',
+                        style: const TextStyle(fontSize: AppSizing.fontSize2),
+                        textAlign: TextAlign.center,
+                      ),
                       Slider(
                         value: selectedSeconds.toDouble(),
                         min: 0,
@@ -178,7 +188,8 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(
-                      Duration(minutes: selectedMinutes, seconds: selectedSeconds),
+                      Duration(
+                          minutes: selectedMinutes, seconds: selectedSeconds),
                     );
                   },
                   child: const Text('OK'),
@@ -211,17 +222,17 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                   ),
                   const SizedBox(height: 20),
                   Slider(
-                        value: selectedPercentage.toDouble(),
-                        min: 0,
-                        max: 100,
-                        divisions: 20,
-                        label: '$selectedPercentage%',
-                        onChanged: (double value) {
-                          setState(() {
-                            selectedPercentage = value.toInt();
-                          });
-                        },
-                      ),
+                    value: selectedPercentage.toDouble(),
+                    min: 0,
+                    max: 100,
+                    divisions: 20,
+                    label: '$selectedPercentage%',
+                    onChanged: (double value) {
+                      setState(() {
+                        selectedPercentage = value.toInt();
+                      });
+                    },
+                  ),
                 ],
               ),
               actions: [
@@ -282,14 +293,17 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                       if (duration != null) {
                         setState(() {
                           _selectedRestTime = duration;
-                          _restTimeDisplay = _formatDuration(_selectedRestTime!);
+                          _restTimeDisplay =
+                              _formatDuration(_selectedRestTime!);
                         });
                       }
                     });
                   },
                   child: Text(
-                    style: const TextStyle(fontSize: AppSizing.fontSize3,
-                      fontFamily: 'DSEG7',),
+                    style: const TextStyle(
+                      fontSize: AppSizing.fontSize3,
+                      fontFamily: 'DSEG7',
+                    ),
                     _restTimeDisplay,
                   ),
                 ),
@@ -312,8 +326,10 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                     });
                   },
                   child: Text(
-                    style: const TextStyle(fontSize: AppSizing.fontSize3,
-                      fontFamily: 'DSEG7',),
+                    style: const TextStyle(
+                      fontSize: AppSizing.fontSize3,
+                      fontFamily: 'DSEG7',
+                    ),
                     _bodyweightDisplay,
                   ),
                 ),

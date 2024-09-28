@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
+import '../models/exercise.dart';
+import '../services/body_part_service.dart';
 import '../services/exercise_service.dart';
 import '../models/training.dart';
 import '../models/training_with_exercises.dart';
@@ -21,6 +23,8 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
   List<TrainingWithExercises> filteredTrainingsWithExercises = [];
   TextEditingController searchBarController = TextEditingController();
   bool noExercises = false;
+  List<Exercise> exercises = [];
+  Map<int, List<String>> exerciseBodyPartsMap = {};
 
   @override
   void initState() {
@@ -31,6 +35,7 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
   Future<void> _loadData() async {
     final instance = JournalDatabase.instance;
     final loadedTrainings = await TrainingService(instance).readAllTrainings();
+    List<Exercise> allExercises = [];
     List<TrainingWithExercises> loadedTrainingsWithExercises = [];
     if (loadedTrainings != null) {
       for (Training training in loadedTrainings) {
@@ -38,8 +43,14 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
             .readAllExercisesByTraining(training);
         loadedTrainingsWithExercises
             .add(TrainingWithExercises(training, trainingExercises!));
+        for(var exercise in trainingExercises){
+          if(!allExercises.contains(exercise)){
+            allExercises.add(exercise);
+          }
+        }
       }
     }
+
     else{
       final exercises = await ExerciseService(instance).readAllExercises();
       if(exercises == null){
@@ -48,10 +59,24 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
         });
       }
     }
+    exercises = allExercises;
+    await _loadBodyPartsForExercises();
     setState(() {
       trainingsWithExercises = loadedTrainingsWithExercises;
       filteredTrainingsWithExercises = loadedTrainingsWithExercises;
     });
+  }
+
+  Future<void> _loadBodyPartsForExercises() async {
+    final instance = JournalDatabase.instance;
+    for (var exercise in exercises) {
+      final bodyParts = await BodyPartService(instance).readAllBodyPartsByExercise(exercise);
+      if (bodyParts != null) {
+        setState(() {
+          exerciseBodyPartsMap[exercise.id!] = bodyParts.map((bp) => bp.name).toList();
+        });
+      }
+    }
   }
 
   Future<void> _deleteTraining(BuildContext context, int index) async {
@@ -95,9 +120,9 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
         if (searchBarController.text.isNotEmpty) {
           filteredTrainingsWithExercises = trainingsWithExercises
               .where((trainingWithExercises) => trainingWithExercises
-                  .training.name
-                  .toLowerCase()
-                  .contains(searchBarController.text.toLowerCase()))
+              .training.name
+              .toLowerCase()
+              .contains(searchBarController.text.toLowerCase()))
               .toList();
         } else {
           filteredTrainingsWithExercises = trainingsWithExercises;
@@ -133,117 +158,125 @@ class _ShowTrainingsScreenState extends State<ShowTrainingsScreen> {
               Expanded(
                 child: filteredTrainingsWithExercises.isEmpty
                     ? const Center(
-                        child: Text('No matching trainings found.'),
-                      )
+                  child: Text('No matching trainings found.'),
+                )
                     : Padding(
-                        padding: const EdgeInsets.all(AppSizing.padding2),
-                        child: ListView.builder(
-                          itemCount: filteredTrainingsWithExercises.length,
-                          itemBuilder: (context, index) {
-                            final trainingWithExercises =
-                                filteredTrainingsWithExercises[index];
-                            return Card(
-                              margin: const EdgeInsets.all(AppSizing.padding4),
-                              child: Padding(
-                                padding: const EdgeInsets.all(AppSizing.padding2),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      trainingWithExercises.training.name,
-                                      style: const TextStyle(
-                                        fontSize: AppSizing.fontSize2,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: AppSizing.padding4),
-                                    Text(trainingWithExercises.toString()),
-                                    const SizedBox(height: AppSizing.padding2),
-                                    Center(
-                                        child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                AddEntryScreen(chosenTrainingWithExercises: trainingWithExercises),
-                                          ),
-                                        ).then((_) {
-                                          _loadData();
-                                        });
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            MediaQuery.platformBrightnessOf(
-                                                        super.context) ==
-                                                    Brightness.light
-                                                ? AppColors.brightButt : AppColors.darkButt,
-                                        fixedSize: AppSizing.buttonSize4,
-                                      ),
-                                      child: const Text('Add Training Entries'),
-                                    )),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            _deleteTraining(context, index);
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                MediaQuery.platformBrightnessOf(
-                                                            super.context) !=
-                                                        Brightness.light
-                                                    ? AppColors.darkErrButt : AppColors.brightErrButt,
-                                            fixedSize: AppSizing.buttonSize3,
-                                          ),
-                                          child: Text(
-                                            'Delete',
-                                            style: TextStyle(
-                                              color: MediaQuery
-                                                          .platformBrightnessOf(
-                                                              super.context) !=
-                                                      Brightness.light
-                                                  ? AppColors.darkErrTxt : AppColors.brightErrTxt,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: AppSizing.padding2),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => EditTrainingScreen(
-                                                  chosenTrainingWithExercises: trainingWithExercises,
-                                                ),
-                                              ),
-                                            ).then((_) {
-                                              _loadData();
-                                            });
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                MediaQuery.platformBrightnessOf(
-                                                            super.context) ==
-                                                        Brightness.light
-                                                    ? AppColors.brightButt : AppColors.darkButt,
-                                            fixedSize: AppSizing.buttonSize3,
-                                          ),
-                                          child: const Text('Edit'),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                  padding: const EdgeInsets.all(AppSizing.padding2),
+                  child: ListView.builder(
+                    itemCount: filteredTrainingsWithExercises.length,
+                    itemBuilder: (context, index) {
+                      final trainingWithExercises = filteredTrainingsWithExercises[index];
+                      return Card(
+                        margin: const EdgeInsets.all(AppSizing.padding4),
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppSizing.padding2),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                trainingWithExercises.training.name,
+                                style: const TextStyle(
+                                  fontSize: AppSizing.fontSize2,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            );
-                          },
+                              const SizedBox(height: AppSizing.padding4),
+                              // Wyświetlanie ćwiczeń z ich partiami ciała
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: trainingWithExercises.exercises.map((exercise) {
+                                  final bodyParts = exerciseBodyPartsMap[exercise.id!] ?? [];
+                                  final bodyPartsText = bodyParts.isNotEmpty
+                                      ? ' (${bodyParts.join(', ')})'
+                                      : ' (No body parts assigned)';
+                                  return Text(
+                                      '${exercise.name}$bodyPartsText',
+                                  );
+                                }).toList(),
+                              ),
+                              const SizedBox(height: AppSizing.padding2),
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AddEntryScreen(
+                                          chosenTrainingWithExercises: trainingWithExercises,
+                                        ),
+                                      ),
+                                    ).then((_) {
+                                      _loadData();
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: MediaQuery.platformBrightnessOf(super.context) ==
+                                        Brightness.light
+                                        ? AppColors.brightButt
+                                        : AppColors.darkButt,
+                                    fixedSize: AppSizing.buttonSize4,
+                                  ),
+                                  child: const Text('Add Training Entries'),
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      _deleteTraining(context, index);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: MediaQuery.platformBrightnessOf(super.context) !=
+                                          Brightness.light
+                                          ? AppColors.darkErrButt
+                                          : AppColors.brightErrButt,
+                                      fixedSize: AppSizing.buttonSize3,
+                                    ),
+                                    child: Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                        color: MediaQuery.platformBrightnessOf(super.context) !=
+                                            Brightness.light
+                                            ? AppColors.darkErrTxt
+                                            : AppColors.brightErrTxt,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: AppSizing.padding2),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EditTrainingScreen(
+                                            chosenTrainingWithExercises: trainingWithExercises,
+                                          ),
+                                        ),
+                                      ).then((_) {
+                                        _loadData();
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: MediaQuery.platformBrightnessOf(super.context) ==
+                                          Brightness.light
+                                          ? AppColors.brightButt
+                                          : AppColors.darkButt,
+                                      fixedSize: AppSizing.buttonSize3,
+                                    ),
+                                    child: const Text('Edit'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                      );
+                    }
+                    ,
+                  ),
+                ),
               ),
             if (noExercises)
               const Expanded(

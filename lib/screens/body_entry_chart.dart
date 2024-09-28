@@ -1,4 +1,5 @@
-import 'package:charts_flutter_maintained/charts_flutter_maintained.dart' as charts;
+import 'package:charts_flutter_maintained/charts_flutter_maintained.dart'
+    as charts;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -37,11 +38,10 @@ class _BodyEntryChartScreenState extends State<BodyEntryChartScreen> {
         newData.add(BodyEntry(dateTime: entry.dateTime, weight: entry.weight));
       }
       newData.sort((a, b) => a.dateTime.compareTo(b.dateTime));
-    } else {
-      setState(() {
-        data = allEntries!;
-      });
     }
+    setState(() {
+      data = newData;
+    });
   }
 
   @override

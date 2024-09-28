@@ -70,7 +70,8 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
     if (_lastEntries.isNotEmpty) {
       _lastEntryMainWeight = _lastEntries[0].mainWeight;
       _lastEntryDateTime = _lastEntries[0].date;
-      _mainWeightController.text = '';
+      _mainWeightController.text = _lastEntries[0].mainWeight.toString();
+      weightsHintText = _mainWeightController.text;
       _lastEntryRepetitions = await SetService(instance)
           .readListOfRepsFromSetsByEntry(_lastEntries[0]);
       _lastEntryWeights = await SetService(instance)
@@ -93,6 +94,8 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
       final instance = JournalDatabase.instance;
       _lastEntryMainWeight = _lastEntries[numberOfLastEntry].mainWeight;
       _lastEntryDateTime = _lastEntries[numberOfLastEntry].date;
+      _mainWeightController.text = _lastEntries[numberOfLastEntry].mainWeight.toString();
+      weightsHintText = _mainWeightController.text;
       _lastEntryRepetitions = await SetService(instance)
           .readListOfRepsFromSetsByEntry(_lastEntries[numberOfLastEntry]);
       _lastEntryWeights = await SetService(instance)

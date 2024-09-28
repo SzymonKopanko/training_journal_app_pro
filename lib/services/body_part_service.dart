@@ -41,9 +41,9 @@ class BodyPartService {
       'Calves',
       'Tibialis'
     ];
-    for (String bodyPartName in bodyPartNames) {
-      final bodyPart = BodyPart(name: bodyPartName);
-      await db.insert(body_parts, bodyPart.toJson());
+    for (var bodyPartName in bodyPartNames) {
+      var bodyPart = await readBodyPartByName(bodyPartName);
+      bodyPart ??= await createBodyPart(BodyPart(name: bodyPartName));
     }
   }
 
@@ -175,15 +175,22 @@ class BodyPartService {
       'Reverse Barbell Wrist Curl': ['Forearm Extensors'],
       'Reverse Dumbbell Wrist Curl': ['Forearm Extensors'],
     };
-    final exerciseService =
-        ExerciseService(_instance);
+    final exerciseService = ExerciseService(_instance);
 
     for (var entry in exerciseBodyPartMap.entries) {
       final exerciseName = entry.key;
       final bodyParts = entry.value;
 
       var exercise = await exerciseService.readExerciseByName(exerciseName);
-      exercise ??= await exerciseService.createExercise(Exercise(name: exerciseName, date: DateTime.now(), weight: 0.0, reps: 0, oneRM: 0.0, notes: '', restTime: 0, bodyweightPercentage: 0));
+      exercise ??= await exerciseService.createExercise(Exercise(
+          name: exerciseName,
+          date: DateTime.now(),
+          weight: 0.0,
+          reps: 0,
+          oneRM: 0.0,
+          notes: '',
+          restTime: 0,
+          bodyweightPercentage: 0));
       for (var bodyPartName in bodyParts) {
         var bodyPart = await readBodyPartByName(bodyPartName);
         bodyPart ??= await createBodyPart(BodyPart(name: bodyPartName));
@@ -263,7 +270,6 @@ class BodyPartService {
       return null;
     }
   }
-
 
   //UPDATE
   Future<int> updateBodyPart(BodyPart bodyPart) async {
