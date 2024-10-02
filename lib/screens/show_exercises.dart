@@ -22,8 +22,7 @@ class _ShowExercisesState extends State<ShowExercises> {
   List<Exercise> exercises = [];
   List<Exercise> filteredExercises = [];
   TextEditingController searchBarController = TextEditingController();
-  Map<int, List<String>> exerciseBodyPartsMap =
-      {}; // Mapowanie ID ćwiczeń na listę partii ciała
+  Map<int, List<String>> exerciseBodyPartsMap = {};
 
   @override
   void initState() {
@@ -189,118 +188,118 @@ class _ShowExercisesState extends State<ShowExercises> {
                                   if (exercise.bodyweightPercentage != 0)
                                     Text(
                                         'Bodyweight lifted: ${exercise.bodyweightPercentage} %'),
-                                  const SizedBox(width: AppSizing.padding3),
+                                  const SizedBox(width: AppSizing.padding2),
                                   Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  AddSpecifiedEntryScreen(
-                                                      chosenExercise: exercise),
-                                            ),
-                                          ).then((_) {
-                                            _loadExercises();
-                                          });
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              MediaQuery.platformBrightnessOf(
-                                                          super.context) ==
+                                      Tooltip(
+                                        message: "Add Entry",
+                                        child: ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      AddSpecifiedEntryScreen(
+                                                          chosenExercise:
+                                                              exercise),
+                                                ),
+                                              ).then((_) {
+                                                _loadExercises();
+                                              });
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: MediaQuery
+                                                          .platformBrightnessOf(
+                                                              super.context) ==
                                                       Brightness.light
                                                   ? AppColors.brightButt
                                                   : AppColors.darkButt,
-                                          fixedSize: AppSizing.buttonSize2,
-                                        ),
-                                        child: const Text('Add Entry'),
+                                            ),
+                                            child: const Icon(Icons.add)),
                                       ),
                                       const SizedBox(width: AppSizing.padding2),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ShowSpecifiedEntries(
-                                                      chosenExercise: exercise),
-                                            ),
-                                          ).then((_) {
-                                            _loadExercises();
-                                          });
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              MediaQuery.platformBrightnessOf(
-                                                          super.context) ==
-                                                      Brightness.light
-                                                  ? AppColors.brightButt
-                                                  : AppColors.darkButt,
-                                          fixedSize: AppSizing.buttonSize2,
+                                      Tooltip(
+                                        message: "Show Entries",
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ShowSpecifiedEntries(
+                                                        chosenExercise:
+                                                            exercise),
+                                              ),
+                                            ).then((_) {
+                                              _loadExercises();
+                                            });
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                MediaQuery.platformBrightnessOf(
+                                                            super.context) ==
+                                                        Brightness.light
+                                                    ? AppColors.brightButt
+                                                    : AppColors.darkButt,
+                                          ),
+                                          child: const Icon(
+                                              Icons.library_books_outlined),
                                         ),
-                                        child: const Text('Show History'),
                                       ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          _deleteExercise(context, index);
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              MediaQuery.platformBrightnessOf(
-                                                          super.context) !=
-                                                      Brightness.light
-                                                  ? AppColors.darkErrButt
-                                                  : AppColors.brightErrButt,
-                                          fixedSize: AppSizing.buttonSize2,
+                                      const SizedBox(width: AppSizing.padding2),
+                                      Tooltip(
+                                        message: "Edit",
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EditExerciseScreen(
+                                                  chosenExercise: exercise,
+                                                ),
+                                              ),
+                                            ).then((_) {
+                                              _loadExercises();
+                                            });
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                MediaQuery.platformBrightnessOf(
+                                                            super.context) ==
+                                                        Brightness.light
+                                                    ? AppColors.brightButt
+                                                    : AppColors.darkButt,
+                                          ),
+                                          child: const Icon(Icons.edit),
                                         ),
-                                        child: Text(
-                                          'Delete',
-                                          style: TextStyle(
-                                            color:
+                                      ),
+                                      const SizedBox(width: AppSizing.padding2),
+                                      Tooltip(
+                                        message: "Delete",
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            _deleteExercise(context, index);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
                                                 MediaQuery.platformBrightnessOf(
                                                             super.context) !=
                                                         Brightness.light
-                                                    ? AppColors.darkErrTxt
-                                                    : AppColors.brightErrTxt,
+                                                    ? AppColors.darkErrButt
+                                                    : AppColors.brightErrButt,
                                           ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: AppSizing.padding2),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  EditExerciseScreen(
-                                                chosenExercise: exercise,
-                                              ),
-                                            ),
-                                          ).then((_) {
-                                            _loadExercises();
-                                          });
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              MediaQuery.platformBrightnessOf(
-                                                          super.context) ==
+                                          child: Icon(Icons.delete,
+                                              color: MediaQuery
+                                                          .platformBrightnessOf(
+                                                              super.context) !=
                                                       Brightness.light
-                                                  ? AppColors.brightButt
-                                                  : AppColors.darkButt,
-                                          fixedSize: AppSizing.buttonSize2,
+                                                  ? AppColors.darkErrTxt
+                                                  : AppColors.brightErrTxt),
                                         ),
-                                        child: const Text('Edit'),
                                       ),
                                     ],
                                   ),

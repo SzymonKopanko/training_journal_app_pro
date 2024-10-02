@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../constants/app_constants.dart';
 import '../models/entry.dart';
-import '../models/set.dart';
-import '../services/journal_database.dart';
-import '../services/entry_service.dart';
-import '../services/set_service.dart';
 import '../models/exercise.dart';
+import '../models/set.dart';
+import '../services/entry_service.dart';
+import '../services/journal_database.dart';
+import '../services/set_service.dart';
 import 'chart_screen.dart';
 import 'edit_entry.dart';
 
@@ -82,7 +83,7 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
             if (_allEntries.isEmpty)
               const Expanded(
                   child: Center(
-                    child: Text(
+                child: Text(
                   'Add some entries to see '
                   'some data here.',
                 ),
@@ -104,7 +105,8 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                               DateFormat('EEEE, dd.MM.yyyy, HH:mm')
                                   .format(entry.date),
                               style: const TextStyle(
-                                  fontSize: AppSizing.fontSize3, fontWeight: FontWeight.bold),
+                                  fontSize: AppSizing.fontSize3,
+                                  fontWeight: FontWeight.bold),
                             ),
                             SizedBox(
                               width: double.infinity,
@@ -172,51 +174,56 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => EditEntryScreen(
-                                            entryId: _allEntries[index].id!,
+                                  child: Tooltip(
+                                    message: "Edit Entry",
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                EditEntryScreen(
+                                              entryId: _allEntries[index].id!,
+                                            ),
                                           ),
-                                        ),
-                                      ).then((_) {
-                                        _loadData();
-                                      });
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          MediaQuery.platformBrightnessOf(
-                                                      super.context) ==
-                                                  Brightness.light
-                                              ? AppColors.brightButt
-                                              : AppColors.darkButt,
+                                        ).then((_) {
+                                          _loadData();
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            MediaQuery.platformBrightnessOf(
+                                                        super.context) ==
+                                                    Brightness.light
+                                                ? AppColors.brightButt
+                                                : AppColors.darkButt,
+                                      ),
+                                      child: const Icon(Icons.edit),
                                     ),
-                                    child: const Text('Edit'),
                                   ),
                                 ),
                                 const SizedBox(width: AppSizing.padding2),
                                 Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      _deleteEntry(context, index);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Theme.of(context).brightness !=
-                                                  Brightness.light
-                                              ? AppColors.darkErrButt
-                                              : AppColors.brightErrButt,
-                                    ),
-                                    child: Text(
-                                      'Delete',
-                                      style: TextStyle(
-                                        color: Theme.of(context).brightness !=
-                                                Brightness.light
-                                            ? AppColors.darkErrTxt
-                                            : AppColors.brightErrTxt,
+                                  child: Tooltip(
+                                    message: "Delete Entry",
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        _deleteEntry(context, index);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            Theme.of(context).brightness !=
+                                                    Brightness.light
+                                                ? AppColors.darkErrButt
+                                                : AppColors.brightErrButt,
                                       ),
+                                      child: Icon(Icons.delete,
+                                          color:
+                                              MediaQuery.platformBrightnessOf(
+                                                          super.context) !=
+                                                      Brightness.light
+                                                  ? AppColors.darkErrTxt
+                                                  : AppColors.brightErrTxt),
                                     ),
                                   ),
                                 ),
@@ -229,26 +236,26 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                   },
                 ),
               ),
-            if(_allEntries.isNotEmpty)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          ExerciseChartScreen(exercise: widget.chosenExercise)),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                fixedSize: AppSizing.buttonSize1,
-              ),
-              child: const Text(
-                'Show Chart',
-                style: TextStyle(
-                  fontSize: AppSizing.fontSize3,
+            if (_allEntries.isNotEmpty)
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ExerciseChartScreen(
+                            exercise: widget.chosenExercise)),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  fixedSize: AppSizing.buttonSize1,
+                ),
+                child: const Text(
+                  'Show Chart',
+                  style: TextStyle(
+                    fontSize: AppSizing.fontSize3,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

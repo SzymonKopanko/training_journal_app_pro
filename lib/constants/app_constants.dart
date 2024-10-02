@@ -18,7 +18,7 @@ class AppSizing {
   static const double heightDivider = 2400 / 2400;
   static const double padding = 50.0;
   static const double padding1 = 20.0;
-  static const double padding2 = 16.0;
+  static const double padding2 = 11.0;
   static const double padding3 = 10.0;
   static const double padding4 = 8.0;
   static const double padding5 = 6.0;

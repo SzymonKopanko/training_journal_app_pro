@@ -1,26 +1,23 @@
 import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
-import 'package:training_journal_app/services/exercise_service.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
 import '../models/body_entry.dart';
+import '../models/body_part.dart';
+import '../models/entry.dart';
+import '../models/exercise.dart';
 import '../models/exercise_body_part_relation.dart';
 import '../models/exercise_training_relation.dart';
 import '../models/set.dart';
-import '../models/entry.dart';
-import '../models/exercise.dart';
 import '../models/training.dart';
-import '../models/body_part.dart';
-import 'body_part_service.dart';
 
 class JournalDatabase {
-
   static final JournalDatabase instance = JournalDatabase._init();
   static Database? _database;
 
   JournalDatabase._init();
-
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -106,13 +103,11 @@ class JournalDatabase {
       )
     ''');
 
-
     await db.execute('''
       CREATE TABLE $body_parts (
       ${BodyPartFields.id} $idType,
       ${BodyPartFields.name} $textTypeNotNull UNIQUE
       )''');
-
 
     await db.execute('''
       CREATE TABLE $exercise_body_part_relations (
@@ -123,7 +118,7 @@ class JournalDatabase {
         REFERENCES $exercises(${ExerciseFields.id})
           ON DELETE CASCADE,
       FOREIGN KEY (${ExerciseBodyPartRelationFields.bodyPartId})
-        REFERENCES $trainings(${BodyPartFields.id})
+        REFERENCES $body_parts(${BodyPartFields.id})
           ON DELETE CASCADE
       )
     ''');

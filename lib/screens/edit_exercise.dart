@@ -55,7 +55,6 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
   }
 
   Future<void> _updateExerciseToDatabase() async {
-    // Walidacja: sprawdzenie, czy nazwa ćwiczenia nie jest pusta
     if (nameController.text.isEmpty) {
       _showErrorDialog('Please enter an exercise name.');
       return;
@@ -77,9 +76,9 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
     );
 
     await ExerciseService(instance).updateExercise(exercise);
-
     // Dodaj relacje między ćwiczeniem a wybranymi partiami ciała
     final bodyPartService = BodyPartService(instance);
+    await bodyPartService.deleteAllBodyPartExerciseRelationsByExercise(exercise);
     for (var bodyPart in _selectedBodyParts) {
       final relation = ExerciseBodyPartRelation(
         exerciseId: widget.chosenExercise.id!,

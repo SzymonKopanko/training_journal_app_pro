@@ -17,12 +17,11 @@ class BodyEntryService {
     final db = await _instance.database;
     final result = await db.query(
       body_entries,
-      orderBy: '${BodyEntryFields.dateTime} DESC',  // Sortuj po dacie malejąco
+      orderBy: '${BodyEntryFields.dateTime} DESC',
     );
-    if(result.isNotEmpty){
+    if (result.isNotEmpty) {
       return result.map((json) => BodyEntry.fromJson(json)).toList();
-    }
-    else{
+    } else {
       return null;
     }
   }

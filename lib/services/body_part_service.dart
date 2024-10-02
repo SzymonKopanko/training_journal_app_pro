@@ -17,7 +17,6 @@ class BodyPartService {
   }
 
   Future<void> createAllBodyParts() async {
-    final db = await _instance.database;
     final bodyPartNames = [
       'Front Neck',
       'Back Neck',
@@ -47,132 +46,203 @@ class BodyPartService {
     }
   }
 
+  Future<void>
+      createStarterExercisesAndBodyPartsWithRelationsWithSomeEdits() async {
+    final exerciseBodyPartMap = {
+      //klata
+      'Bench Press': [
+        ['Chest', 'Triceps', 'Front Delts'],
+        150,
+        0
+      ],
+      'Incline Bench Press': [
+        ['Chest', 'Triceps', 'Front Delts'],
+        120,
+        0
+      ],
+      'Machine Chest Fly': [
+        ['Chest'],
+        120,
+        0
+      ],
+
+      //barki
+      'Dumbbell Lateral Raise': [
+        ['Side Delts', 'Traps'],
+        60,
+        10
+      ],
+      'Dumbbell Rear Lateral Raise': [
+        ['Rear Delts', 'Upper Back'],
+        60,
+        10
+      ],
+
+      //biceps
+      'Barbell Curl': [
+        ['Biceps'],
+        90,
+        0
+      ],
+      'Dumbbell Curl': [
+        ['Biceps'],
+        60,
+        0
+      ],
+      'Hammer Curl': [
+        ['Biceps'],
+        90,
+        0
+      ],
+      'Incline Dumbbell Curl': [
+        ['Biceps'],
+        60,
+        0
+      ],
+
+      //triceps
+      'Overhead Triceps Extension': [
+        ['Triceps'],
+        90,
+        0
+      ],
+      'JM Press': [
+        ['Triceps'],
+        120,
+        0
+      ],
+
+      //nogi
+      'Barbell Squat': [
+        ['Quads', 'Hamstrings', 'Glutes'],
+        180,
+        75
+      ],
+      'Romanian Deadlift': [
+        ['Hamstrings', 'Glutes'],
+        90,
+        50
+      ],
+      'Standing Calf Raise': [
+        ['Calves'],
+        60,
+        95
+      ],
+
+      //plecy
+      'Seated Row': [
+        ['Lats', 'Traps', 'Forearm Flexors'],
+        120,
+        0
+      ],
+      'Pull-Ups': [
+        ['Lats', 'Forearm Flexors'],
+        120,
+        90
+      ],
+
+      //brzuch
+      'Incline Sit Ups': [
+        ['Abs'],
+        120,
+        60
+      ],
+
+      //szyja
+      'Front Neck Curls': [
+        ['Front Neck'],
+        90,
+        10
+      ],
+      'Back Neck Curls': [
+        ['Back Neck'],
+        90,
+        10
+      ],
+
+      //przedramiona
+      'Bar Hang': [
+        ['Forearm Flexors'],
+        60,
+        100
+      ],
+      'Dumbbell Wrist Curl': [
+        ['Forearm Flexors'],
+        60,
+        0
+      ],
+      'Reverse Dumbbell Wrist Curl': [
+        ['Forearm Extensors'],
+        60,
+        0
+      ],
+    };
+    final exerciseService = ExerciseService(_instance);
+
+    for (var entry in exerciseBodyPartMap.entries) {
+      final exerciseName = entry.key;
+      var exercise = await exerciseService.readExerciseByName(exerciseName);
+      exercise ??= await exerciseService.createExercise(Exercise(
+          name: exerciseName,
+          date: DateTime.now(),
+          weight: 0.0,
+          reps: 0,
+          oneRM: 0.0,
+          notes: '',
+          restTime: entry.value[1] as int,
+          bodyweightPercentage: entry.value[2] as int));
+      for (var bodyPartName in entry.value[0] as List<String>) {
+        var bodyPart = await readBodyPartByName(bodyPartName);
+        bodyPart ??= await createBodyPart(BodyPart(name: bodyPartName));
+        final relation = ExerciseBodyPartRelation(
+          exerciseId: exercise.id!,
+          bodyPartId: bodyPart.id!,
+        );
+        await createExerciseBodyPartRelation(relation);
+      }
+    }
+  }
+
   Future<void> createStarterExercisesAndBodyPartsWithRelations() async {
     final exerciseBodyPartMap = {
-      'Band-Assisted Bench Press': ['Chest'],
-      'Bench Press': ['Chest'],
-      'Bench Press Against Band': ['Chest'],
-      'Board Press': ['Chest'],
-      'Cable Chest Press': ['Chest'],
-      'Close-Grip Bench Press': ['Chest', 'Triceps'],
-      'Close-Grip Feet-Up Bench Press': ['Chest', 'Triceps'],
-      'Decline Bench Press': ['Chest'],
-      'Decline Push-Up': ['Chest'],
-      'Dumbbell Chest Fly': ['Chest'],
-      'Dumbbell Chest Press': ['Chest'],
-      'Dumbbell Decline Chest Press': ['Chest'],
-      'Dumbbell Floor Press': ['Chest'],
-      'Dumbbell Pullover': ['Chest', 'Lats'],
-      'Feet-Up Bench Press': ['Chest'],
-      'Floor Press': ['Chest'],
-      'Incline Bench Press': ['Chest'],
-      'Incline Dumbbell Press': ['Chest'],
-      'Incline Push-Up': ['Chest'],
-      'Kettlebell Floor Press': ['Chest'],
-      'Kneeling Incline Push-Up': ['Chest'],
-      'Kneeling Push-Up': ['Chest'],
+      //klata
+      'Bench Press': ['Chest', 'Triceps', 'Front Delts'],
+      'Incline Bench Press': ['Chest', 'Triceps', 'Front Delts'],
       'Machine Chest Fly': ['Chest'],
-      'Machine Chest Press': ['Chest'],
-      'Pec Deck': ['Chest'],
-      'Pin Bench Press': ['Chest'],
-      'Push-Up': ['Chest'],
-      'Push-Up Against Wall': ['Chest'],
-      'Push-Ups With Feet in Rings': ['Chest'],
-      'Resistance Band Chest Fly': ['Chest'],
-      'Smith Machine Bench Press': ['Chest'],
-      'Smith Machine Incline Bench Press': ['Chest'],
-      'Standing Cable Chest Fly': ['Chest'],
-      'Standing Resistance Band Chest Fly': ['Chest'],
 
-      // Ćwiczenia na ramiona
-      'Barbell Front Raise': ['Front Delts'],
-      'Dumbbell Shoulder Press': ['Front Delts', 'Triceps'],
-      'Band External Shoulder Rotation': ['Rear Delts'],
-      'Band Internal Shoulder Rotation': ['Rear Delts'],
-      'Band Pull-Apart': ['Rear Delts'],
-      'Barbell Rear Delt Row': ['Rear Delts', 'Lats'],
-      'Cable Lateral Raise': ['Side Delts'],
-      'Cable Rear Delt Row': ['Rear Delts', 'Lats'],
-      'Dumbbell Lateral Raise': ['Side Delts'],
-      'Dumbbell Rear Delt Row': ['Rear Delts'],
-      'Face Pull': ['Rear Delts'],
-      'Seated Dumbbell Shoulder Press': ['Front Delts'],
-      'Seated Barbell Overhead Press': ['Front Delts', 'Triceps'],
-      'Snatch Grip Behind the Neck Press': ['Front Delts'],
+      //barki
+      'Dumbbell Lateral Raise': ['Side Delts', 'Traps'],
+      'Dumbbell Rear Lateral Raise': ['Rear Delts', 'Upper Back'],
 
-      // Ćwiczenia na bicepsy
+      //biceps
       'Barbell Curl': ['Biceps'],
-      'Barbell Preacher Curl': ['Biceps'],
-      'Bodyweight Curl': ['Biceps'],
-      'Cable Curl With Bar': ['Biceps'],
-      'Cable Curl With Rope': ['Biceps'],
-      'Concentration Curl': ['Biceps'],
       'Dumbbell Curl': ['Biceps'],
-      'Dumbbell Preacher Curl': ['Biceps'],
-      'Hammer Curl': ['Biceps', 'Forearms'],
+      'Hammer Curl': ['Biceps'],
       'Incline Dumbbell Curl': ['Biceps'],
-      'Machine Bicep Curl': ['Biceps'],
-      'Spider Curl': ['Biceps'],
 
-      // Ćwiczenia na tricepsy
-      'Barbell Standing Triceps Extension': ['Triceps'],
-      'Barbell Lying Triceps Extension': ['Triceps'],
-      'Bench Dip': ['Triceps', 'Chest'],
-      'Close-Grip Push-Up': ['Triceps', 'Chest'],
-      'Dumbbell Lying Triceps Extension': ['Triceps'],
-      'Dumbbell Standing Triceps Extension': ['Triceps'],
-      'Overhead Cable Triceps Extension': ['Triceps'],
-      'Tricep Bodyweight Extension': ['Triceps'],
-      'Tricep Pushdown With Bar': ['Triceps'],
-      'Tricep Pushdown With Rope': ['Triceps'],
+      //triceps
+      'Overhead Triceps Extension': ['Triceps'],
+      'JM Press': ['Triceps'],
 
-      // Ćwiczenia na nogi
-      'Air Squat': ['Quads'],
-      'Barbell Hack Squat': ['Quads', 'Glutes'],
-      'Barbell Lunge': ['Quads', 'Glutes'],
-      'Barbell Walking Lunge': ['Quads', 'Glutes'],
-      'Belt Squat': ['Quads', 'Glutes'],
-      'Body Weight Lunge': ['Quads'],
-      'Box Squat': ['Quads', 'Glutes'],
-      'Bulgarian Split Squat': ['Quads', 'Glutes'],
-      'Dumbbell Lunge': ['Quads', 'Glutes'],
-      'Dumbbell Squat': ['Quads', 'Glutes'],
-      'Front Squat': ['Quads'],
-      'Goblet Squat': ['Quads', 'Glutes'],
-      'Leg Curl On Ball': ['Hamstrings'],
-      'Leg Extension': ['Quads'],
-      'Leg Press': ['Quads', 'Glutes'],
-      'Lying Leg Curl': ['Hamstrings'],
+      //nogi
+      'Barbell Squat': ['Quads', 'Hamstrings', 'Glutes'],
       'Romanian Deadlift': ['Hamstrings', 'Glutes'],
-      'Seated Leg Curl': ['Hamstrings'],
-      'Sumo Squat': ['Quads', 'Glutes'],
-
-      // Ćwiczenia na plecy
-      'Barbell Row': ['Lats', 'Traps'],
-      'Dumbbell Row': ['Lats', 'Traps'],
-      'Dumbbell Shrug': ['Traps'],
-      'Lat Pulldown': ['Lats'],
-      'Pull-Up': ['Lats', 'Biceps'],
-      'Seated Row': ['Lats', 'Traps'],
-      'T-Bar Row': ['Lats', 'Traps'],
-      'Wide-Grip Pull-Up': ['Lats'],
-
-      // Ćwiczenia na brzuch
-      'Crunch': ['Abs'],
-      'Hanging Leg Raise': ['Abs'],
-      'Leg Raise': ['Abs'],
-      'Plank': ['Abs', 'Core'],
-      'Russian Twist': ['Abs', 'Obliques'],
-
-      // Ćwiczenia na łydki
-      'Seated Calf Raise': ['Calves'],
-      'Donkey Calf Raise': ['Calves'],
       'Standing Calf Raise': ['Calves'],
 
-      // Ćwiczenia na przedramiona
-      'Barbell Wrist Curl': ['Forearm Flexors'],
+      //plecy
+      'Seated Row': ['Lats', 'Traps'],
+      'Pull-Ups': ['Lats', 'Forearm Flexors'],
+
+      //brzuch
+      'Incline Sit Ups': ['Abs'],
+
+      //szyja
+      'Front Neck Curls': ['Front Neck'],
+      'Back Neck Curls': ['Back Neck'],
+
+      //przedramiona
+      'Bar Hang': ['Forearm Flexors'],
       'Dumbbell Wrist Curl': ['Forearm Flexors'],
-      'Reverse Barbell Wrist Curl': ['Forearm Extensors'],
       'Reverse Dumbbell Wrist Curl': ['Forearm Extensors'],
     };
     final exerciseService = ExerciseService(_instance);
@@ -206,8 +276,21 @@ class BodyPartService {
   Future<ExerciseBodyPartRelation> createExerciseBodyPartRelation(
       ExerciseBodyPartRelation exerciseBodyPartRelation) async {
     final db = await _instance.database;
+    final existingRelation = await db.query(
+      exercise_body_part_relations,
+      where:
+          '${ExerciseBodyPartRelationFields.exerciseId} = ? AND ${ExerciseBodyPartRelationFields.bodyPartId} = ?',
+      whereArgs: [
+        exerciseBodyPartRelation.exerciseId,
+        exerciseBodyPartRelation.bodyPartId
+      ],
+    );
+    if (existingRelation.isNotEmpty) {
+      return ExerciseBodyPartRelation.fromJson(existingRelation.first);
+    }
     final id = await db.insert(
         exercise_body_part_relations, exerciseBodyPartRelation.toJson());
+
     return exerciseBodyPartRelation.copy(id: id);
   }
 
@@ -293,6 +376,23 @@ class BodyPartService {
       where: '${BodyPartFields.id} = ?',
       whereArgs: [bodyPartId],
     );
+    return rowsDeleted;
+  }
+
+  Future<int> deleteAllBodyPartExerciseRelationsByExercise(
+      Exercise exercise) async {
+    final db = await _instance.database;
+
+    await db.execute('''
+    PRAGMA foreign_keys = ON
+    ''');
+
+    final rowsDeleted = await db.delete(
+      exercise_body_part_relations,
+      where: '${ExerciseBodyPartRelationFields.exerciseId} = ?',
+      whereArgs: [exercise.id],
+    );
+
     return rowsDeleted;
   }
 }

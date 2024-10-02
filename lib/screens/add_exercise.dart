@@ -49,7 +49,6 @@ class _AddExerciseScreenState extends State<AddExerciseScreen> {
   }
 
   Future<void> _addExerciseToDatabase() async {
-    // Walidacja: sprawdzenie, czy nazwa ćwiczenia nie jest pusta
     if (nameController.text.isEmpty) {
       _showErrorDialog('Please enter an exercise name.');
       return;
