@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../models/body_part.dart';
 import '../models/exercise.dart';
 import '../models/exercise_body_part_relation.dart';
@@ -114,12 +116,12 @@ class BodyPartService {
 
       //nogi
       'Barbell Squat': [
-        ['Quads', 'Hamstrings', 'Glutes'],
+        ['Quads', 'Hamstrings', 'Glute'],
         180,
         75
       ],
       'Romanian Deadlift': [
-        ['Hamstrings', 'Glutes'],
+        ['Hamstrings', 'Glute'],
         90,
         50
       ],
@@ -225,8 +227,8 @@ class BodyPartService {
       'JM Press': ['Triceps'],
 
       //nogi
-      'Barbell Squat': ['Quads', 'Hamstrings', 'Glutes'],
-      'Romanian Deadlift': ['Hamstrings', 'Glutes'],
+      'Barbell Squat': ['Quads', 'Hamstrings', 'Glute'],
+      'Romanian Deadlift': ['Hamstrings', 'Glute'],
       'Standing Calf Raise': ['Calves'],
 
       //plecy
@@ -332,7 +334,7 @@ class BodyPartService {
     if (result.isNotEmpty) {
       return BodyPart.fromJson(result.first);
     } else {
-      print('BodyPart with name $name NOT FOUND!');
+      debugPrint('BodyPart with name $name NOT FOUND!');
       return null;
     }
   }

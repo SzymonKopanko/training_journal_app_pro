@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 import 'package:training_journal_app/services/set_service.dart';
+import '../l10n/app_localizations.dart';
 import '../models/set.dart';
 import '../models/exercise.dart';
 import '../services/entry_service.dart';
@@ -57,9 +58,10 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('\'${widget.exercise.name}\' Chart'),
+        title: Text(l10n.chartTitle(widget.exercise.name)),
       ),
       body: FutureBuilder<void>(
         future: dataFuture,
@@ -67,7 +69,7 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return const Center(child: Text('Error loading data'));
+            return Center(child: Text(l10n.chartLoadError));
           } else {
             return charts.TimeSeriesChart(
               _createData(),
@@ -108,6 +110,7 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
   }
 
   void _onSelectionChanged(charts.SelectionModel model, BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final selectedDatum = model.selectedDatum;
 
     if (selectedDatum.isNotEmpty) {
@@ -118,16 +121,18 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('1RM: ${oneRepMaxData.set.oneRM.toStringAsFixed(2)} kg'),
+            title: Text(
+                l10n.chartOneRm(oneRepMaxData.set.oneRM.toStringAsFixed(2))),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Date: $formattedDate'),
-                Text('Weight: ${oneRepMaxData.set.weight.toStringAsFixed(2)} kg'),
-                Text('Reps: ${oneRepMaxData.set.reps}'),
+                Text(l10n.labelDate(formattedDate)),
+                Text(l10n.chartWeight(
+                    oneRepMaxData.set.weight.toStringAsFixed(2))),
+                Text(l10n.chartReps(oneRepMaxData.set.reps)),
                 if(oneRepMaxData.set.rir != -1)
-                  Text('Reps in reserve: ${oneRepMaxData.set.rir}'),
+                  Text(l10n.chartRir(oneRepMaxData.set.rir)),
               ],
             ),
             actions: [
@@ -135,7 +140,7 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: const Text('Close'),
+                child: Text(l10n.commonClose),
               ),
             ],
           );

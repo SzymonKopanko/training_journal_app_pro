@@ -1,37 +1,50 @@
-import 'package:flutter/material.dart';
-import 'package:training_journal_app/services/journal_database.dart';
-import '../services/body_part_service.dart';
+import 'dart:io';
 
-class SettingsScreen extends StatelessWidget {
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import '../l10n/app_localizations.dart';
+import '../providers/body_entries_provider.dart';
+import '../providers/database_providers.dart';
+import '../providers/exercises_provider.dart';
+import '../providers/settings_controller.dart';
+import '../providers/trainings_provider.dart';
+
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settingsTitle),
       ),
       body: ListView(
         children: [
           ListTile(
             leading: const Icon(Icons.fitness_center),
-            title: const Text('Add Starter Exercises'),
+            title: Text(l10n.settingsAddStarter),
             onTap: () {
-              _addStarterExercises(context);
+              _addStarterExercises(context, ref, l10n);
             },
           ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.language),
-            title: const Text('Change Language'),
+            title: Text(l10n.settingsLanguage),
+            subtitle: Text(l10n.settingsLanguageDescription),
             onTap: () {
-              _changeLanguage(context);
+              _changeLanguage(context, ref, l10n);
             },
           ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.straighten),
-            title: const Text('Change Measurement System'),
+            title: Text(l10n.settingsMeasurement),
+            subtitle: Text(l10n.settingsMeasurementDescription),
             onTap: () {
               _changeMeasurementSystem(context);
             },
@@ -39,17 +52,32 @@ class SettingsScreen extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.color_lens),
-            title: const Text('Change Colors'),
+            title: Text(l10n.settingsTheme),
+            subtitle: Text(l10n.settingsThemeDescription),
             onTap: () {
-              _changeColors(context);
+              _changeTheme(context, ref, l10n);
             },
           ),
           const Divider(),
           ListTile(
+            leading: const Icon(Icons.upload_file),
+            title: Text(l10n.settingsExportData),
+            subtitle: Text(l10n.settingsExportDataDescription),
+            onTap: () => _exportData(context, ref, l10n),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.download),
+            title: Text(l10n.settingsImportData),
+            subtitle: Text(l10n.settingsImportDataDescription),
+            onTap: () => _confirmImportData(context, ref, l10n),
+          ),
+          const Divider(),
+          ListTile(
             leading: const Icon(Icons.delete),
-            title: const Text('Delete All Data'),
+            title: Text(l10n.settingsDeleteAll),
             onTap: () {
-              _showDeleteConfirmationDialog(context);
+              _showDeleteConfirmationDialog(context, ref, l10n);
             },
           ),
         ],
@@ -57,20 +85,26 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _addStarterExercises(BuildContext context) async {
-    await BodyPartService(JournalDatabase.instance).createStarterExercisesAndBodyPartsWithRelationsWithSomeEdits();
+  Future<void> _addStarterExercises(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) async {
+    await ref
+        .read(bodyPartServiceProvider)
+        .createStarterExercisesAndBodyPartsWithRelationsWithSomeEdits();
+    ref.invalidate(exercisesProvider);
+    ref.invalidate(trainingsProvider);
+    if (!context.mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Add Starter Exercises'),
-          content: const Text('Starter exercises have been added.'),
+          title: Text(l10n.settingsAddStarterDoneTitle),
+          content: Text(l10n.settingsAddStarterDoneBody),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('OK'),
+              child: Text(l10n.commonOk),
             ),
           ],
         );
@@ -78,27 +112,125 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  // Funkcja do wyświetlenia okna dialogowego z potwierdzeniem usunięcia wszystkich danych
-  void _showDeleteConfirmationDialog(BuildContext context) {
+  void _changeLanguage(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+    final current = ref.read(settingsControllerProvider).locale?.languageCode;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(l10n.settingsLanguage),
+          children: [
+            RadioListTile<String?>(
+              title: Text(l10n.languageSystem),
+              value: null,
+              groupValue: current,
+              onChanged: (_) {
+                ref.read(settingsControllerProvider.notifier).setLocale(null);
+                Navigator.of(context).pop();
+              },
+            ),
+            RadioListTile<String?>(
+              title: Text(l10n.languagePolish),
+              value: 'pl',
+              groupValue: current,
+              onChanged: (_) {
+                ref
+                    .read(settingsControllerProvider.notifier)
+                    .setLocale(const Locale('pl'));
+                Navigator.of(context).pop();
+              },
+            ),
+            RadioListTile<String?>(
+              title: Text(l10n.languageEnglish),
+              value: 'en',
+              groupValue: current,
+              onChanged: (_) {
+                ref
+                    .read(settingsControllerProvider.notifier)
+                    .setLocale(const Locale('en'));
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _changeTheme(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+    final current = ref.read(settingsControllerProvider).themeMode;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text(l10n.settingsTheme),
+          children: [
+            RadioListTile<ThemeMode>(
+              title: Text(l10n.themeSystem),
+              value: ThemeMode.system,
+              groupValue: current,
+              onChanged: (_) {
+                ref
+                    .read(settingsControllerProvider.notifier)
+                    .setThemeMode(ThemeMode.system);
+                Navigator.of(context).pop();
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: Text(l10n.themeLight),
+              value: ThemeMode.light,
+              groupValue: current,
+              onChanged: (_) {
+                ref
+                    .read(settingsControllerProvider.notifier)
+                    .setThemeMode(ThemeMode.light);
+                Navigator.of(context).pop();
+              },
+            ),
+            RadioListTile<ThemeMode>(
+              title: Text(l10n.themeDark),
+              value: ThemeMode.dark,
+              groupValue: current,
+              onChanged: (_) {
+                ref
+                    .read(settingsControllerProvider.notifier)
+                    .setThemeMode(ThemeMode.dark);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _changeMeasurementSystem(BuildContext context) {
+    // TODO(F-later): wybór jednostek metryczne/imperialne (poza zakresem Fazy 1).
+  }
+
+  void _showDeleteConfirmationDialog(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete All Data?'),
-          content: const Text('This action will delete all entries and exercises. Are you sure you want to proceed?'),
+          title: Text(l10n.settingsDeleteAllConfirmTitle),
+          content: Text(l10n.settingsDeleteAllConfirmBody),
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Zamknij okno dialogowe bez akcji
+                Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(l10n.commonCancel),
             ),
             TextButton(
               onPressed: () {
-                _deleteAllData(context); // Usunięcie danych
-                Navigator.of(context).pop(); // Zamknięcie okna dialogowego
+                _deleteAllData(context, ref, l10n);
+                Navigator.of(context).pop();
               },
-              child: const Text('Delete All'),
+              child: Text(l10n.settingsDeleteAllConfirmAction),
             ),
           ],
         );
@@ -106,24 +238,84 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  // Funkcja do usunięcia wszystkich danych
-  void _deleteAllData(BuildContext context) async {
-    final database = JournalDatabase.instance;
-    await database.deleteDB();
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('All data has been deleted.'),
+  Future<void> _exportData(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final json = await ref.read(dataBackupServiceProvider).exportToJson();
+      final dir = await getTemporaryDirectory();
+      final file = File(
+        '${dir.path}/training_journal_backup_${DateTime.now().millisecondsSinceEpoch}.json',
+      );
+      await file.writeAsString(json);
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        subject: l10n.settingsExportData,
+      );
+      if (!context.mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(l10n.settingsExportDone)));
+    } catch (_) {
+      if (!context.mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(l10n.settingsExportError)));
+    }
+  }
+
+  void _confirmImportData(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.settingsImportConfirmTitle),
+        content: Text(l10n.settingsImportConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _importData(context, ref, l10n);
+            },
+            child: Text(l10n.commonConfirm),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _importData(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+      if (result == null || result.files.single.path == null) return;
+
+      final json = await File(result.files.single.path!).readAsString();
+      await ref.read(dataBackupServiceProvider).importFromJson(json);
+      ref.invalidate(exercisesProvider);
+      ref.invalidate(trainingsProvider);
+      ref.invalidate(bodyEntriesProvider);
+      if (!context.mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(l10n.settingsImportDone)));
+    } catch (_) {
+      if (!context.mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(l10n.settingsImportError)));
+    }
+  }
+
+  void _deleteAllData(
+      BuildContext context, WidgetRef ref, AppLocalizations l10n) async {
+    final messenger = ScaffoldMessenger.of(context);
+    await ref.read(journalDatabaseProvider).deleteDB();
+    ref.invalidate(exercisesProvider);
+    ref.invalidate(trainingsProvider);
+    ref.invalidate(bodyEntriesProvider);
+    messenger.showSnackBar(SnackBar(
+      content: Text(l10n.settingsDeleteAllDone),
     ));
-  }
-
-  void _changeLanguage(BuildContext context) {
-    // Tu otwórz ekran do zmiany języka
-  }
-
-  void _changeMeasurementSystem(BuildContext context) {
-    // Tu otwórz ekran do zmiany systemu miar
-  }
-
-  void _changeColors(BuildContext context) {
-    // Tu otwórz ekran do zmiany kolorów aplikacji
   }
 }

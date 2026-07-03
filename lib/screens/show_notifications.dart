@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:training_journal_app/services/journal_database.dart';
+import '../l10n/app_localizations.dart';
 import '../models/training.dart';
 import '../services/training_service.dart';
 import 'add_notification.dart';
@@ -66,32 +67,37 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
   }
 
+  void _openAddNotification() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddNotificationScreen()),
+    ).then((_) => _loadData());
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(l10n.notificationsTitle),
+        actions: [
+          IconButton(
+            onPressed: _openAddNotification,
+            icon: const Icon(Icons.add),
+            tooltip: l10n.notificationsAdd,
+          ),
+        ],
       ),
-      body:_buildNotificationsList(notifications),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddNotificationScreen()),
-          ).then((_) {
-            _loadData();
-          });
-        },
-        child: const Icon(Icons.add),
-      ),
+      body: _buildNotificationsList(notifications),
     );
   }
 
   Widget _buildNotificationsList(List<TrainingNotification> notifications) {
+    final l10n = AppLocalizations.of(context);
     return ListView(
       children: List.generate(7, (index) {
         final dayNotifications = notifications.where((n) => n.day == index + 1).toList();
-        final dayName = _getDayName(index + 1);
+        final dayName = _getDayName(l10n, index + 1);
 
         return Card(
           child: Column(
@@ -104,8 +110,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 Column(
                   children: dayNotifications.map((notification) {
                     return ListTile(
-                      title: Text('Training: ${notification.trainingName}'),
-                      subtitle: Text('Time: ${notification.time.format(context)}'),
+                      title: Text(l10n.notificationTraining(notification.trainingName)),
+                      subtitle: Text(l10n.notificationTime(notification.time.format(context))),
                       trailing: IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () async {
@@ -130,22 +136,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
 
-  String _getDayName(int day) {
+  String _getDayName(AppLocalizations l10n, int day) {
     switch (day) {
       case 1:
-        return 'Monday';
+        return l10n.dayMonday;
       case 2:
-        return 'Tuesday';
+        return l10n.dayTuesday;
       case 3:
-        return 'Wednesday';
+        return l10n.dayWednesday;
       case 4:
-        return 'Thursday';
+        return l10n.dayThursday;
       case 5:
-        return 'Friday';
+        return l10n.dayFriday;
       case 6:
-        return 'Saturday';
+        return l10n.daySaturday;
       case 7:
-        return 'Sunday';
+        return l10n.daySunday;
       default:
         return '';
     }

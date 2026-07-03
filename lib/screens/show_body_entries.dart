@@ -1,165 +1,133 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:training_journal_app/constants/app_constants.dart';
-import 'package:training_journal_app/models/body_entry.dart';
-import 'package:training_journal_app/services/body_entry_service.dart';
-import 'package:training_journal_app/services/journal_database.dart';
 
+import '../l10n/app_localizations.dart';
+import '../providers/body_entries_provider.dart';
 import 'add_body_entry.dart';
 import 'body_entry_chart.dart';
 import 'edit_body_entry.dart';
 
-class ShowBodyEntriesScreen extends StatefulWidget {
+class ShowBodyEntriesScreen extends ConsumerStatefulWidget {
   const ShowBodyEntriesScreen({super.key});
 
   @override
-  _ShowBodyEntriesScreenState createState() => _ShowBodyEntriesScreenState();
+  ConsumerState<ShowBodyEntriesScreen> createState() =>
+      _ShowBodyEntriesScreenState();
 }
 
-class _ShowBodyEntriesScreenState extends State<ShowBodyEntriesScreen> {
-  final BodyEntryService _bodyEntryService = BodyEntryService(JournalDatabase.instance);
-  late Future<List<BodyEntry>?> _bodyEntriesFuture;
+class _ShowBodyEntriesScreenState extends ConsumerState<ShowBodyEntriesScreen> {
+  Future<void> _refresh() =>
+      ref.read(bodyEntriesProvider.notifier).refresh();
 
-  @override
-  void initState() {
-    super.initState();
-    _loadBodyEntries();
+  void _openAddBodyEntry() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddBodyEntryScreen()),
+    ).then((_) => _refresh());
   }
 
-  void _loadBodyEntries() {
-    setState(() {
-      _bodyEntriesFuture = _bodyEntryService.readAllBodyEntries();
-    });
-  }
-
-  void _deleteBodyEntry(int id) async {
-    await _bodyEntryService.deleteBodyEntry(id);
-    _loadBodyEntries(); // Refresh the list after deleting
+  void _openChart() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const BodyEntryChartScreen()),
+    ).then((_) => _refresh());
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final bodyEntriesAsync = ref.watch(bodyEntriesProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Body Entries'),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: FutureBuilder<List<BodyEntry>?>(
-              future: _bodyEntriesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return const Center(
-                      child: Text('Error loading body entries.'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No body entries found.'));
-                }
-
-                final bodyEntries = snapshot.data!;
-                return ListView.builder(
-                  itemCount: bodyEntries.length,
-                  itemBuilder: (context, index) {
-                    final bodyEntry = bodyEntries[index];
-                    final formattedDate =
-                        DateFormat('yyyy-MM-dd HH:mm').format(bodyEntry.dateTime);
-                    return Card(
-                      margin: const EdgeInsets.all(AppSizing.padding2),
-                      child: ListTile(
-                        title: Text('${bodyEntry.weight} kg'),
-                        subtitle: Text('Date: $formattedDate'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EditBodyEntryScreen(
-                                      bodyEntry: bodyEntry,
-                                    ),
-                                  ),
-                                ).then((_) =>
-                                    _loadBodyEntries()); // Reload after edit
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Delete Entry'),
-                                    content: const Text(
-                                        'Are you sure you want to delete this entry?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          _deleteBodyEntry(bodyEntry.id!);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text('Delete'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+        title: Text(l10n.bodyEntriesTitle),
+        actions: [
+          IconButton(
+            onPressed: _openChart,
+            icon: const Icon(Icons.show_chart),
+            tooltip: l10n.chartWord,
           ),
-          Padding(
-            padding: const EdgeInsets.all(AppSizing.padding2),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddBodyEntryScreen(),
-                      ),
-                    ).then((_) =>
-                        _loadBodyEntries()); // Reload the list after adding
-                  },
-                  child: const Text('Add New Entry'),
-                ),
-                const SizedBox(
-                  width: AppSizing.padding2,
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const BodyEntryChartScreen(),
-                      ),
-                    ).then((_) =>
-                        _loadBodyEntries()); // Reload the list after adding
-                  },
-                  child: const Text('Chart'),
-                ),
-              ],
-            ),
+          IconButton(
+            onPressed: _openAddBodyEntry,
+            icon: const Icon(Icons.add),
+            tooltip: l10n.bodyEntriesAddNew,
           ),
         ],
+      ),
+      body: bodyEntriesAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => Center(child: Text(l10n.bodyEntriesLoadError)),
+        data: (bodyEntries) {
+          if (bodyEntries.isEmpty) {
+            return Center(child: Text(l10n.bodyEntriesEmpty));
+          }
+          return ListView.builder(
+            itemCount: bodyEntries.length,
+            itemBuilder: (context, index) {
+              final bodyEntry = bodyEntries[index];
+              final formattedDate =
+                  DateFormat('yyyy-MM-dd HH:mm').format(bodyEntry.dateTime);
+              return Card(
+                margin: const EdgeInsets.all(AppSizing.padding2),
+                child: ListTile(
+                  title: Text(l10n.weightKg(bodyEntry.weight.toString())),
+                  subtitle: Text(l10n.labelDate(formattedDate)),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditBodyEntryScreen(
+                                bodyEntry: bodyEntry,
+                              ),
+                            ),
+                          ).then((_) => _refresh());
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text(l10n.bodyEntryDeleteTitle),
+                              content: Text(l10n.bodyEntryDeleteBody),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text(l10n.commonCancel),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    await ref
+                                        .read(bodyEntriesProvider.notifier)
+                                        .deleteBodyEntry(bodyEntry.id!);
+                                    if (context.mounted) {
+                                      Navigator.of(context).pop();
+                                    }
+                                  },
+                                  child: Text(l10n.commonDelete),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

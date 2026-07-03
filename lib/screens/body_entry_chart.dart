@@ -7,6 +7,8 @@ import 'package:training_journal_app/models/body_entry.dart';
 import 'package:training_journal_app/services/body_entry_service.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 
+import '../l10n/app_localizations.dart';
+
 class BodyEntryChartScreen extends StatefulWidget {
   const BodyEntryChartScreen({super.key});
 
@@ -46,9 +48,10 @@ class _BodyEntryChartScreenState extends State<BodyEntryChartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Body Entries Chart'),
+        title: Text(l10n.bodyEntriesChartTitle),
       ),
       body: FutureBuilder<void>(
         future: dataFuture,
@@ -56,7 +59,7 @@ class _BodyEntryChartScreenState extends State<BodyEntryChartScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return const Center(child: Text('No body entries found.'));
+            return Center(child: Text(l10n.bodyEntriesEmpty));
           } else {
             return charts.TimeSeriesChart(
               _createData(),
@@ -97,6 +100,7 @@ class _BodyEntryChartScreenState extends State<BodyEntryChartScreen> {
   }
 
   void _onSelectionChanged(charts.SelectionModel model, BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final selectedDatum = model.selectedDatum;
 
     if (selectedDatum.isNotEmpty) {
@@ -108,12 +112,12 @@ class _BodyEntryChartScreenState extends State<BodyEntryChartScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('${bodyEntry.weight.toStringAsFixed(2)} kg'),
+            title: Text(l10n.weightKg(bodyEntry.weight.toStringAsFixed(2))),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Date: $formattedDate'),
+                Text(l10n.labelDate(formattedDate)),
               ],
             ),
             actions: [
@@ -121,7 +125,7 @@ class _BodyEntryChartScreenState extends State<BodyEntryChartScreen> {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: const Text('Close'),
+                child: Text(l10n.commonClose),
               ),
             ],
           );

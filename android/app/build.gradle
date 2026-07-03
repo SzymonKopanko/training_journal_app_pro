@@ -32,9 +32,13 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "szymon.kop.training_journal_app"
     compileSdkVersion flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    // Przypięte do lokalnie zainstalowanego, kompletnego NDK; wersja z flutter.ndkVersion
+    // (28.2.13676358) była pobrana niekompletnie (brak source.properties) i psuła build.
+    ndkVersion "27.1.12297006"
 
     compileOptions {
+        // Wymagane przez flutter_local_notifications na nowszym AGP.
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -65,4 +69,8 @@ android {
     flutter {
         source '../..'
     }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }

@@ -83,6 +83,7 @@ class ExerciseService {
     INNER JOIN $exercise_training_relations r
     ON e.${ExerciseFields.id} = r.${ExerciseTrainingRelationFields.exerciseId}
     WHERE r.${ExerciseTrainingRelationFields.trainingId} = ?
+    ORDER BY r.${ExerciseTrainingRelationFields.placement} ASC
   ''', [training.id]);
     if (result.isNotEmpty) {
       return result.map((json) => Exercise.fromJson(json)).toList();
@@ -101,14 +102,13 @@ class ExerciseService {
     if (result.isNotEmpty) {
       return Exercise.fromJson(result.first);
     } else {
-      print('Exercise with name $name not found');
+      debugPrint('Exercise with name $name not found');
       return null;
     }
   }
 
   //UPDATE
   Future<void> updateExercise(Exercise exercise) async {
-    final db = await _instance.database;
     debugPrint("UPDATING EXERCISE!");
     debugPrint(exercise.toString());
 
@@ -127,6 +127,7 @@ class ExerciseService {
 
       }
     }
+    final db = await _instance.database;
     await db.update(
       exercises,
       exercise.toJson(),
@@ -215,7 +216,7 @@ class ExerciseService {
     PRAGMA foreign_keys = ON
     ''');
     await db.delete(
-      exercise_training_relations,
+      exercise_body_part_relations,
       where: '${ExerciseBodyPartRelationFields.exerciseId} = ? AND ${ExerciseBodyPartRelationFields.bodyPartId} = ?',
       whereArgs: [exerciseId, bodyPartId],
     );

@@ -16,13 +16,16 @@ import '../models/training.dart';
 class JournalDatabase {
   static final JournalDatabase instance = JournalDatabase._init();
   static Database? _database;
+  static Future<Database>? _openingDatabase;
 
   JournalDatabase._init();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-
-    _database = await _initDB();
+    // Równoległe wywołania muszą współdzielić ten sam Future — inaczej
+    // sqflite otwiera ten sam plik wielokrotnie i pojawia się "database locked".
+    _openingDatabase ??= _initDB();
+    _database = await _openingDatabase!;
     return _database!;
   }
 
@@ -36,9 +39,47 @@ class JournalDatabase {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: _databaseVersion,
+      onConfigure: _onConfigure,
       onCreate: _createDB,
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  static const int _databaseVersion = 2;
+
+  Future<void> _onConfigure(Database db) async {
+    // Wymuszamy klucze obce przy każdym otwarciu bazy (nie tylko przy tworzeniu).
+    await db.execute('PRAGMA foreign_keys = ON');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    // Migracje addytywne, uruchamiane kolejno w zależności od wersji startowej.
+    if (oldVersion < 2) {
+      await _migrateToV2(db);
+    }
+  }
+
+  // v1 -> v2: kolumna date_time w body_entries była zadeklarowana jako INTEGER,
+  // mimo że przechowujemy wartości ISO8601 (TEXT). Przebudowujemy tabelę na TEXT,
+  // zachowując istniejące dane. body_entries nie ma przychodzących kluczy obcych,
+  // więc przebudowa jest bezpieczna.
+  Future<void> _migrateToV2(Database db) async {
+    await db.execute('''
+      CREATE TABLE ${body_entries}_new (
+      ${BodyEntryFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
+      ${BodyEntryFields.dateTime} TEXT NOT NULL,
+      ${BodyEntryFields.weight} REAL NOT NULL
+      )
+    ''');
+    await db.execute('''
+      INSERT INTO ${body_entries}_new
+        (${BodyEntryFields.id}, ${BodyEntryFields.dateTime}, ${BodyEntryFields.weight})
+      SELECT ${BodyEntryFields.id}, ${BodyEntryFields.dateTime}, ${BodyEntryFields.weight}
+      FROM $body_entries
+    ''');
+    await db.execute('DROP TABLE $body_entries');
+    await db.execute('ALTER TABLE ${body_entries}_new RENAME TO $body_entries');
   }
 
   Future<void> printPath() async {
@@ -48,22 +89,24 @@ class JournalDatabase {
   }
 
   Future close() async {
-    final db = await instance.database;
-    db.close();
+    final db = _database;
+    if (db == null) return;
+    await db.close();
+    _database = null;
+    _openingDatabase = null;
   }
 
   Future<void> deleteDB() async {
+    await close();
     if (Platform.isWindows) {
       databaseFactory = databaseFactoryFfi;
     }
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, 'training.db');
     await deleteDatabase(path);
-    _database = null;
   }
 
   Future _createDB(Database db, int version) async {
-    print("\n\nWywołałem _createDB!!!!!!!!!!!!\n\n");
     const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
     const textTypeNotNull = 'TEXT NOT NULL';
     const integerTypeNotNull = 'INTEGER NOT NULL';
@@ -84,7 +127,7 @@ class JournalDatabase {
     await db.execute('''
       CREATE TABLE $body_entries (
       ${BodyEntryFields.id} $idType,
-      ${BodyEntryFields.dateTime} $integerTypeNotNull,
+      ${BodyEntryFields.dateTime} $textTypeNotNull,
       ${BodyEntryFields.weight} $realTypeNotNull
       )
     ''');

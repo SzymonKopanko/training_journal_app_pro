@@ -5,6 +5,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:training_journal_app/services/body_entry_service.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 import '../constants/app_constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/entry.dart';
 import '../models/set.dart';
 import '../models/exercise.dart';
@@ -144,13 +145,14 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
   }
 
   bool _areValueControllersValid() {
+    final l10n = AppLocalizations.of(context);
     int mainWeightState = _weightControllerState(_mainWeightController.text);
     if (mainWeightState == 2) {
-      _showValidationError(context, 'Invalid main weight value.');
+      _showValidationError(context, l10n.valInvalidMainWeight);
       return false;
     }
     if (mainWeightState == 3) {
-      _showValidationError(context, 'Too big main weight value.');
+      _showValidationError(context, l10n.valTooBigMainWeight);
       return false;
     }
     for (int index = 0; index < _repsControllers.length; index++) {
@@ -159,45 +161,37 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
       int rirState = _repControllerState(_rirControllers[index].text);
 
       if (repsState == 2) {
-        _showValidationError(
-            context, 'Invalid reps value in set ${index + 1}).');
+        _showValidationError(context, l10n.valInvalidReps(index + 1));
         return false;
       }
       if (repsState == 3) {
-        _showValidationError(
-            context, 'Too many reps value in set ${index + 1}.');
+        _showValidationError(context, l10n.valTooManyReps(index + 1));
         return false;
       }
       if (repsState == 0 && index >= _lastEntryRepetitions.length) {
-        _showValidationError(
-            context,
-            'Empty reps controller and no historical '
-            'set available at set ${index + 1} in chosen historical entry.');
+        _showValidationError(context, l10n.valEmptyReps(index + 1));
         return false;
       }
 
       if (weightState == 2) {
-        _showValidationError(
-            context, 'Invalid weight value in set ${index + 1}.');
+        _showValidationError(context, l10n.valInvalidWeight(index + 1));
         return false;
       }
       if (weightState == 3) {
-        _showValidationError(
-            context, 'Too big weight value in set ${index + 1}.');
+        _showValidationError(context, l10n.valTooBigWeight(index + 1));
         return false;
       }
       if ((weightState == 0 && mainWeightState == 0)) {
-        _showValidationError(context,
-            'Both main weight value and weight value in set ${index + 1} are empty.');
+        _showValidationError(context, l10n.valBothWeightsEmpty(index + 1));
         return false;
       }
 
       if (rirState == 2) {
-        _showValidationError(context, 'Invalid RIR value in set ${index + 1}.');
+        _showValidationError(context, l10n.valInvalidRir(index + 1));
         return false;
       }
       if (rirState == 3) {
-        _showValidationError(context, 'Too big RIR value in set ${index + 1}.');
+        _showValidationError(context, l10n.valTooBigRir(index + 1));
         return false;
       }
     }
@@ -223,7 +217,6 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
     _selectedDateTime = DateTime.now();
     DateTime? pickedDateTime = await showDatePicker(
       context: context,
-      locale: const Locale('en', 'GB'),
       initialDate: _selectedDateTime!,
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
@@ -291,6 +284,7 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
   }
 
   Future<Duration?> _showTimePickerDialog(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     int selectedMinutes = _selectedDuration!.inMinutes.remainder(60);
     int selectedSeconds = _selectedDuration!.inSeconds.remainder(60);
 
@@ -301,7 +295,7 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Select Time'),
+              title: Text(l10n.selectTimeTitle),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -312,14 +306,14 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
                   const SizedBox(height: 20),
                   Column(
                     children: [
-                      Text('Minutes: $selectedMinutes',
+                      Text(l10n.restMinutes(selectedMinutes),
                           style: const TextStyle(fontSize: AppSizing.fontSize2)),
                       Slider(
                         value: selectedMinutes.toDouble(),
                         min: 0,
                         max: 15,
                         divisions: 15,
-                        label: '$selectedMinutes minutes',
+                        label: l10n.restMinutesLabel(selectedMinutes),
                         onChanged: (double value) {
                           setState(() {
                             selectedMinutes = value.toInt();
@@ -330,14 +324,14 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
                   ),
                   Column(
                     children: [
-                      Text('Seconds: $selectedSeconds',
+                      Text(l10n.restSeconds(selectedSeconds),
                           style: const TextStyle(fontSize: AppSizing.fontSize2)),
                       Slider(
                         value: selectedSeconds.toDouble(),
                         min: 0,
                         max: 60,
                         divisions: 12,
-                        label: '$selectedSeconds seconds',
+                        label: l10n.restSecondsLabel(selectedSeconds),
                         onChanged: (double value) {
                           setState(() {
                             selectedSeconds = value.toInt();
@@ -354,14 +348,14 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
                     Navigator.of(context)
                         .pop();
                   },
-                  child: const Text('Cancel'),
+                  child: Text(l10n.commonCancel),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(Duration(
                         minutes: selectedMinutes, seconds: selectedSeconds));
                   },
-                  child: const Text('OK'),
+                  child: Text(l10n.commonOk),
                 ),
               ],
             );
@@ -411,8 +405,8 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
     final audioPlayer = AudioPlayer();
     await audioPlayer.setAsset('assets/rest.wav');
     audioPlayer.play();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Timer ended!')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(AppLocalizations.of(context).timerEnded)));
     setState(() {
       _selectedDuration = _previousDuration;
       _timerDisplay = _formatDuration(_previousDuration!);
@@ -421,9 +415,10 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add \'${widget.chosenExercise.name}\' Entry'),
+        title: Text(l10n.entryAddTitle(widget.chosenExercise.name)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(AppSizing.padding2),
@@ -432,7 +427,7 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
           children: [
             if (widget.chosenExercise.notes.isNotEmpty)
               Text(
-                'Notes: ${widget.chosenExercise.notes}',
+                l10n.labelNotes(widget.chosenExercise.notes),
                 style: const TextStyle(
                   fontSize: AppSizing.fontSize2,
                   fontWeight: FontWeight.bold,
@@ -448,15 +443,15 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
                     setState(() {
                       value = (_mainWeightController.text.isNotEmpty)
                           ? _mainWeightController.text
-                          : 'Weight';
+                          : l10n.weightWord;
                       weightsHintText = value;
                     });
                   },
                   decoration: InputDecoration(
-                    labelText: 'Default weight',
-                    hintText: 'Enter default weight',
+                    labelText: l10n.defaultWeightLabel,
+                    hintText: l10n.enterDefaultWeightHint,
                     helperText: (_lastEntryMainWeight > 0.0)
-                        ? 'Past: $_lastEntryMainWeight'
+                        ? l10n.pastValue(_lastEntryMainWeight.toString())
                         : null,
                   ),
                 )),
@@ -499,15 +494,15 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
               ],
             ),
             const SizedBox(height: AppSizing.padding2),
-            const Center(
+            Center(
                 child: Row(children: [
-              SizedBox(width: AppSizing.boxSize1),
-              Expanded(child: Text("Reps")),
-              SizedBox(width: AppSizing.boxSize2),
-              Expanded(child: Text("Weight")),
-              SizedBox(width: AppSizing.boxSize3),
-              Expanded(child: Text("RIR")),
-              SizedBox(width: AppSizing.boxSize4)
+              const SizedBox(width: AppSizing.boxSize1),
+              Expanded(child: Text(l10n.repsWord)),
+              const SizedBox(width: AppSizing.boxSize2),
+              Expanded(child: Text(l10n.weightWord)),
+              const SizedBox(width: AppSizing.boxSize3),
+              Expanded(child: Text(l10n.rirWord)),
+              const SizedBox(width: AppSizing.boxSize4)
             ])),
             Expanded(
               child: Scrollbar(
@@ -524,25 +519,25 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
 
                     final repsHelperText = (_lastEntryRepetitions.isNotEmpty &&
                             index < _lastEntryRepetitions.length)
-                        ? 'Past: ${_lastEntryRepetitions[index]}'
+                        ? l10n.pastValue('${_lastEntryRepetitions[index]}')
                         : null;
 
                     final weightsHelperText = (_lastEntryWeights.isNotEmpty &&
                             index < _lastEntryWeights.length)
-                        ? 'Past: ${_lastEntryWeights[index]}'
+                        ? l10n.pastValue('${_lastEntryWeights[index]}')
                         : null;
 
                     final rirHelperText = (_lastEntryRIRs.isNotEmpty &&
                             index < _lastEntryRIRs.length)
                         ? (_lastEntryRIRs[index] > -1
-                            ? 'Past: ${_lastEntryRIRs[index]}'
+                            ? l10n.pastValue('${_lastEntryRIRs[index]}')
                             : '?')
                         : null;
 
                     final repsHintText = (_lastEntryRepetitions.isNotEmpty &&
                             index < _lastEntryRepetitions.length)
                         ? '${_lastEntryRepetitions[index]}'
-                        : 'Reps';
+                        : l10n.repsWord;
 
                     return Row(
                       children: [
@@ -584,7 +579,7 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
                             keyboardType: TextInputType.number,
                             decoration: InputDecoration(
                               //labelText: 'RIR ${index + 1}',
-                              hintText: 'RIR',
+                              hintText: l10n.rirWord,
                               helperText: rirHelperText,
                             ),
                           ),
@@ -610,8 +605,8 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
               visible: _lastEntries.isNotEmpty,
               child: Center(
                 child: _lastEntries.isNotEmpty
-                    ? Text(
-                        'Hint Date: ${DateFormat('EEEE, dd.MM.yyyy, HH:mm').format(_lastEntryDateTime!)}')
+                    ? Text(l10n.hintDate(DateFormat('EEEE, dd.MM.yyyy, HH:mm')
+                        .format(_lastEntryDateTime!)))
                     : null,
               ),
             ),
@@ -625,8 +620,7 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
                 ElevatedButton(
                   onPressed: () {
                     if (_repsControllers.isEmpty) {
-                      _showValidationError(context,
-                          'Add some sets, what are you trying to save?');
+                      _showValidationError(context, l10n.valNoSets);
                     } else {
                       _handleSaveButtonPressed(context);
                     }
@@ -634,7 +628,7 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.all(AppSizing.padding7),
                   ),
-                  child: const Text('Save'),
+                  child: Text(l10n.commonSave),
                 ),
                 Visibility(
                   visible: _lastEntries.isNotEmpty,
@@ -646,16 +640,12 @@ class _AddSpecifiedEntryScreenState extends State<AddSpecifiedEntryScreen> {
                           }
                         });
                       },
-                      child: Text(
-                          'Change Past Entry Hint (${numberOfLastEntry + 1}.)')),
+                      child: Text(l10n.changePastHint(numberOfLastEntry + 1))),
                 ),
                 IconButton(
                   onPressed: () {
                     if (_repsControllers.length > 99) {
-                      _showValidationError(
-                          context,
-                          'Way too many sets, please finish this workout or'
-                          ' stop playing with the app.');
+                      _showValidationError(context, l10n.valTooManySets);
                     } else {
                       setState(() {
                         _repsControllers.add(TextEditingController());

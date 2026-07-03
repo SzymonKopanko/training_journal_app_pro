@@ -6,6 +6,7 @@ import 'package:training_journal_app/services/training_service.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import '../constants/app_constants.dart';
+import '../l10n/app_localizations.dart';
 
 class AddNotificationScreen extends StatefulWidget {
   const AddNotificationScreen({super.key});
@@ -68,6 +69,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen> {
   }
 
   Future<void> _scheduleNotification() async {
+    final l10n = AppLocalizations.of(context);
     final String trainingName = await _getTrainingName(selectedTraining!.id!);
 
     final DateTime now = DateTime.now();
@@ -103,8 +105,8 @@ class _AddNotificationScreenState extends State<AddNotificationScreen> {
     );
     await flutterLocalNotificationsPlugin.zonedSchedule(
       maxId,
-      'Training Reminder',
-      'Training: $trainingName',
+      l10n.notificationReminderTitle,
+      l10n.notificationTraining(trainingName),
       scheduledDateTZ,
       platformChannelSpecifics,
       payload: '${selectedTraining!.id!.toString()}, ${selectedDay.toString()}, ${scheduledDateTZ.hour.toString()}:${scheduledDateTZ.minute.toString()}',
@@ -117,9 +119,10 @@ class _AddNotificationScreenState extends State<AddNotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Notification'),
+        title: Text(l10n.notificationsAdd),
       ),
       body: Padding(
         padding: const EdgeInsets.all(AppSizing.padding2),
@@ -137,9 +140,10 @@ class _AddNotificationScreenState extends State<AddNotificationScreen> {
   }
 
   Widget _buildTrainingDropdown() {
+    final l10n = AppLocalizations.of(context);
     return DropdownButtonFormField<Training>(
       value: trainings.isNotEmpty ? trainings[0] : null,
-      hint: const Text('Select Training'),
+      hint: Text(l10n.selectTraining),
       items: trainings
           .map((training) => DropdownMenuItem(
                 value: training,
@@ -155,17 +159,18 @@ class _AddNotificationScreenState extends State<AddNotificationScreen> {
   }
 
   Widget _buildDayDropdown() {
+    final l10n = AppLocalizations.of(context);
     return DropdownButtonFormField<int>(
       value: selectedDay,
-      hint: const Text('Select Day'),
-      items: const [
-        DropdownMenuItem(value: 1, child: Text('Monday')),
-        DropdownMenuItem(value: 2, child: Text('Tuesday')),
-        DropdownMenuItem(value: 3, child: Text('Wednesday')),
-        DropdownMenuItem(value: 4, child: Text('Thursday')),
-        DropdownMenuItem(value: 5, child: Text('Friday')),
-        DropdownMenuItem(value: 6, child: Text('Saturday')),
-        DropdownMenuItem(value: 7, child: Text('Sunday')),
+      hint: Text(l10n.selectDay),
+      items: [
+        DropdownMenuItem(value: 1, child: Text(l10n.dayMonday)),
+        DropdownMenuItem(value: 2, child: Text(l10n.dayTuesday)),
+        DropdownMenuItem(value: 3, child: Text(l10n.dayWednesday)),
+        DropdownMenuItem(value: 4, child: Text(l10n.dayThursday)),
+        DropdownMenuItem(value: 5, child: Text(l10n.dayFriday)),
+        DropdownMenuItem(value: 6, child: Text(l10n.daySaturday)),
+        DropdownMenuItem(value: 7, child: Text(l10n.daySunday)),
       ],
       onChanged: (value) {
         setState(() {
@@ -176,11 +181,12 @@ class _AddNotificationScreenState extends State<AddNotificationScreen> {
   }
 
   Widget _buildSaveButton() {
+    final l10n = AppLocalizations.of(context);
     return ElevatedButton(
       onPressed: () async {
         await _saveNotification();
       },
-      child: const Text('Save Notification'),
+      child: Text(l10n.notificationSave),
     );
   }
 
@@ -206,8 +212,8 @@ class _AddNotificationScreenState extends State<AddNotificationScreen> {
     } else {
       await _scheduleNotification();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Notification saved successfully'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).notificationSaved),
         ),
       );
       Navigator.pop(context);

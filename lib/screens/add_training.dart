@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/exercise.dart';
 import '../models/training.dart';
 import '../services/exercise_service.dart';
@@ -53,9 +54,10 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Training'),
+        title: Text(l10n.trainingsAdd),
       ),
       body: Column(
         children: [
@@ -63,7 +65,7 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
             padding: const EdgeInsets.all(AppSizing.padding2),
             child: TextField(
               controller: trainingNameController,
-              decoration: const InputDecoration(labelText: 'Training Name'),
+              decoration: InputDecoration(labelText: l10n.trainingNameLabel),
             ),
           ),
           Expanded(
@@ -73,9 +75,9 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
               padding: const EdgeInsets.all(AppSizing.padding2),
               child: TextFormField(
                 controller: searchBarController,
-                decoration: const InputDecoration(
-                  labelText: 'Search Exercises',
-                  suffixIcon: Icon(Icons.search),
+                decoration: InputDecoration(
+                  labelText: l10n.exercisesSearch,
+                  suffixIcon: const Icon(Icons.search),
                 ),
                 onChanged: (query) {
                   _applyFilter();
@@ -85,15 +87,15 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
           if (allExercises.isNotEmpty)
             Expanded(
               child: filteredExercises.isEmpty
-                  ? const Center(
-                      child: Text('No matching exercises found.'),
+                  ? Center(
+                      child: Text(l10n.exercisesNoMatch),
                     )
                   : _buildAvailableExercisesList(),
             ),
           if (selectedExercises.isNotEmpty)
             ElevatedButton(
               onPressed: _saveTraining,
-              child: const Text('Save Training'),
+              child: Text(l10n.trainingsSave),
             ),
         ],
       ),
@@ -101,10 +103,11 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
   }
 
   Widget _buildSelectedExercisesList() {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Center(child: Text('Selected Exercises:')),
+        Center(child: Text(l10n.selectedExercises)),
         Expanded(
           child: ReorderableListView(
             onReorder: (oldIndex, newIndex) {
@@ -156,10 +159,11 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
   }
 
   Widget _buildAvailableExercisesList() {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Center(child: Text('Available Exercises:')),
+        Center(child: Text(l10n.availableExercises)),
         Expanded(
             child: ListView.builder(
           shrinkWrap: true,
@@ -213,6 +217,7 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
   }
 
   void _saveTraining() async {
+    final l10n = AppLocalizations.of(context);
     final instance = JournalDatabase.instance;
     if (selectedExercises.isNotEmpty) {
       final trainingName = trainingNameController.text.trim();
@@ -234,18 +239,17 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
           Navigator.pop(context);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('This training name is already taken.')),
+            SnackBar(content: Text(l10n.trainingsNameTaken)),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Training name cannot be empty.')),
+          SnackBar(content: Text(l10n.trainingsNameEmpty)),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Select at least one exercise for the training.')),
+        SnackBar(content: Text(l10n.trainingsSelectAtLeastOne)),
       );
     }
   }

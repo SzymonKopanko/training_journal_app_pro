@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/exercise.dart';
 import '../models/training.dart';
 import '../models/training_with_exercises.dart';
@@ -60,9 +61,11 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit \'${widget.chosenTrainingWithExercises.training.name}\' Training'),
+        title: Text(l10n.trainingsEditTitle(
+            widget.chosenTrainingWithExercises.training.name)),
       ),
       body: Column(
         children: [
@@ -70,7 +73,7 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
             padding: const EdgeInsets.fromLTRB(AppSizing.padding2, 0, AppSizing.padding2, AppSizing.padding2),
             child: TextField(
               controller: _trainingNameController,
-              decoration: const InputDecoration(labelText: 'Training Name'),
+              decoration: InputDecoration(labelText: l10n.trainingNameLabel),
             ),
           ),
           //if (exercises.isNotEmpty)
@@ -82,9 +85,9 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
               padding: const EdgeInsets.all(AppSizing.padding2),
               child: TextFormField(
                 controller: searchBarController,
-                decoration: const InputDecoration(
-                  labelText: 'Search Exercises',
-                  suffixIcon: Icon(Icons.search),
+                decoration: InputDecoration(
+                  labelText: l10n.exercisesSearch,
+                  suffixIcon: const Icon(Icons.search),
                 ),
                 onChanged: (query) {
                   _applyFilter();
@@ -94,15 +97,15 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
           if (exercises.isNotEmpty)
             Expanded(
               child: filteredExercises.isEmpty
-                  ? const Center(
-                child: Text('No matching exercises found.'),
+                  ? Center(
+                child: Text(l10n.exercisesNoMatch),
               )
                   : _buildAvailableExercisesList(),
             ),
           //if (exercises.isNotEmpty)
             ElevatedButton(
               onPressed: _saveTraining,
-              child: const Text('Save Training'),
+              child: Text(l10n.trainingsSave),
             ),
         ],
       ),
@@ -110,10 +113,11 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
   }
 
   Widget _buildSelectedExercisesList() {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Center(child: Text('Selected Exercises:')),
+        Center(child: Text(l10n.selectedExercises)),
         Expanded(
           child: ReorderableListView(
             onReorder: (oldIndex, newIndex) {
@@ -165,10 +169,11 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
   }
 
   Widget _buildAvailableExercisesList() {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Center(child: Text('Available Exercises:')),
+        Center(child: Text(l10n.availableExercises)),
         Expanded(
             child: ListView.builder(
               shrinkWrap: true,
@@ -222,6 +227,7 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
   }
 
   void _saveTraining() async {
+    final l10n = AppLocalizations.of(context);
     final instance = JournalDatabase.instance;
     if (selectedExercises.isNotEmpty) {
       final trainingName = _trainingNameController.text.trim();
@@ -243,13 +249,12 @@ class _EditTrainingScreenState extends State<EditTrainingScreen> {
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Training name cannot be empty')),
+          SnackBar(content: Text(l10n.trainingsNameEmpty)),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Select at least one exercise for the training')),
+        SnackBar(content: Text(l10n.trainingsSelectAtLeastOne)),
       );
     }
   }

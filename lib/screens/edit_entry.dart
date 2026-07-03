@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 import '../constants/app_constants.dart';
+import '../l10n/app_localizations.dart';
 import '../models/entry.dart';
 import '../models/set.dart';
 import '../services/set_service.dart';
@@ -93,51 +94,44 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
   }
 
   bool _areValueControllersValid() {
+    final l10n = AppLocalizations.of(context);
     for (int index = 0; index < _repsControllers.length; index++) {
       int repsState = _repControllerState(_repsControllers[index].text);
       int weightState = _weightControllerState(_weightsControllers[index].text);
       int rirState = _repControllerState(_rirControllers[index].text);
 
       if (repsState == 2) {
-        _showValidationError(
-            context, 'Invalid reps value in set ${index + 1}).');
+        _showValidationError(context, l10n.valInvalidReps(index + 1));
         return false;
       }
       if (repsState == 3) {
-        _showValidationError(
-            context, 'Too many reps value in set ${index + 1}.');
+        _showValidationError(context, l10n.valTooManyReps(index + 1));
         return false;
       }
       if (repsState == 0 && index >= _sets.length) {
-        _showValidationError(
-            context,
-            'Empty reps controller and no historical '
-            'set available at set ${index + 1} in chosen historical entry.');
+        _showValidationError(context, l10n.valEmptyReps(index + 1));
         return false;
       }
 
       if (weightState == 2) {
-        _showValidationError(
-            context, 'Invalid weight value in set ${index + 1}.');
+        _showValidationError(context, l10n.valInvalidWeight(index + 1));
         return false;
       }
       if (weightState == 3) {
-        _showValidationError(
-            context, 'Too big weight value in set ${index + 1}.');
+        _showValidationError(context, l10n.valTooBigWeight(index + 1));
         return false;
       }
       if ((weightState == 0 && index >= _sets.length)) {
-        _showValidationError(context,
-            'Both last and current weight values in set ${index + 1} are empty.');
+        _showValidationError(context, l10n.valBothWeightsEmptyEdit(index + 1));
         return false;
       }
 
       if (rirState == 2) {
-        _showValidationError(context, 'Invalid RIR value in set ${index + 1}.');
+        _showValidationError(context, l10n.valInvalidRir(index + 1));
         return false;
       }
       if (rirState == 3) {
-        _showValidationError(context, 'Too big RIR value in set ${index + 1}.');
+        _showValidationError(context, l10n.valTooBigRir(index + 1));
         return false;
       }
     }
@@ -163,7 +157,6 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
     _selectedDateTime = _entry!.date;
     DateTime? pickedDateTime = await showDatePicker(
       context: context,
-      locale: const Locale('en', 'GB'),
       initialDate: _selectedDateTime,
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
@@ -252,9 +245,10 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title:  Text('Edit \'$exerciseName\' Entry'),
+        title: Text(l10n.entryEditTitle(exerciseName)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(AppSizing.padding2),
@@ -263,22 +257,23 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
           children: [
             Center(
              child: Text(
-                    'Date: ${DateFormat('EEEE, dd.MM.yyyy, HH:mm').format(_selectedDateTime)}',
+                    l10n.labelDate(DateFormat('EEEE, dd.MM.yyyy, HH:mm')
+                        .format(_selectedDateTime)),
                     style:
                         const TextStyle(fontSize: AppSizing.fontSize2),
                   ),
             ),
             const SizedBox(height: AppSizing.padding2),
-            const Center(
+            Center(
                 child: Row(
                     children: [
-                      SizedBox(width: AppSizing.boxSize1),
-                      Expanded(child: Text("Reps")),
-                      SizedBox(width: AppSizing.boxSize2),
-                      Expanded(child: Text("Weight")),
-                      SizedBox(width: AppSizing.boxSize3),
-                      Expanded(child: Text("RIR")),
-                      SizedBox(width: AppSizing.boxSize4)
+                      const SizedBox(width: AppSizing.boxSize1),
+                      Expanded(child: Text(l10n.repsWord)),
+                      const SizedBox(width: AppSizing.boxSize2),
+                      Expanded(child: Text(l10n.weightWord)),
+                      const SizedBox(width: AppSizing.boxSize3),
+                      Expanded(child: Text(l10n.rirWord)),
+                      const SizedBox(width: AppSizing.boxSize4)
                     ])
             ),
             Expanded(
@@ -295,30 +290,30 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                     final rirController = _rirControllers[index];
 
                     final repsHelperText = (index < _sets.length)
-                        ? 'Past: ${_sets[index].reps}'
+                        ? l10n.pastValue('${_sets[index].reps}')
                         : null;
 
                     final weightsHelperText = (index < _sets.length)
-                        ? 'Past: ${_sets[index].weight}'
+                        ? l10n.pastValue('${_sets[index].weight}')
                         : null;
 
                     final rirHelperText = (index < _sets.length)
                         ? (_sets[index].rir > -1
-                            ? 'Past: ${_sets[index].rir}'
+                            ? l10n.pastValue('${_sets[index].rir}')
                             : '?')
                         : null;
 
                     final repsHintText = (index < _sets.length)
                         ? '${_sets[index].reps}'
-                        : 'Reps';
+                        : l10n.repsWord;
 
                     final weightsHintText = (index < _sets.length)
                         ? '${_sets[index].weight}'
-                        : 'Weight';
+                        : l10n.weightWord;
 
                     final rirHintText = (index < _sets.length)
                         ? (_sets[index].rir > -1 ? '${_sets[index].rir}' : '?')
-                        : 'RIR';
+                        : l10n.rirWord;
 
                     return Row(
                       children: [
@@ -389,24 +384,17 @@ class _EditEntryScreenState extends State<EditEntryScreen> {
                 ElevatedButton(
                   onPressed: () {
                     if (_repsControllers.isEmpty) {
-                      _showValidationError(
-                        context,
-                        'Add some sets, what are you trying to save?',
-                      );
+                      _showValidationError(context, l10n.valNoSets);
                     } else{
                       _handleSaveButtonPressed(context);
                     }
                   },
-                  child: const Text('Save'),
+                  child: Text(l10n.commonSave),
                 ),
                 IconButton(
                   onPressed: () {
                     if (_repsControllers.length > 99) {
-                      _showValidationError(
-                        context,
-                        'Way too many sets, please finish this workout or'
-                        ' stop playing with the app.',
-                      );
+                      _showValidationError(context, l10n.valTooManySets);
                     } else {
                       setState(() {
                         _repsControllers.add(TextEditingController());

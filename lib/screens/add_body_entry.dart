@@ -4,6 +4,8 @@ import 'package:training_journal_app/services/body_entry_service.dart';
 import 'package:training_journal_app/constants/app_constants.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 
+import '../l10n/app_localizations.dart';
+
 class AddBodyEntryScreen extends StatefulWidget {
   const AddBodyEntryScreen({super.key});
 
@@ -30,11 +32,13 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
 
       Navigator.pop(context); // Go back to the previous screen after saving
     } else {
-      _showErrorDialog('Invalid input', 'Please provide a valid weight.');
+      final l10n = AppLocalizations.of(context);
+      _showErrorDialog(l10n.invalidInputTitle, l10n.provideValidWeight);
     }
   }
 
   void _showErrorDialog(String title, String content) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) {
@@ -46,7 +50,7 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('OK'),
+              child: Text(l10n.commonOk),
             ),
           ],
         );
@@ -96,9 +100,10 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Body Entry'),
+        title: Text(l10n.bodyEntriesAdd),
       ),
       body: Padding(
         padding: const EdgeInsets.all(AppSizing.padding2),
@@ -108,12 +113,12 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
             TextField(
               controller: _mainWeightController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Weight (kg)'),
+              decoration: InputDecoration(labelText: l10n.weightKgLabel),
             ),
             const SizedBox(height: AppSizing.padding2),
             Row(
               children: [
-                const Text('Date:'),
+                Text(l10n.dateLabel),
                 const SizedBox(width: AppSizing.padding1),
                 Text(
                   "${_selectedDate.toLocal()}".split(' ')[0],
@@ -122,14 +127,14 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
                 const SizedBox(width: AppSizing.padding2),
                 ElevatedButton(
                   onPressed: () => _selectDate(context),
-                  child: const Text('Select Date'),
+                  child: Text(l10n.selectDate),
                 ),
               ],
             ),
             const SizedBox(height: AppSizing.padding2),
             Row(
               children: [
-                const Text('Time:'),
+                Text(l10n.timeLabel),
                 const SizedBox(width: AppSizing.padding1),
                 Text(
                   "${_selectedDate.hour.toString().padLeft(2, '0')}:${_selectedDate.minute.toString().padLeft(2, '0')}",
@@ -138,16 +143,14 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
                 const SizedBox(width: AppSizing.padding2),
                 ElevatedButton(
                   onPressed: () => _selectTime(context),
-                  child: const Text('Select Time'),
+                  child: Text(l10n.selectTime),
                 ),
               ],
             ),
             const SizedBox(height: AppSizing.padding2),
             ElevatedButton(
               onPressed: _saveBodyEntry,
-              child: const Text(
-                'Add Body Entry',
-              ),
+              child: Text(l10n.bodyEntriesAdd),
             ),
           ],
         ),

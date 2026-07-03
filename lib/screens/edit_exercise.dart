@@ -5,6 +5,8 @@ import 'package:training_journal_app/services/exercise_service.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 
 import '../constants/app_constants.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/l10n_helpers.dart';
 import '../models/body_part.dart';
 import '../models/exercise_body_part_relation.dart';
 
@@ -56,7 +58,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
 
   Future<void> _updateExerciseToDatabase() async {
     if (nameController.text.isEmpty) {
-      _showErrorDialog('Please enter an exercise name.');
+      _showErrorDialog(AppLocalizations.of(context).exercisesNameRequired);
       return;
     }
     final instance = JournalDatabase.instance;
@@ -91,15 +93,16 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
   }
 
   void _showErrorDialog(String message) {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Error'),
+          title: Text(l10n.commonError),
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: Text(l10n.commonOk),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -111,6 +114,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
   }
 
   Future<Duration?> _showTimePickerDialog(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     int selectedMinutes = _selectedRestTime!.inMinutes.remainder(60);
     int selectedSeconds = _selectedRestTime!.inSeconds.remainder(60);
 
@@ -120,8 +124,8 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text(
-                'Select Rest Time',
+              title: Text(
+                l10n.restTimeTitle,
                 textAlign: TextAlign.center,
               ),
               content: Column(
@@ -136,7 +140,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                   Column(
                     children: [
                       Text(
-                        'Minutes: $selectedMinutes',
+                        l10n.restMinutes(selectedMinutes),
                         style: const TextStyle(fontSize: AppSizing.fontSize2),
                         textAlign: TextAlign.center,
                       ),
@@ -145,7 +149,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                         min: 0,
                         max: 15,
                         divisions: 15,
-                        label: '$selectedMinutes minutes',
+                        label: l10n.restMinutesLabel(selectedMinutes),
                         onChanged: (double value) {
                           setState(() {
                             selectedMinutes = value.toInt();
@@ -157,7 +161,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                   Column(
                     children: [
                       Text(
-                        'Seconds: $selectedSeconds',
+                        l10n.restSeconds(selectedSeconds),
                         style: const TextStyle(fontSize: AppSizing.fontSize2),
                         textAlign: TextAlign.center,
                       ),
@@ -166,7 +170,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                         min: 0,
                         max: 60,
                         divisions: 12,
-                        label: '$selectedSeconds seconds',
+                        label: l10n.restSecondsLabel(selectedSeconds),
                         onChanged: (double value) {
                           setState(() {
                             selectedSeconds = value.toInt();
@@ -182,7 +186,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Cancel'),
+                  child: Text(l10n.commonCancel),
                 ),
                 TextButton(
                   onPressed: () {
@@ -191,7 +195,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                           minutes: selectedMinutes, seconds: selectedSeconds),
                     );
                   },
-                  child: const Text('OK'),
+                  child: Text(l10n.commonOk),
                 ),
               ],
             );
@@ -202,6 +206,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
   }
 
   Future<int?> _showBodyweightPercentageDialog(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     int selectedPercentage = _selectedBodyweightPercentage ?? 0;
 
     return await showDialog<int>(
@@ -210,7 +215,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Select Bodyweight Percentage'),
+              title: Text(l10n.bodyweightPctTitle),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -239,13 +244,13 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Cancel'),
+                  child: Text(l10n.commonCancel),
                 ),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(selectedPercentage);
                   },
-                  child: const Text('OK'),
+                  child: Text(l10n.commonOk),
                 ),
               ],
             );
@@ -264,9 +269,10 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit \'${widget.chosenExercise.name}\' Exercise'),
+        title: Text(l10n.exercisesEditTitle(widget.chosenExercise.name)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(AppSizing.padding2),
@@ -275,16 +281,16 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
           children: [
             TextFormField(
               controller: nameController,
-              decoration: const InputDecoration(labelText: 'Exercise Name'),
+              decoration: InputDecoration(labelText: l10n.exerciseNameLabel),
             ),
             TextFormField(
               controller: notesController,
-              decoration: const InputDecoration(labelText: 'Notes'),
+              decoration: InputDecoration(labelText: l10n.notesLabel),
             ),
             const SizedBox(height: AppSizing.padding2),
             Row(
               children: [
-                Text('Default Rest Time:'),
+                Text(l10n.defaultRestTimeLabel),
                 const SizedBox(width: AppSizing.padding2),
                 ElevatedButton(
                   onPressed: () {
@@ -311,7 +317,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
             const SizedBox(height: AppSizing.padding2),
             Row(
               children: [
-                Text('Bodyweight Lifted:'),
+                Text(l10n.bodyweightLiftedLabel),
                 const SizedBox(width: AppSizing.padding2),
                 ElevatedButton(
                   onPressed: () {
@@ -335,14 +341,14 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
               ],
             ),
             const SizedBox(height: AppSizing.padding2),
-            const Text('Selected Body Parts:'),
+            Text(l10n.selectedBodyParts),
             Expanded(
               child: ListView.builder(
                 itemCount: _selectedBodyParts.length,
                 itemBuilder: (context, index) {
                   final bodyPart = _selectedBodyParts[index];
                   return ListTile(
-                    title: Text(bodyPart.name),
+                    title: Text(localizedBodyPart(context, bodyPart.name)),
                     trailing: IconButton(
                       icon: const Icon(Icons.remove),
                       onPressed: () {
@@ -357,14 +363,14 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
               ),
             ),
             const SizedBox(height: AppSizing.padding2),
-            const Text('Available Body Parts:'),
+            Text(l10n.availableBodyParts),
             Expanded(
               child: ListView.builder(
                 itemCount: _availableBodyParts.length,
                 itemBuilder: (context, index) {
                   final bodyPart = _availableBodyParts[index];
                   return ListTile(
-                    title: Text(bodyPart.name),
+                    title: Text(localizedBodyPart(context, bodyPart.name)),
                     trailing: IconButton(
                       icon: const Icon(Icons.add),
                       onPressed: () {
@@ -381,7 +387,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
             const SizedBox(height: AppSizing.padding2),
             ElevatedButton(
               onPressed: _updateExerciseToDatabase,
-              child: const Text('Edit Exercise'),
+              child: Text(l10n.exercisesEdit),
             ),
           ],
         ),
