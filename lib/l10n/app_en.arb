@@ -1,0 +1,352 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Training Journal Pro",
+  "byAuthor": "by Szymon Kopańko",
+
+  "navExercises": "Exercises",
+  "navTrainings": "Trainings",
+  "navBodyEntries": "Body Entries",
+  "navNotifications": "Notifications",
+  "navSettings": "Settings",
+
+  "commonSave": "Save",
+  "commonCancel": "Cancel",
+  "commonDelete": "Delete",
+  "commonEdit": "Edit",
+  "commonAdd": "Add",
+  "commonOk": "OK",
+  "commonYes": "Yes",
+  "commonNo": "No",
+  "commonConfirm": "Confirm",
+  "commonBack": "Back",
+  "commonClose": "Close",
+  "commonLoading": "Loading...",
+  "commonError": "Error",
+  "commonSuccess": "Success",
+
+  "settingsTitle": "Settings",
+  "settingsAddStarter": "Add Starter Exercises",
+  "settingsAddStarterDoneTitle": "Add Starter Exercises",
+  "settingsAddStarterDoneBody": "Starter exercises have been added.",
+  "settingsLanguage": "Change Language",
+  "settingsLanguageDescription": "Choose application language",
+  "settingsMeasurement": "Change Measurement System",
+  "settingsMeasurementDescription": "Choose metric or imperial units",
+  "settingsTheme": "Change Colors",
+  "settingsThemeDescription": "Choose application theme",
+  "settingsDeleteAll": "Delete All Data",
+  "settingsDeleteAllConfirmTitle": "Delete All Data?",
+  "settingsDeleteAllConfirmBody": "This action will delete all entries and exercises. Are you sure you want to proceed?",
+  "settingsDeleteAllConfirmAction": "Delete All",
+  "settingsDeleteAllDone": "All data has been deleted.",
+
+  "settingsExportData": "Export Data",
+  "settingsExportDataDescription": "Save all data to a JSON file",
+  "settingsExportDone": "Data exported successfully.",
+  "settingsExportError": "Export failed.",
+  "settingsImportData": "Import Data",
+  "settingsImportDataDescription": "Restore data from a JSON backup file",
+  "settingsImportConfirmTitle": "Import Data?",
+  "settingsImportConfirmBody": "Existing data will be merged with the backup (matching IDs will be replaced). Continue?",
+  "settingsImportDone": "Data imported successfully.",
+  "settingsImportError": "Import failed. Check file format.",
+
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "System",
+
+  "languagePolish": "Polski",
+  "languageEnglish": "English",
+  "languageSystem": "System",
+
+  "weightWord": "Weight",
+  "repsWord": "Reps",
+  "rirWord": "RIR",
+  "oneRmWord": "1RM",
+  "setsWord": "Sets",
+  "chartWord": "Chart",
+  "notesLabel": "Notes",
+  "exerciseNameLabel": "Exercise Name",
+  "trainingNameLabel": "Training Name",
+  "defaultWeightLabel": "Default weight",
+  "enterWeightHint": "Enter weight",
+  "enterDefaultWeightHint": "Enter default weight",
+  "weightKgLabel": "Weight (kg)",
+  "mainWeightKgLabel": "Main Weight (kg)",
+  "dateLabel": "Date:",
+  "timeLabel": "Time:",
+  "selectDate": "Select Date",
+  "selectTime": "Select Time",
+  "selectExerciseLabel": "Select Exercise",
+  "selectedBodyParts": "Selected Body Parts:",
+  "availableBodyParts": "Available Body Parts:",
+  "selectedExercises": "Selected Exercises:",
+  "availableExercises": "Available Exercises:",
+  "defaultRestTimeLabel": "Default Rest Time:",
+  "bodyweightLiftedLabel": "Bodyweight Lifted:",
+
+  "labelNotes": "Notes: {notes}",
+  "@labelNotes": {
+    "placeholders": { "notes": { "type": "String" } }
+  },
+  "labelDate": "Date: {date}",
+  "@labelDate": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "pastValue": "Past: {value}",
+  "@pastValue": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "weightKg": "{weight} kg",
+  "@weightKg": {
+    "placeholders": { "weight": { "type": "String" } }
+  },
+  "hintDate": "Hint Date: {date}",
+  "@hintDate": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "changePastHint": "Change Past Entry Hint ({number}.)",
+  "@changePastHint": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+
+  "exercisesTitle": "Exercises",
+  "exercisesSearch": "Search Exercises",
+  "exercisesNoMatch": "No matching exercises found.",
+  "exercisesEmpty": "No exercises found, add some.",
+  "exercisesAdd": "Add Exercise",
+  "exercisesEdit": "Edit Exercise",
+  "exercisesEditTitle": "Edit “{name}” exercise",
+  "@exercisesEditTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "exercisesNameRequired": "Please enter an exercise name.",
+  "exercisesDeleteTitle": "Delete Exercise?",
+  "exercisesDeleteBody": "This action will delete all entries for this exercise ({name}) with it. Are you sure you want to proceed?",
+  "@exercisesDeleteBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "exercisesDeleteConfirm": "Delete Exercise",
+  "exercisesOneRepMax": "One Rep Max: {oneRM} kg ({weight} kg x {reps} reps)",
+  "@exercisesOneRepMax": {
+    "placeholders": {
+      "oneRM": { "type": "String" },
+      "weight": { "type": "String" },
+      "reps": { "type": "int" }
+    }
+  },
+  "exercisesDateTime": "Date and time: {date}",
+  "@exercisesDateTime": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "exercisesBodyParts": "Body Parts: {parts}",
+  "@exercisesBodyParts": {
+    "placeholders": { "parts": { "type": "String" } }
+  },
+  "exercisesDefaultRestTime": "Default rest time: {time}",
+  "@exercisesDefaultRestTime": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "exercisesBodyweightLifted": "Bodyweight lifted: {percentage} %",
+  "@exercisesBodyweightLifted": {
+    "placeholders": { "percentage": { "type": "int" } }
+  },
+  "tooltipAddEntry": "Add Entry",
+  "tooltipShowEntries": "Show Entries",
+
+  "restTimeTitle": "Select Rest Time",
+  "restMinutes": "Minutes: {count}",
+  "@restMinutes": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "restSeconds": "Seconds: {count}",
+  "@restSeconds": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "restMinutesLabel": "{count} minutes",
+  "@restMinutesLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "restSecondsLabel": "{count} seconds",
+  "@restSecondsLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "bodyweightPctTitle": "Select Bodyweight Percentage",
+  "selectTimeTitle": "Select Time",
+
+  "trainingsTitle": "Trainings",
+  "trainingsSearch": "Search Trainings",
+  "trainingsNoMatch": "No matching trainings found.",
+  "trainingsEmpty": "No trainings found, add some.",
+  "trainingsNoExercises": "No exercises found, add some before creating trainings.",
+  "trainingsAdd": "Add Training",
+  "trainingsSave": "Save Training",
+  "trainingsEditTitle": "Edit “{name}” training",
+  "@trainingsEditTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "trainingsDeleteTitle": "Delete Training?",
+  "trainingsDeleteBody": "This action will delete all entries for this training ({name}) with it. Are you sure you want to proceed?",
+  "@trainingsDeleteBody": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "trainingsDeleteConfirm": "Delete Training",
+  "trainingsAddEntries": "Add Training Entries",
+  "trainingsNameTaken": "This training name is already taken.",
+  "trainingsNameEmpty": "Training name cannot be empty.",
+  "trainingsSelectAtLeastOne": "Select at least one exercise for the training.",
+  "trainingsNoBodyPartsAssigned": "No body parts assigned",
+  "trainingExerciseWithParts": "{name} ({parts})",
+  "@trainingExerciseWithParts": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "parts": { "type": "String" }
+    }
+  },
+
+  "entryAddTitle": "Add “{name}” entry",
+  "@entryAddTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "entryAddEntriesTitle": "Add “{name}” entries",
+  "@entryAddEntriesTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "entryEditTitle": "Edit “{name}” entry",
+  "@entryEditTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "entriesHistoryTitle": "“{name}” history",
+  "@entriesHistoryTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "entriesEmpty": "Add some entries to see some data here.",
+  "entryDeleted": "Entry deleted successfully",
+  "tooltipEditEntry": "Edit Entry",
+  "tooltipDeleteEntry": "Delete Entry",
+  "showChart": "Show Chart",
+  "timerEnded": "Timer ended!",
+
+  "valInvalidMainWeight": "Invalid main weight value.",
+  "valTooBigMainWeight": "Too big main weight value.",
+  "valInvalidReps": "Invalid reps value in set {number}.",
+  "@valInvalidReps": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "valTooManyReps": "Too many reps value in set {number}.",
+  "@valTooManyReps": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "valEmptyReps": "Empty reps controller and no historical set available at set {number} in chosen historical entry.",
+  "@valEmptyReps": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "valInvalidWeight": "Invalid weight value in set {number}.",
+  "@valInvalidWeight": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "valTooBigWeight": "Too big weight value in set {number}.",
+  "@valTooBigWeight": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "valBothWeightsEmpty": "Both main weight value and weight value in set {number} are empty.",
+  "@valBothWeightsEmpty": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "valBothWeightsEmptyEdit": "Both last and current weight values in set {number} are empty.",
+  "@valBothWeightsEmptyEdit": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "valInvalidRir": "Invalid RIR value in set {number}.",
+  "@valInvalidRir": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "valTooBigRir": "Too big RIR value in set {number}.",
+  "@valTooBigRir": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "valNoSets": "Add some sets, what are you trying to save?",
+  "valTooManySets": "Way too many sets, please finish this workout or stop playing with the app.",
+
+  "bodyEntriesTitle": "Body Entries",
+  "bodyEntriesLoadError": "Error loading body entries.",
+  "bodyEntriesEmpty": "No body entries found.",
+  "bodyEntriesAdd": "Add Body Entry",
+  "bodyEntriesAddNew": "Add New Entry",
+  "bodyEntryDeleteTitle": "Delete Entry",
+  "bodyEntryDeleteBody": "Are you sure you want to delete this entry?",
+  "bodyEntryEditTitle": "Edit Body Entry",
+  "bodyEntrySave": "Save Body Entry",
+  "bodyEntriesChartTitle": "Body Entries Chart",
+  "invalidInputTitle": "Invalid input",
+  "provideValidWeight": "Please provide a valid weight.",
+
+  "notificationsTitle": "Notifications",
+  "notificationsAdd": "Add Notification",
+  "notificationTraining": "Training: {name}",
+  "@notificationTraining": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationTime": "Time: {time}",
+  "@notificationTime": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "selectTraining": "Select Training",
+  "selectDay": "Select Day",
+  "notificationSave": "Save Notification",
+  "notificationSaved": "Notification saved successfully",
+  "notificationReminderTitle": "Training Reminder",
+
+  "chartTitle": "“{name}” chart",
+  "@chartTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "chartLoadError": "Error loading data",
+  "chartOneRm": "1RM: {value} kg",
+  "@chartOneRm": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "chartWeight": "Weight: {value} kg",
+  "@chartWeight": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "chartReps": "Reps: {value}",
+  "@chartReps": {
+    "placeholders": { "value": { "type": "int" } }
+  },
+  "chartRir": "Reps in reserve: {value}",
+  "@chartRir": {
+    "placeholders": { "value": { "type": "int" } }
+  },
+
+  "dayMonday": "Monday",
+  "dayTuesday": "Tuesday",
+  "dayWednesday": "Wednesday",
+  "dayThursday": "Thursday",
+  "dayFriday": "Friday",
+  "daySaturday": "Saturday",
+  "daySunday": "Sunday",
+
+  "bodyPartFrontNeck": "Front Neck",
+  "bodyPartBackNeck": "Back Neck",
+  "bodyPartTraps": "Traps",
+  "bodyPartFrontDelts": "Front Delts",
+  "bodyPartSideDelts": "Side Delts",
+  "bodyPartRearDelts": "Rear Delts",
+  "bodyPartUpperBack": "Upper Back",
+  "bodyPartLowerBack": "Lower Back",
+  "bodyPartMiddleBack": "Middle Back",
+  "bodyPartLats": "Lats",
+  "bodyPartChest": "Chest",
+  "bodyPartAbs": "Abs",
+  "bodyPartBiceps": "Biceps",
+  "bodyPartTriceps": "Triceps",
+  "bodyPartForearmFlexors": "Forearm Flexors",
+  "bodyPartForearmExtensors": "Forearm Extensors",
+  "bodyPartGlutes": "Glutes",
+  "bodyPartQuads": "Quads",
+  "bodyPartHamstrings": "Hamstrings",
+  "bodyPartCalves": "Calves",
+  "bodyPartTibialis": "Tibialis"
+}

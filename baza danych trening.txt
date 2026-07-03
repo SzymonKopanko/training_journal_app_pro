@@ -1,0 +1,19 @@
+Tabele:
+
+1.tabela : sets(serie) 
+2.tabela : entries(wpisy z wykonania danego ćwiczenia)
+3.tabela : exercises(rodzaj ćwiczenia)
+4.tabela : trainings(zbiory ćwiczeń wykonywanych podczas jednego wyjścia na siłownię)
+5.tabela : weekly_plans(plany tygodniowe zawierające w sobie treningi)
+
+potrzebne dodatkowe tabele do przechowywania relacji *..*
+
+6. tabela : exercises_trainings_relation
+7. tabela : trainings_to_weekly_plan_relation
+
+Relacje:
+
+entries 1..* sets
+exercises 1..* entries
+trainings *..* exercises
+weekly_plans *..* exercises

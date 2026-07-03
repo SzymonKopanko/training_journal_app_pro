@@ -1,0 +1,51 @@
+name: training_journal_app
+description: Mobile app for Android made for storing training data.
+
+publish_to: 'none'
+
+environment:
+  sdk: ^3.4.0
+  flutter: any
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  shared_preferences: ^2.2.3
+  flutter_local_notifications: any
+  sqflite: ^2.0.0
+  sqflite_common_ffi: any
+  path: any
+  intl: any
+  cupertino_icons: any
+  material_color_utilities: any
+  charts_flutter_maintained: any
+  timezone: any
+  path_provider: ^2.0.11
+  just_audio: any
+  share_plus: ^10.0.0
+  file_picker: ^8.0.0
+
+dependency_overrides:
+  intl: ^0.19.0
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: any
+
+
+flutter:
+  uses-material-design: true
+  generate: true
+  fonts:
+    - family: DSEG7
+      fonts:
+        - asset: assets/fonts/DSEG7Classic-Regular.ttf
+
+  assets:
+    - assets/rest.wav
