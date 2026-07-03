@@ -1070,6 +1070,108 @@ abstract class AppLocalizations {
   /// **'Add Notification'**
   String get notificationsAdd;
 
+  /// No description provided for @notificationsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading notifications.'**
+  String get notificationsLoadError;
+
+  /// No description provided for @weeklyPlansTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly plans'**
+  String get weeklyPlansTitle;
+
+  /// No description provided for @weeklyPlansAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add weekly plan'**
+  String get weeklyPlansAdd;
+
+  /// No description provided for @weeklyPlansEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No weekly plans yet.'**
+  String get weeklyPlansEmpty;
+
+  /// No description provided for @weeklyPlansLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading weekly plans.'**
+  String get weeklyPlansLoadError;
+
+  /// No description provided for @weeklyPlanNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan name'**
+  String get weeklyPlanNameLabel;
+
+  /// No description provided for @weeklyPlanNameEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a plan name.'**
+  String get weeklyPlanNameEmpty;
+
+  /// No description provided for @weeklyPlanNameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'A plan with this name already exists.'**
+  String get weeklyPlanNameTaken;
+
+  /// No description provided for @weeklyPlanSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save plan'**
+  String get weeklyPlanSave;
+
+  /// No description provided for @weeklyPlanEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit weekly plan'**
+  String get weeklyPlanEditTitle;
+
+  /// No description provided for @weeklyPlanDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete weekly plan?'**
+  String get weeklyPlanDeleteTitle;
+
+  /// No description provided for @weeklyPlanDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove the plan and its schedule.'**
+  String get weeklyPlanDeleteBody;
+
+  /// No description provided for @weeklyPlanRestDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest day'**
+  String get weeklyPlanRestDay;
+
+  /// No description provided for @weeklyPlanNoTrainings.
+  ///
+  /// In en, this message translates to:
+  /// **'No trainings assigned'**
+  String get weeklyPlanNoTrainings;
+
+  /// No description provided for @weeklyPlanNoTrainingsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Create trainings first to build a weekly plan.'**
+  String get weeklyPlanNoTrainingsAvailable;
+
+  /// No description provided for @settingsWeeklyPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly plans'**
+  String get settingsWeeklyPlans;
+
+  /// No description provided for @settingsWeeklyPlansDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign trainings to days of the week'**
+  String get settingsWeeklyPlansDescription;
+
   /// No description provided for @notificationTraining.
   ///
   /// In en, this message translates to:

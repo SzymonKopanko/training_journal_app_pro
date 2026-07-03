@@ -569,6 +569,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationsAdd => 'Add Notification';
 
   @override
+  String get notificationsLoadError => 'Error loading notifications.';
+
+  @override
+  String get weeklyPlansTitle => 'Weekly plans';
+
+  @override
+  String get weeklyPlansAdd => 'Add weekly plan';
+
+  @override
+  String get weeklyPlansEmpty => 'No weekly plans yet.';
+
+  @override
+  String get weeklyPlansLoadError => 'Error loading weekly plans.';
+
+  @override
+  String get weeklyPlanNameLabel => 'Plan name';
+
+  @override
+  String get weeklyPlanNameEmpty => 'Enter a plan name.';
+
+  @override
+  String get weeklyPlanNameTaken => 'A plan with this name already exists.';
+
+  @override
+  String get weeklyPlanSave => 'Save plan';
+
+  @override
+  String get weeklyPlanEditTitle => 'Edit weekly plan';
+
+  @override
+  String get weeklyPlanDeleteTitle => 'Delete weekly plan?';
+
+  @override
+  String get weeklyPlanDeleteBody =>
+      'This will remove the plan and its schedule.';
+
+  @override
+  String get weeklyPlanRestDay => 'Rest day';
+
+  @override
+  String get weeklyPlanNoTrainings => 'No trainings assigned';
+
+  @override
+  String get weeklyPlanNoTrainingsAvailable =>
+      'Create trainings first to build a weekly plan.';
+
+  @override
+  String get settingsWeeklyPlans => 'Weekly plans';
+
+  @override
+  String get settingsWeeklyPlansDescription =>
+      'Assign trainings to days of the week';
+
+  @override
   String notificationTraining(String name) {
     return 'Training: $name';
   }

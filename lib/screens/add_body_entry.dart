@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:training_journal_app/models/body_entry.dart';
 import 'package:training_journal_app/services/body_entry_service.dart';
-import 'package:training_journal_app/constants/app_constants.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 
 import '../l10n/app_localizations.dart';
+import '../theme/app_spacing.dart';
+import '../widgets/app_screen_body.dart';
 
 class AddBodyEntryScreen extends StatefulWidget {
   const AddBodyEntryScreen({super.key});
 
   @override
-  _AddBodyEntryScreenState createState() => _AddBodyEntryScreenState();
+  State<AddBodyEntryScreen> createState() => _AddBodyEntryScreenState();
 }
 
 class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
   final TextEditingController _mainWeightController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  final BodyEntryService _bodyEntryService = BodyEntryService(JournalDatabase.instance);
+  final BodyEntryService _bodyEntryService =
+      BodyEntryService(JournalDatabase.instance);
 
-  // This function handles the logic of saving the new body entry to the database
   Future<void> _saveBodyEntry() async {
     final double weight = double.tryParse(_mainWeightController.text) ?? 0.0;
 
@@ -30,7 +31,7 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
 
       await _bodyEntryService.createBodyEntry(newBodyEntry);
 
-      Navigator.pop(context); // Go back to the previous screen after saving
+      if (mounted) Navigator.pop(context);
     } else {
       final l10n = AppLocalizations.of(context);
       _showErrorDialog(l10n.invalidInputTitle, l10n.provideValidWeight);
@@ -47,9 +48,7 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
           content: Text(content),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: Text(l10n.commonOk),
             ),
           ],
@@ -58,7 +57,6 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
     );
   }
 
-  // This function is used to select a date for the body entry
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -79,11 +77,11 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
     }
   }
 
-  // This function is used to select a time for the body entry
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute),
+      initialTime:
+          TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute),
     );
     if (pickedTime != null) {
       setState(() {
@@ -101,12 +99,13 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.bodyEntriesAdd),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(AppSizing.padding2),
+      body: AppScreenBody(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -115,39 +114,39 @@ class _AddBodyEntryScreenState extends State<AddBodyEntryScreen> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: l10n.weightKgLabel),
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             Row(
               children: [
                 Text(l10n.dateLabel),
-                const SizedBox(width: AppSizing.padding1),
+                AppSpacing.gapXl,
                 Text(
-                  "${_selectedDate.toLocal()}".split(' ')[0],
-                  style: const TextStyle(fontSize: AppSizing.fontSize2),
+                  '${_selectedDate.toLocal()}'.split(' ')[0],
+                  style: textTheme.titleLarge,
                 ),
-                const SizedBox(width: AppSizing.padding2),
+                AppSpacing.gapMd,
                 ElevatedButton(
                   onPressed: () => _selectDate(context),
                   child: Text(l10n.selectDate),
                 ),
               ],
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             Row(
               children: [
                 Text(l10n.timeLabel),
-                const SizedBox(width: AppSizing.padding1),
+                AppSpacing.gapXl,
                 Text(
-                  "${_selectedDate.hour.toString().padLeft(2, '0')}:${_selectedDate.minute.toString().padLeft(2, '0')}",
-                  style: const TextStyle(fontSize: AppSizing.fontSize2),
+                  '${_selectedDate.hour.toString().padLeft(2, '0')}:${_selectedDate.minute.toString().padLeft(2, '0')}',
+                  style: textTheme.titleLarge,
                 ),
-                const SizedBox(width: AppSizing.padding2),
+                AppSpacing.gapMd,
                 ElevatedButton(
                   onPressed: () => _selectTime(context),
                   child: Text(l10n.selectTime),
                 ),
               ],
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             ElevatedButton(
               onPressed: _saveBodyEntry,
               child: Text(l10n.bodyEntriesAdd),

@@ -33,23 +33,12 @@ class _MainScreenState extends State<MainScreen> {
         index: _selectedIndex,
         children: _pages,
       ),
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          height: 50,
-          iconTheme: WidgetStateProperty.resolveWith(
-            (states) => IconThemeData(
-              size: states.contains(WidgetState.selected) ? 28 : 26,
-            ),
-          ),
-        ),
-        child: NavigationBar(
-          height: 50,
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          selectedIndex: _selectedIndex,
-          onDestinationSelected: (index) {
-            setState(() => _selectedIndex = index);
-          },
-          destinations: [
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (index) {
+          setState(() => _selectedIndex = index);
+        },
+        destinations: [
           NavigationDestination(
             icon: const Icon(Icons.fitness_center_outlined),
             selectedIcon: const Icon(Icons.fitness_center),
@@ -76,7 +65,6 @@ class _MainScreenState extends State<MainScreen> {
             label: l10n.navSettings,
           ),
         ],
-        ),
       ),
     );
   }

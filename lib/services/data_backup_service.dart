@@ -10,6 +10,8 @@ import '../models/exercise_body_part_relation.dart';
 import '../models/exercise_training_relation.dart';
 import '../models/set.dart';
 import '../models/training.dart';
+import '../models/training_weekly_plan_relation.dart';
+import '../models/weekly_plan.dart';
 import 'journal_database.dart';
 
 /// Eksport/import całej bazy danych do formatu JSON.
@@ -18,7 +20,7 @@ class DataBackupService {
 
   final JournalDatabase _database;
 
-  static const exportFormatVersion = 2;
+  static const exportFormatVersion = 3;
   static const requiredKeys = [
     'formatVersion',
     'exportedAt',
@@ -45,6 +47,9 @@ class DataBackupService {
       'entries': await db.query(entries),
       'sets': await db.query(sets),
       'bodyEntries': await db.query(body_entries),
+      'weeklyPlans': await db.query(weekly_plans),
+      'trainingWeeklyPlanRelations':
+          await db.query(training_weekly_plan_relations),
     };
   }
 
@@ -121,6 +126,20 @@ class DataBackupService {
         body_entries,
         data['bodyEntries'] as List,
       );
+      if (data['weeklyPlans'] is List) {
+        await _insertAll(
+          txn,
+          weekly_plans,
+          data['weeklyPlans'] as List,
+        );
+      }
+      if (data['trainingWeeklyPlanRelations'] is List) {
+        await _insertAll(
+          txn,
+          training_weekly_plan_relations,
+          data['trainingWeeklyPlanRelations'] as List,
+        );
+      }
     });
   }
 

@@ -8,6 +8,7 @@ import '../services/exercise_service.dart';
 import '../services/journal_database.dart';
 import '../services/set_service.dart';
 import '../services/training_service.dart';
+import '../services/weekly_plan_service.dart';
 
 final journalDatabaseProvider = Provider<JournalDatabase>(
   (ref) => JournalDatabase.instance,
@@ -39,4 +40,8 @@ final bodyEntryServiceProvider = Provider<BodyEntryService>(
 
 final dataBackupServiceProvider = Provider<DataBackupService>(
   (ref) => DataBackupService(ref.watch(journalDatabaseProvider)),
+);
+
+final weeklyPlanServiceProvider = Provider<WeeklyPlanService>(
+  (ref) => WeeklyPlanService(ref.watch(journalDatabaseProvider)),
 );

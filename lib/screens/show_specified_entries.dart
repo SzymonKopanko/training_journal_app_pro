@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../constants/app_constants.dart';
 import '../l10n/app_localizations.dart';
+import '../theme/app_spacing.dart';
 import '../models/entry.dart';
 import '../models/exercise.dart';
 import '../models/set.dart';
 import '../services/entry_service.dart';
 import '../services/journal_database.dart';
 import '../services/set_service.dart';
+import '../theme/app_spacing.dart';
+import '../widgets/app_bar_add_action.dart';
+import '../widgets/app_card_action_row.dart';
+import '../widgets/app_card_icon_button.dart';
+import '../widgets/app_list_card.dart';
 import 'add_specified_entry.dart';
 import 'chart_screen.dart';
 import 'edit_entry.dart';
@@ -19,7 +24,7 @@ class ShowSpecifiedEntries extends StatefulWidget {
   const ShowSpecifiedEntries({super.key, required this.chosenExercise});
 
   @override
-  _ShowSpecifiedEntriesState createState() => _ShowSpecifiedEntriesState();
+  State<ShowSpecifiedEntries> createState() => _ShowSpecifiedEntriesState();
 }
 
 class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
@@ -61,15 +66,14 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
     }
   }
 
-  void _deleteEntry(BuildContext context, int index) async {
+  void _deleteEntry(int index) async {
     final l10n = AppLocalizations.of(context);
     final entryToDelete = _allEntries[index];
     await EntryService(JournalDatabase.instance).deleteEntry(entryToDelete.id!);
+    if (!mounted) return;
     _loadData();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.entryDeleted),
-      ),
+      SnackBar(content: Text(l10n.entryDeleted)),
     );
   }
 
@@ -97,6 +101,8 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.entriesHistoryTitle(widget.chosenExercise.name)),
@@ -107,22 +113,18 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
               icon: const Icon(Icons.show_chart),
               tooltip: l10n.showChart,
             ),
-          IconButton(
-            onPressed: _openAddEntry,
-            icon: const Icon(Icons.add),
+          AppBarAddAction(
             tooltip: l10n.tooltipAddEntry,
+            onPressed: _openAddEntry,
           ),
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(AppSizing.padding2),
+        padding: AppSpacing.screen,
         child: Column(
           children: [
             if (_allEntries.isEmpty)
-              Expanded(
-                  child: Center(
-                child: Text(l10n.entriesEmpty),
-              ))
+              Expanded(child: Center(child: Text(l10n.entriesEmpty)))
             else
               Expanded(
                 child: ListView.builder(
@@ -130,142 +132,77 @@ class _ShowSpecifiedEntriesState extends State<ShowSpecifiedEntries> {
                   itemBuilder: (context, index) {
                     final entry = _allEntries[index];
                     final sets = _allSets[index];
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSizing.padding3),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              DateFormat('EEEE, dd.MM.yyyy, HH:mm')
-                                  .format(entry.date),
-                              style: const TextStyle(
-                                  fontSize: AppSizing.fontSize3,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              width: double.infinity,
-                              child: DataTable(
-                                headingRowHeight: AppSizing.headingRowH,
-                                dataRowMaxHeight: AppSizing.dataRowMaxH,
-                                dataRowMinHeight: AppSizing.dataRowMinH,
-                                horizontalMargin: AppSizing.padding5,
-                                columnSpacing: AppSizing.dataRowSpace,
-                                columns: [
-                                  DataColumn(label: Text(l10n.setsWord)),
-                                  DataColumn(label: Text(l10n.repsWord)),
-                                  DataColumn(label: Text(l10n.weightWord)),
-                                  DataColumn(label: Text(l10n.rirWord)),
-                                  DataColumn(label: Text(l10n.oneRmWord)),
-                                ],
-                                rows: [
-                                  for (int i = 0; i < sets.length; i++)
-                                    DataRow(
-                                      cells: [
-                                        DataCell(
-                                          RichText(
-                                            text: TextSpan(
-                                              text: (i + 1).toString(),
-                                              style:
-                                                  DefaultTextStyle.of(context)
-                                                      .style,
-                                              children: const <TextSpan>[
-                                                TextSpan(
-                                                  text: '.',
-                                                  style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        DataCell(
-                                          Text(sets[i].reps.toString()),
-                                        ),
-                                        DataCell(
-                                          Text(
-                                            sets[i].weight.toStringAsFixed(2),
-                                          ),
-                                        ),
-                                        DataCell(
-                                          Text(
-                                            sets[i].rir == -1
-                                                ? '?'
-                                                : sets[i].rir.toString(),
-                                          ),
-                                        ),
-                                        DataCell(
-                                          Text(
-                                            sets[i].oneRM.toStringAsFixed(2),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                ],
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Tooltip(
-                                    message: l10n.tooltipEditEntry,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                EditEntryScreen(
-                                              entryId: _allEntries[index].id!,
-                                            ),
-                                          ),
-                                        ).then((_) {
-                                          _loadData();
-                                        });
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            MediaQuery.platformBrightnessOf(
-                                                        super.context) ==
-                                                    Brightness.light
-                                                ? AppColors.brightButt
-                                                : AppColors.darkButt,
-                                      ),
-                                      child: const Icon(Icons.edit),
-                                    ),
+                    return AppListCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            DateFormat('EEEE, dd.MM.yyyy, HH:mm')
+                                .format(entry.date),
+                            style: textTheme.titleMedium,
+                          ),
+                          AppSpacing.gapSm,
+                          SizedBox(
+                            width: double.infinity,
+                            child: DataTable(
+                              headingRowHeight: AppSpacing.dtHeadingRowH,
+                              dataRowMaxHeight: AppSpacing.dtDataRowMaxH,
+                              dataRowMinHeight: AppSpacing.dtDataRowMinH,
+                              horizontalMargin: AppSpacing.dtHorizontalMargin,
+                              columnSpacing: AppSpacing.dtColumnSpacing,
+                              columns: [
+                                DataColumn(label: Text(l10n.setsWord)),
+                                DataColumn(label: Text(l10n.repsWord)),
+                                DataColumn(label: Text(l10n.weightWord)),
+                                DataColumn(label: Text(l10n.rirWord)),
+                                DataColumn(label: Text(l10n.oneRmWord)),
+                              ],
+                              rows: [
+                                for (int i = 0; i < sets.length; i++)
+                                  DataRow(
+                                    cells: [
+                                      DataCell(Text('${i + 1}.')),
+                                      DataCell(Text(sets[i].reps.toString())),
+                                      DataCell(Text(
+                                          sets[i].weight.toStringAsFixed(2))),
+                                      DataCell(Text(
+                                        sets[i].rir == -1
+                                            ? '?'
+                                            : sets[i].rir.toString(),
+                                      )),
+                                      DataCell(Text(
+                                          sets[i].oneRM.toStringAsFixed(2))),
+                                    ],
                                   ),
-                                ),
-                                const SizedBox(width: AppSizing.padding2),
-                                Expanded(
-                                  child: Tooltip(
-                                    message: l10n.tooltipDeleteEntry,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        _deleteEntry(context, index);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            Theme.of(context).brightness !=
-                                                    Brightness.light
-                                                ? AppColors.darkErrButt
-                                                : AppColors.brightErrButt,
-                                      ),
-                                      child: Icon(Icons.delete,
-                                          color:
-                                              MediaQuery.platformBrightnessOf(
-                                                          super.context) !=
-                                                      Brightness.light
-                                                  ? AppColors.darkErrTxt
-                                                  : AppColors.brightErrTxt),
-                                    ),
-                                  ),
-                                ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                          AppSpacing.gapSm,
+                          AppCardActionRow(
+                            children: [
+                              AppCardIconButton(
+                                icon: Icons.edit,
+                                tooltip: l10n.tooltipEditEntry,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EditEntryScreen(
+                                        entryId: _allEntries[index].id!,
+                                      ),
+                                    ),
+                                  ).then((_) => _loadData());
+                                },
+                              ),
+                              AppCardIconButton(
+                                icon: Icons.delete,
+                                tooltip: l10n.tooltipDeleteEntry,
+                                destructive: true,
+                                onPressed: () => _deleteEntry(index),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   },

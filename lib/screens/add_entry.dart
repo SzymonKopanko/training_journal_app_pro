@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:training_journal_app/services/body_entry_service.dart';
 import 'package:training_journal_app/services/journal_database.dart';
-import '../constants/app_constants.dart';
+import '../theme/app_spacing.dart';
 import '../l10n/app_localizations.dart';
 import '../models/entry.dart';
 import '../models/set.dart';
@@ -334,13 +334,13 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 children: [
                   Text(
                     '${selectedMinutes.toString().padLeft(2, '0')}:${selectedSeconds.toString().padLeft(2, '0')}',
-                    style: const TextStyle(fontSize: AppSizing.fontSize2),
+                    style: const TextStyle(fontSize: 20),
                   ),
                   const SizedBox(height: 20),
                   Column(
                     children: [
                       Text(l10n.restMinutes(selectedMinutes),
-                          style: const TextStyle(fontSize: AppSizing.fontSize2)),
+                          style: const TextStyle(fontSize: 20)),
                       Slider(
                         value: selectedMinutes.toDouble(),
                         min: 0,
@@ -358,7 +358,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                   Column(
                     children: [
                       Text(l10n.restSeconds(selectedSeconds),
-                          style: const TextStyle(fontSize: AppSizing.fontSize2)),
+                          style: const TextStyle(fontSize: 20)),
                       Slider(
                         value: selectedSeconds.toDouble(),
                         min: 0,
@@ -455,14 +455,14 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             widget.chosenTrainingWithExercises.training.name)),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(AppSizing.padding2),
+        padding: AppSpacing.screen,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if(exerciseNotes.isNotEmpty)
               Text(l10n.labelNotes(exerciseNotes),
                 style: const TextStyle(
-                  fontSize: AppSizing.fontSize2,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),),
             DropdownButtonFormField<String>(
@@ -507,7 +507,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                             : null,
                       ),
                     )),
-                const SizedBox(width: AppSizing.padding2),
+                AppSpacing.gapMd,
                 ElevatedButton(
                   onPressed: () {
                     if (_isTimerRunning) {
@@ -520,7 +520,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                     _isTimerRunning ? Icons.pause : Icons.play_arrow,  // Pauza i play
                   ),
                 ),
-                const SizedBox(width: AppSizing.padding2),
+                AppSpacing.gapMd,
                 // Timer Button
                 Column(
                   children: [
@@ -537,7 +537,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                           }
                         });
                       },
-                      child: Text(style: const TextStyle(fontSize: AppSizing.fontSize3,
+                      child: Text(style: const TextStyle(fontSize: 18,
                         fontFamily: 'DSEG7'),
                           _timerDisplay),
                     )
@@ -545,16 +545,16 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             Center(
                 child: Row(children: [
-                  const SizedBox(width: AppSizing.boxSize1),
+                  SizedBox(width: AppSpacing.setColNumber),
                   Expanded(child: Text(l10n.repsWord)),
-                  const SizedBox(width: AppSizing.boxSize2),
+                  SizedBox(width: AppSpacing.setColReps),
                   Expanded(child: Text(l10n.weightWord)),
-                  const SizedBox(width: AppSizing.boxSize3),
+                  SizedBox(width: AppSpacing.setColWeight),
                   Expanded(child: Text(l10n.rirWord)),
-                  const SizedBox(width: AppSizing.boxSize4)
+                  SizedBox(width: AppSpacing.setColRir)
             ])),
             Expanded(
               child: Scrollbar(
@@ -595,10 +595,10 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                       children: [
                         Text(
                           '${index + 1}.',
-                          style: const TextStyle(fontSize: AppSizing.fontSize2),
+                          style: const TextStyle(fontSize: 20),
                         ),
-                        if (index < 9) const SizedBox(width: AppSizing.padding2),
-                        if (index >= 9) const SizedBox(width: AppSizing.padding6),
+                        if (index < 9) AppSpacing.gapMd,
+                        if (index >= 9) SizedBox(width: AppSpacing.xs + 1),
                         Expanded(
                           child: TextFormField(
                             controller: repsController,
@@ -609,7 +609,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: AppSizing.padding2),
+                        AppSpacing.gapMd,
                         Expanded(
                           child: TextFormField(
                             controller: weightsController,
@@ -620,7 +620,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: AppSizing.padding2),
+                        AppSpacing.gapMd,
                         Expanded(
                           child: TextFormField(
                             controller: rirController,
@@ -647,7 +647,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             Visibility(
               visible: _lastEntries.isNotEmpty,
               child: Center(
@@ -659,7 +659,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             ),
             Visibility(
               visible: _lastEntries.isNotEmpty,
-              child: const SizedBox(height: AppSizing.padding4),
+              child: AppSpacing.gapSm,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

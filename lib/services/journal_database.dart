@@ -12,6 +12,8 @@ import '../models/exercise_body_part_relation.dart';
 import '../models/exercise_training_relation.dart';
 import '../models/set.dart';
 import '../models/training.dart';
+import '../models/training_weekly_plan_relation.dart';
+import '../models/weekly_plan.dart';
 
 class JournalDatabase {
   static final JournalDatabase instance = JournalDatabase._init();
@@ -46,7 +48,7 @@ class JournalDatabase {
     );
   }
 
-  static const int _databaseVersion = 2;
+  static const int _databaseVersion = 3;
 
   Future<void> _onConfigure(Database db) async {
     // Wymuszamy klucze obce przy każdym otwarciu bazy (nie tylko przy tworzeniu).
@@ -57,6 +59,9 @@ class JournalDatabase {
     // Migracje addytywne, uruchamiane kolejno w zależności od wersji startowej.
     if (oldVersion < 2) {
       await _migrateToV2(db);
+    }
+    if (oldVersion < 3) {
+      await _migrateToV3(db);
     }
   }
 
@@ -80,6 +85,31 @@ class JournalDatabase {
     ''');
     await db.execute('DROP TABLE $body_entries');
     await db.execute('ALTER TABLE ${body_entries}_new RENAME TO $body_entries');
+  }
+
+  Future<void> _migrateToV3(Database db) async {
+    await db.execute('''
+      CREATE TABLE $weekly_plans (
+      ${WeeklyPlanFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
+      ${WeeklyPlanFields.name} TEXT NOT NULL UNIQUE
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE $training_weekly_plan_relations (
+      ${TrainingWeeklyPlanRelationFields.id} INTEGER PRIMARY KEY AUTOINCREMENT,
+      ${TrainingWeeklyPlanRelationFields.weeklyPlanId} INTEGER NOT NULL,
+      ${TrainingWeeklyPlanRelationFields.trainingId} INTEGER NOT NULL,
+      ${TrainingWeeklyPlanRelationFields.dayOfWeek} INTEGER NOT NULL,
+      FOREIGN KEY (${TrainingWeeklyPlanRelationFields.weeklyPlanId})
+        REFERENCES $weekly_plans(${WeeklyPlanFields.id})
+          ON DELETE CASCADE,
+      FOREIGN KEY (${TrainingWeeklyPlanRelationFields.trainingId})
+        REFERENCES $trainings(${TrainingFields.id})
+          ON DELETE CASCADE,
+      UNIQUE (${TrainingWeeklyPlanRelationFields.weeklyPlanId},
+              ${TrainingWeeklyPlanRelationFields.dayOfWeek})
+      )
+    ''');
   }
 
   Future<void> printPath() async {
@@ -209,6 +239,30 @@ class JournalDatabase {
       FOREIGN KEY (${SetFields.exerciseId})
         REFERENCES $exercises(${ExerciseFields.id})
         ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE $weekly_plans (
+      ${WeeklyPlanFields.id} $idType,
+      ${WeeklyPlanFields.name} $textTypeNotNull UNIQUE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE $training_weekly_plan_relations (
+      ${TrainingWeeklyPlanRelationFields.id} $idType,
+      ${TrainingWeeklyPlanRelationFields.weeklyPlanId} $integerTypeNotNull,
+      ${TrainingWeeklyPlanRelationFields.trainingId} $integerTypeNotNull,
+      ${TrainingWeeklyPlanRelationFields.dayOfWeek} $integerTypeNotNull,
+      FOREIGN KEY (${TrainingWeeklyPlanRelationFields.weeklyPlanId})
+        REFERENCES $weekly_plans(${WeeklyPlanFields.id})
+          ON DELETE CASCADE,
+      FOREIGN KEY (${TrainingWeeklyPlanRelationFields.trainingId})
+        REFERENCES $trainings(${TrainingFields.id})
+          ON DELETE CASCADE,
+      UNIQUE (${TrainingWeeklyPlanRelationFields.weeklyPlanId},
+              ${TrainingWeeklyPlanRelationFields.dayOfWeek})
       )
     ''');
   }

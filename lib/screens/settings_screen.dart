@@ -9,8 +9,12 @@ import '../l10n/app_localizations.dart';
 import '../providers/body_entries_provider.dart';
 import '../providers/database_providers.dart';
 import '../providers/exercises_provider.dart';
+import '../providers/notifications_provider.dart';
 import '../providers/settings_controller.dart';
 import '../providers/trainings_provider.dart';
+import '../providers/weekly_plans_provider.dart';
+import '../theme/app_spacing.dart';
+import 'show_weekly_plans.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -23,6 +27,7 @@ class SettingsScreen extends ConsumerWidget {
         title: Text(l10n.settingsTitle),
       ),
       body: ListView(
+        padding: AppSpacing.screen,
         children: [
           ListTile(
             leading: const Icon(Icons.fitness_center),
@@ -56,6 +61,20 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: Text(l10n.settingsThemeDescription),
             onTap: () {
               _changeTheme(context, ref, l10n);
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.calendar_month),
+            title: Text(l10n.settingsWeeklyPlans),
+            subtitle: Text(l10n.settingsWeeklyPlansDescription),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ShowWeeklyPlansScreen(),
+                ),
+              );
             },
           ),
           const Divider(),
@@ -299,6 +318,8 @@ class SettingsScreen extends ConsumerWidget {
       ref.invalidate(exercisesProvider);
       ref.invalidate(trainingsProvider);
       ref.invalidate(bodyEntriesProvider);
+      ref.invalidate(notificationsProvider);
+      ref.invalidate(weeklyPlansProvider);
       if (!context.mounted) return;
       messenger.showSnackBar(SnackBar(content: Text(l10n.settingsImportDone)));
     } catch (_) {
@@ -314,6 +335,8 @@ class SettingsScreen extends ConsumerWidget {
     ref.invalidate(exercisesProvider);
     ref.invalidate(trainingsProvider);
     ref.invalidate(bodyEntriesProvider);
+    ref.invalidate(notificationsProvider);
+    ref.invalidate(weeklyPlansProvider);
     messenger.showSnackBar(SnackBar(
       content: Text(l10n.settingsDeleteAllDone),
     ));

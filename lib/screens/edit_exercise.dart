@@ -4,7 +4,7 @@ import 'package:training_journal_app/services/body_part_service.dart';
 import 'package:training_journal_app/services/exercise_service.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 
-import '../constants/app_constants.dart';
+import '../theme/app_spacing.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/l10n_helpers.dart';
 import '../models/body_part.dart';
@@ -133,7 +133,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                 children: [
                   Text(
                     '${selectedMinutes.toString().padLeft(2, '0')}:${selectedSeconds.toString().padLeft(2, '0')}',
-                    style: const TextStyle(fontSize: AppSizing.fontSize2),
+                    style: const TextStyle(fontSize: 20),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
@@ -141,7 +141,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                     children: [
                       Text(
                         l10n.restMinutes(selectedMinutes),
-                        style: const TextStyle(fontSize: AppSizing.fontSize2),
+                        style: const TextStyle(fontSize: 20),
                         textAlign: TextAlign.center,
                       ),
                       Slider(
@@ -162,7 +162,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                     children: [
                       Text(
                         l10n.restSeconds(selectedSeconds),
-                        style: const TextStyle(fontSize: AppSizing.fontSize2),
+                        style: const TextStyle(fontSize: 20),
                         textAlign: TextAlign.center,
                       ),
                       Slider(
@@ -221,7 +221,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                 children: [
                   Text(
                     '$selectedPercentage%',
-                    style: const TextStyle(fontSize: AppSizing.fontSize2),
+                    style: const TextStyle(fontSize: 20),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
@@ -275,7 +275,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
         title: Text(l10n.exercisesEditTitle(widget.chosenExercise.name)),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(AppSizing.padding2),
+        padding: AppSpacing.screen,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -287,11 +287,11 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
               controller: notesController,
               decoration: InputDecoration(labelText: l10n.notesLabel),
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             Row(
               children: [
                 Text(l10n.defaultRestTimeLabel),
-                const SizedBox(width: AppSizing.padding2),
+                AppSpacing.gapMd,
                 ElevatedButton(
                   onPressed: () {
                     _showTimePickerDialog(context).then((duration) {
@@ -306,7 +306,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                   },
                   child: Text(
                     style: const TextStyle(
-                      fontSize: AppSizing.fontSize3,
+                      fontSize: 18,
                       fontFamily: 'DSEG7',
                     ),
                     _restTimeDisplay,
@@ -314,11 +314,11 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             Row(
               children: [
                 Text(l10n.bodyweightLiftedLabel),
-                const SizedBox(width: AppSizing.padding2),
+                AppSpacing.gapMd,
                 ElevatedButton(
                   onPressed: () {
                     _showBodyweightPercentageDialog(context).then((percentage) {
@@ -332,7 +332,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                   },
                   child: Text(
                     style: const TextStyle(
-                      fontSize: AppSizing.fontSize3,
+                      fontSize: 18,
                       fontFamily: 'DSEG7',
                     ),
                     _bodyweightDisplay,
@@ -340,7 +340,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             Text(l10n.selectedBodyParts),
             Expanded(
               child: ListView.builder(
@@ -362,7 +362,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                 },
               ),
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             Text(l10n.availableBodyParts),
             Expanded(
               child: ListView.builder(
@@ -384,7 +384,7 @@ class _EditExerciseScreenState extends State<EditExerciseScreen> {
                 },
               ),
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             ElevatedButton(
               onPressed: _updateExerciseToDatabase,
               child: Text(l10n.exercisesEdit),

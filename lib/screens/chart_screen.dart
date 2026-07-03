@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 import 'package:training_journal_app/services/set_service.dart';
 import '../l10n/app_localizations.dart';
+import '../theme/chart_style.dart';
 import '../models/set.dart';
 import '../models/exercise.dart';
 import '../services/entry_service.dart';
@@ -75,8 +76,8 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
               _createData(),
               animate: true,
               dateTimeFactory: const charts.LocalDateTimeFactory(),
-              primaryMeasureAxis: createNumericAxis(),
-              domainAxis: createDateTimeAxis(),
+              primaryMeasureAxis: createNumericAxis(context),
+              domainAxis: createDateTimeAxis(context),
               defaultRenderer: charts.LineRendererConfig(
                 customRendererId: 'customPoint',
                 includePoints: true,
@@ -174,28 +175,20 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
     return (difference / 8).ceil();
   }
   
-  charts.DateTimeAxisSpec createDateTimeAxis() {
+  charts.DateTimeAxisSpec createDateTimeAxis(BuildContext context) {
     int increment = calculateDayIncrement(data[0].date, data[data.length-1].date);
     return  charts.DateTimeAxisSpec(
       tickProviderSpec: charts.DayTickProviderSpec(increments: [increment]),
       renderSpec: charts.SmallTickRendererSpec(
-        labelStyle: const charts.TextStyleSpec(
-          fontSize: 12,
-        ),
-        lineStyle: charts.LineStyleSpec(
-          thickness: 1,
-          color: charts.MaterialPalette.gray.shade800,
-        ),
+        labelStyle: ChartStyle.axisLabelStyle(context),
+        lineStyle: ChartStyle.gridLineStyle(context),
         tickLengthPx: 3,
-        axisLineStyle: charts.LineStyleSpec(
-          thickness: 1,
-          color: charts.MaterialPalette.gray.shade400,
-        ),
+        axisLineStyle: ChartStyle.axisLineStyle(context),
       ),
     );
   }
 
-  charts.NumericAxisSpec createNumericAxis() {
+  charts.NumericAxisSpec createNumericAxis(BuildContext context) {
     return charts.NumericAxisSpec(
       tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
             (num? value) {
@@ -203,18 +196,10 @@ class _ExerciseChartScreenState extends State<ExerciseChartScreen> {
         },
       ),
       renderSpec:  charts.GridlineRendererSpec(
-        labelStyle: const charts.TextStyleSpec(
-          fontSize: 12,
-        ),
-        lineStyle: charts.LineStyleSpec(
-          thickness: 0, // Grubość linii osi Y
-          color: charts.MaterialPalette.gray.shade800,
-        ),
+        labelStyle: ChartStyle.axisLabelStyle(context),
+        lineStyle: ChartStyle.gridLineStyle(context),
         tickLengthPx: 3,
-        axisLineStyle: charts.LineStyleSpec(
-          thickness: 1, // Grubość linii osi X
-          color: charts.MaterialPalette.gray.shade400,
-        ),
+        axisLineStyle: ChartStyle.axisLineStyle(context),
       ),
       showAxisLine: true
     );

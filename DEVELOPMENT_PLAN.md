@@ -20,6 +20,14 @@ co przenieść do wersji Flutter (aplikacja docelowa) z wersji React Native
 > - C5 (częściowo): usunięto `duration_picker`, debug `print` w DB/seed, ujednolicono `Glute` w seedzie.
 > - Weryfikacja: `flutter pub get`, `gen-l10n`, `flutter analyze`, uruchomienie na urządzeniu Android.
 >
+> **Postęp — Design system UI — [ZROBIONE]:** spójny motyw Material 3, siatka odstępów, współdzielone widgety list.
+> - `app_theme.dart`, `app_spacing.dart`, `chart_style.dart` — ColorScheme, typografia, osie wykresów reagujące na motyw.
+> - Widgety: `AppListCard`, `AppCardIconButton`, `AppCardActionRow`, `AppSearchField`, `AppBarAddAction`, `AppScreenBody`.
+> - Zmigrowane wszystkie ekrany list + formularze + wykresy (usunięte `AppColors.bright*` / `MediaQuery.platformBrightnessOf`).
+>
+> **Postęp — B3 Riverpod (ciąg dalszy) — [W TOKU]:** dodano `notifications_provider`; `show_notifications` na Riverpod.
+> - Do zrobienia: provider wpisów (`show_specified_entries`), formularze wpisów.
+>
 > **Następna faza (Faza 3):** C4 plany tygodniowe, B4 role grup mięśniowych.
 
 ---
@@ -66,7 +74,7 @@ Do zrobienia:
 - Podpiąć przełącznik w Settings (wzór 3-opcyjny jak w RN).
 - Owinąć `MaterialApp` reaktywnym stanem motywu (patrz B3 — state management).
 
-### B3. Architektura: state management + reaktywność — priorytet wysoki (fundament) — **[W TOKU]** (fundament + listy główne; pozostałe ekrany nadal wołają serwisy bezpośrednio)
+### B3. Architektura: state management + reaktywność — priorytet wysoki (fundament) — **[W TOKU]** (fundament + listy główne + powiadomienia; formularze wpisów nadal wołają serwisy bezpośrednio)
 
 Flutter woła serwisy bezpośrednio z ekranów przez `setState`, bez globalnego stanu
 i bez reaktywności między ekranami. RN pokazuje wzorzec: konteksty + custom hooki + fasada serwisów.
@@ -136,14 +144,15 @@ Mechanizm migracji jest wdrożony i zweryfikowany w `journal_database.dart`:
 Do zrobienia przy kolejnych zmianach schematu (B4 `role`, C4 plany tygodniowe):
 dopisać `if (oldVersion < 3) ...` z addytywnymi `ALTER TABLE`.
 
-### C4. Plany tygodniowe — priorytet średni (planowane w obu, w żadnej nie zrobione) — **[DO ZROBIENIA]**
+### C4. Plany tygodniowe — priorytet średni — **[W TOKU]** (schemat DB v3, serwis, ekrany listy/edycji; integracja z powiadomieniami — do zrobienia)
 
 Z dokumentu `baza danych trening.txt`: brakuje `weekly_plans`
 i `trainings_to_weekly_plan_relation`.
 
-- Dodać tabele (przez migrację z C3).
-- Ekran tworzenia planu tygodniowego (przypisanie treningów do dni).
-- Integracja z powiadomieniami (spięcie planu tygodniowego z recurring notifications).
+- **[ZROBIONE]** `_databaseVersion = 3`, tabele `weekly_plans` + `training_weekly_plan_relations`.
+- **[ZROBIONE]** `WeeklyPlanService`, `weekly_plans_provider`, ekrany `show_weekly_plans` + `weekly_plan_form_screen` (Settings → Plany tygodniowe).
+- **[ZROBIONE]** Export/import JSON v3 (nowe tabele opcjonalne przy imporcie v2).
+- Do zrobienia: spięcie planu z powiadomieniami (auto-generowanie recurring z harmonogramu).
 
 ### C5. Porządki — priorytet niski — **[DO ZROBIENIA]**
 

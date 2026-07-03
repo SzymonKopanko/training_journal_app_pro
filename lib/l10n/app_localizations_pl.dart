@@ -570,6 +570,60 @@ class AppLocalizationsPl extends AppLocalizations {
   String get notificationsAdd => 'Dodaj powiadomienie';
 
   @override
+  String get notificationsLoadError => 'Błąd ładowania powiadomień.';
+
+  @override
+  String get weeklyPlansTitle => 'Plany tygodniowe';
+
+  @override
+  String get weeklyPlansAdd => 'Dodaj plan tygodniowy';
+
+  @override
+  String get weeklyPlansEmpty => 'Brak planów tygodniowych.';
+
+  @override
+  String get weeklyPlansLoadError => 'Błąd ładowania planów tygodniowych.';
+
+  @override
+  String get weeklyPlanNameLabel => 'Nazwa planu';
+
+  @override
+  String get weeklyPlanNameEmpty => 'Podaj nazwę planu.';
+
+  @override
+  String get weeklyPlanNameTaken => 'Plan o tej nazwie już istnieje.';
+
+  @override
+  String get weeklyPlanSave => 'Zapisz plan';
+
+  @override
+  String get weeklyPlanEditTitle => 'Edytuj plan tygodniowy';
+
+  @override
+  String get weeklyPlanDeleteTitle => 'Usunąć plan tygodniowy?';
+
+  @override
+  String get weeklyPlanDeleteBody =>
+      'Plan i jego harmonogram zostaną usunięte.';
+
+  @override
+  String get weeklyPlanRestDay => 'Dzień wolny';
+
+  @override
+  String get weeklyPlanNoTrainings => 'Brak przypisanych treningów';
+
+  @override
+  String get weeklyPlanNoTrainingsAvailable =>
+      'Najpierw utwórz treningi, aby zbudować plan tygodniowy.';
+
+  @override
+  String get settingsWeeklyPlans => 'Plany tygodniowe';
+
+  @override
+  String get settingsWeeklyPlansDescription =>
+      'Przypisz treningi do dni tygodnia';
+
+  @override
   String notificationTraining(String name) {
     return 'Trening: $name';
   }

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:training_journal_app/constants/app_constants.dart';
 
 import '../l10n/app_localizations.dart';
 import '../providers/body_entries_provider.dart';
+import '../theme/app_spacing.dart';
+import '../widgets/app_bar_add_action.dart';
 import 'add_body_entry.dart';
 import 'body_entry_chart.dart';
 import 'edit_body_entry.dart';
@@ -49,10 +50,9 @@ class _ShowBodyEntriesScreenState extends ConsumerState<ShowBodyEntriesScreen> {
             icon: const Icon(Icons.show_chart),
             tooltip: l10n.chartWord,
           ),
-          IconButton(
-            onPressed: _openAddBodyEntry,
-            icon: const Icon(Icons.add),
+          AppBarAddAction(
             tooltip: l10n.bodyEntriesAddNew,
+            onPressed: _openAddBodyEntry,
           ),
         ],
       ),
@@ -64,14 +64,18 @@ class _ShowBodyEntriesScreenState extends ConsumerState<ShowBodyEntriesScreen> {
             return Center(child: Text(l10n.bodyEntriesEmpty));
           }
           return ListView.builder(
+            padding: AppSpacing.screen,
             itemCount: bodyEntries.length,
             itemBuilder: (context, index) {
               final bodyEntry = bodyEntries[index];
               final formattedDate =
                   DateFormat('yyyy-MM-dd HH:mm').format(bodyEntry.dateTime);
               return Card(
-                margin: const EdgeInsets.all(AppSizing.padding2),
                 child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.xs,
+                  ),
                   title: Text(l10n.weightKg(bodyEntry.weight.toString())),
                   subtitle: Text(l10n.labelDate(formattedDate)),
                   trailing: Row(
@@ -79,6 +83,7 @@ class _ShowBodyEntriesScreenState extends ConsumerState<ShowBodyEntriesScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit),
+                        tooltip: l10n.commonEdit,
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -92,6 +97,7 @@ class _ShowBodyEntriesScreenState extends ConsumerState<ShowBodyEntriesScreen> {
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete),
+                        tooltip: l10n.commonDelete,
                         onPressed: () {
                           showDialog(
                             context: context,
@@ -100,9 +106,8 @@ class _ShowBodyEntriesScreenState extends ConsumerState<ShowBodyEntriesScreen> {
                               content: Text(l10n.bodyEntryDeleteBody),
                               actions: [
                                 TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(),
                                   child: Text(l10n.commonCancel),
                                 ),
                                 TextButton(

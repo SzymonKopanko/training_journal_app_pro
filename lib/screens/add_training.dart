@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../constants/app_constants.dart';
+
 import '../l10n/app_localizations.dart';
+import '../theme/app_spacing.dart';
 import '../models/exercise.dart';
 import '../models/training.dart';
 import '../services/exercise_service.dart';
@@ -62,7 +63,7 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(AppSizing.padding2),
+            padding: AppSpacing.screen,
             child: TextField(
               controller: trainingNameController,
               decoration: InputDecoration(labelText: l10n.trainingNameLabel),
@@ -72,7 +73,7 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
               child: _buildSelectedExercisesList(),
           ),
             Padding(
-              padding: const EdgeInsets.all(AppSizing.padding2),
+              padding: AppSpacing.screen,
               child: TextFormField(
                 controller: searchBarController,
                 decoration: InputDecoration(
@@ -126,12 +127,9 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
                 final exercise = selectedExercises[index];
                 return Card(
                   key: ValueKey(exercise.id),
-                  color: MediaQuery.of(context).platformBrightness ==
-                          Brightness.light
-                      ? AppColors.brightButt
-                      : AppColors.darkButt,
+                  color: Theme.of(context).colorScheme.primaryContainer,
                   child: Padding(
-                    padding: const EdgeInsets.all(AppSizing.padding4),
+                    padding: AppSpacing.card,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -171,12 +169,8 @@ class _AddTrainingScreenState extends State<AddTrainingScreen> {
           itemBuilder: (context, index) {
             final exercise = filteredExercises[index];
             return Card(
-              color: MediaQuery.platformBrightnessOf(super.context) ==
-                      Brightness.light
-                  ? AppColors.brightButt
-                  : AppColors.darkButt,
               child: Padding(
-                padding: const EdgeInsets.all(AppSizing.padding4),
+                padding: AppSpacing.card,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

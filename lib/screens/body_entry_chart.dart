@@ -8,6 +8,7 @@ import 'package:training_journal_app/services/body_entry_service.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 
 import '../l10n/app_localizations.dart';
+import '../theme/chart_style.dart';
 
 class BodyEntryChartScreen extends StatefulWidget {
   const BodyEntryChartScreen({super.key});
@@ -65,8 +66,8 @@ class _BodyEntryChartScreenState extends State<BodyEntryChartScreen> {
               _createData(),
               animate: true,
               dateTimeFactory: const charts.LocalDateTimeFactory(),
-              primaryMeasureAxis: createNumericAxis(),
-              domainAxis: createDateTimeAxis(),
+              primaryMeasureAxis: createNumericAxis(context),
+              domainAxis: createDateTimeAxis(context),
               defaultRenderer: charts.LineRendererConfig(
                 customRendererId: 'customPoint',
                 includePoints: true,
@@ -159,23 +160,15 @@ class _BodyEntryChartScreenState extends State<BodyEntryChartScreen> {
     return (difference / 8).ceil();
   }
 
-  charts.DateTimeAxisSpec createDateTimeAxis() {
+  charts.DateTimeAxisSpec createDateTimeAxis(BuildContext context) {
     if (data.isEmpty) {
       return charts.DateTimeAxisSpec(
         tickProviderSpec: const charts.DayTickProviderSpec(increments: [1]),
         renderSpec: charts.SmallTickRendererSpec(
-          labelStyle: const charts.TextStyleSpec(
-            fontSize: 12,
-          ),
-          lineStyle: charts.LineStyleSpec(
-            thickness: 1,
-            color: charts.MaterialPalette.gray.shade800,
-          ),
+          labelStyle: ChartStyle.axisLabelStyle(context),
+          lineStyle: ChartStyle.gridLineStyle(context),
           tickLengthPx: 3,
-          axisLineStyle: charts.LineStyleSpec(
-            thickness: 1,
-            color: charts.MaterialPalette.gray.shade400,
-          ),
+          axisLineStyle: ChartStyle.axisLineStyle(context),
         ),
       );
     }
@@ -184,23 +177,15 @@ class _BodyEntryChartScreenState extends State<BodyEntryChartScreen> {
     return charts.DateTimeAxisSpec(
       tickProviderSpec: charts.DayTickProviderSpec(increments: [increment]),
       renderSpec: charts.SmallTickRendererSpec(
-        labelStyle: const charts.TextStyleSpec(
-          fontSize: 12,
-        ),
-        lineStyle: charts.LineStyleSpec(
-          thickness: 1,
-          color: charts.MaterialPalette.gray.shade800,
-        ),
+        labelStyle: ChartStyle.axisLabelStyle(context),
+        lineStyle: ChartStyle.gridLineStyle(context),
         tickLengthPx: 3,
-        axisLineStyle: charts.LineStyleSpec(
-          thickness: 1,
-          color: charts.MaterialPalette.gray.shade400,
-        ),
+        axisLineStyle: ChartStyle.axisLineStyle(context),
       ),
     );
   }
 
-  charts.NumericAxisSpec createNumericAxis() {
+  charts.NumericAxisSpec createNumericAxis(BuildContext context) {
     return charts.NumericAxisSpec(
       tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
         (num? value) {
@@ -208,18 +193,10 @@ class _BodyEntryChartScreenState extends State<BodyEntryChartScreen> {
         },
       ),
       renderSpec: charts.GridlineRendererSpec(
-        labelStyle: const charts.TextStyleSpec(
-          fontSize: 12,
-        ),
-        lineStyle: charts.LineStyleSpec(
-          thickness: 0,
-          color: charts.MaterialPalette.gray.shade800,
-        ),
+        labelStyle: ChartStyle.axisLabelStyle(context),
+        lineStyle: ChartStyle.gridLineStyle(context),
         tickLengthPx: 3,
-        axisLineStyle: charts.LineStyleSpec(
-          thickness: 1,
-          color: charts.MaterialPalette.gray.shade400,
-        ),
+        axisLineStyle: ChartStyle.axisLineStyle(context),
       ),
       showAxisLine: true,
     );

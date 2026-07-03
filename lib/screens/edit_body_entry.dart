@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:training_journal_app/models/body_entry.dart';
 import 'package:training_journal_app/services/body_entry_service.dart';
-import 'package:training_journal_app/constants/app_constants.dart';
 import 'package:training_journal_app/services/journal_database.dart';
 
 import '../l10n/app_localizations.dart';
+import '../theme/app_spacing.dart';
+import '../widgets/app_screen_body.dart';
 
 class EditBodyEntryScreen extends StatefulWidget {
   final BodyEntry bodyEntry;
 
-  const EditBodyEntryScreen({Key? key, required this.bodyEntry}) : super(key: key);
+  const EditBodyEntryScreen({super.key, required this.bodyEntry});
 
   @override
-  _EditBodyEntryScreenState createState() => _EditBodyEntryScreenState();
+  State<EditBodyEntryScreen> createState() => _EditBodyEntryScreenState();
 }
 
 class _EditBodyEntryScreenState extends State<EditBodyEntryScreen> {
   final TextEditingController _weightController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  final BodyEntryService _bodyEntryService = BodyEntryService(JournalDatabase.instance);
+  final BodyEntryService _bodyEntryService =
+      BodyEntryService(JournalDatabase.instance);
 
   @override
   void initState() {
@@ -26,13 +28,11 @@ class _EditBodyEntryScreenState extends State<EditBodyEntryScreen> {
     _loadBodyEntryData();
   }
 
-  // Load existing body entry data to edit
   void _loadBodyEntryData() {
     _weightController.text = widget.bodyEntry.weight.toString();
     _selectedDate = widget.bodyEntry.dateTime;
   }
 
-  // Save the updated body entry to the database
   Future<void> _saveBodyEntry() async {
     final double weight = double.tryParse(_weightController.text) ?? 0.0;
 
@@ -45,14 +45,13 @@ class _EditBodyEntryScreenState extends State<EditBodyEntryScreen> {
 
       await _bodyEntryService.updateBodyEntry(updatedBodyEntry);
 
-      Navigator.pop(context); // Go back to the previous screen after saving
+      if (mounted) Navigator.pop(context);
     } else {
       final l10n = AppLocalizations.of(context);
       _showErrorDialog(l10n.invalidInputTitle, l10n.provideValidWeight);
     }
   }
 
-  // Show error dialog
   void _showErrorDialog(String title, String content) {
     final l10n = AppLocalizations.of(context);
     showDialog(
@@ -63,9 +62,7 @@ class _EditBodyEntryScreenState extends State<EditBodyEntryScreen> {
           content: Text(content),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: Text(l10n.commonOk),
             ),
           ],
@@ -74,7 +71,6 @@ class _EditBodyEntryScreenState extends State<EditBodyEntryScreen> {
     );
   }
 
-  // Show date picker to select a new date
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -95,11 +91,11 @@ class _EditBodyEntryScreenState extends State<EditBodyEntryScreen> {
     }
   }
 
-  // Show time picker to select a new time
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute),
+      initialTime:
+          TimeOfDay(hour: _selectedDate.hour, minute: _selectedDate.minute),
     );
     if (pickedTime != null) {
       setState(() {
@@ -117,12 +113,13 @@ class _EditBodyEntryScreenState extends State<EditBodyEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.bodyEntryEditTitle),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(AppSizing.padding2),
+      body: AppScreenBody(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -131,39 +128,39 @@ class _EditBodyEntryScreenState extends State<EditBodyEntryScreen> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: l10n.mainWeightKgLabel),
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             Row(
               children: [
                 Text(l10n.dateLabel),
-                const SizedBox(width: AppSizing.padding1),
+                AppSpacing.gapXl,
                 Text(
-                  "${_selectedDate.toLocal()}".split(' ')[0],
-                  style: const TextStyle(fontSize: AppSizing.fontSize2),
+                  '${_selectedDate.toLocal()}'.split(' ')[0],
+                  style: textTheme.titleLarge,
                 ),
-                const SizedBox(width: AppSizing.padding2),
+                AppSpacing.gapMd,
                 ElevatedButton(
                   onPressed: () => _selectDate(context),
                   child: Text(l10n.selectDate),
                 ),
               ],
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             Row(
               children: [
                 Text(l10n.timeLabel),
-                const SizedBox(width: AppSizing.padding1),
+                AppSpacing.gapXl,
                 Text(
-                  "${_selectedDate.toLocal().hour.toString().padLeft(2, '0')}:${_selectedDate.toLocal().minute.toString().padLeft(2, '0')}",
-                  style: const TextStyle(fontSize: AppSizing.fontSize2),
+                  '${_selectedDate.hour.toString().padLeft(2, '0')}:${_selectedDate.minute.toString().padLeft(2, '0')}',
+                  style: textTheme.titleLarge,
                 ),
-                const SizedBox(width: AppSizing.padding2),
+                AppSpacing.gapMd,
                 ElevatedButton(
                   onPressed: () => _selectTime(context),
                   child: Text(l10n.selectTime),
                 ),
               ],
             ),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             ElevatedButton(
               onPressed: _saveBodyEntry,
               child: Text(l10n.bodyEntrySave),

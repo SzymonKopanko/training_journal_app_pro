@@ -5,8 +5,9 @@ import 'package:training_journal_app/services/journal_database.dart';
 import 'package:training_journal_app/services/training_service.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-import '../constants/app_constants.dart';
 import '../l10n/app_localizations.dart';
+import '../theme/app_spacing.dart';
+import '../widgets/app_screen_body.dart';
 
 class AddNotificationScreen extends StatefulWidget {
   const AddNotificationScreen({super.key});
@@ -124,14 +125,14 @@ class _AddNotificationScreenState extends State<AddNotificationScreen> {
       appBar: AppBar(
         title: Text(l10n.notificationsAdd),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(AppSizing.padding2),
-        child: ListView(
+      body: AppScreenBody(
+        scrollable: true,
+        child: Column(
           children: [
             _buildTrainingDropdown(),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             _buildDayDropdown(),
-            const SizedBox(height: AppSizing.padding2),
+            AppSpacing.gapMd,
             _buildSaveButton(),
           ],
         ),

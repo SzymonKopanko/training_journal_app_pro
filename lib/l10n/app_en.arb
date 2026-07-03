@@ -284,6 +284,23 @@
 
   "notificationsTitle": "Notifications",
   "notificationsAdd": "Add Notification",
+  "notificationsLoadError": "Error loading notifications.",
+  "weeklyPlansTitle": "Weekly plans",
+  "weeklyPlansAdd": "Add weekly plan",
+  "weeklyPlansEmpty": "No weekly plans yet.",
+  "weeklyPlansLoadError": "Error loading weekly plans.",
+  "weeklyPlanNameLabel": "Plan name",
+  "weeklyPlanNameEmpty": "Enter a plan name.",
+  "weeklyPlanNameTaken": "A plan with this name already exists.",
+  "weeklyPlanSave": "Save plan",
+  "weeklyPlanEditTitle": "Edit weekly plan",
+  "weeklyPlanDeleteTitle": "Delete weekly plan?",
+  "weeklyPlanDeleteBody": "This will remove the plan and its schedule.",
+  "weeklyPlanRestDay": "Rest day",
+  "weeklyPlanNoTrainings": "No trainings assigned",
+  "weeklyPlanNoTrainingsAvailable": "Create trainings first to build a weekly plan.",
+  "settingsWeeklyPlans": "Weekly plans",
+  "settingsWeeklyPlansDescription": "Assign trainings to days of the week",
   "notificationTraining": "Training: {name}",
   "@notificationTraining": {
     "placeholders": { "name": { "type": "String" } }
